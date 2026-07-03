@@ -13,12 +13,16 @@ class DetailLayanan extends Model
         'jumlah_halaman', 
         'subtotal',
         'file_dokumen', 
-        'waktu_deadliine', 
+        'waktu_deadline', 
         'skor_prioritas', 
         'status_antrean',
     ];
 
     public function layanan() {
         return $this->belongsTo(Layanan::class);
+    }
+
+    public function Transaksi() {
+        return $this->belongsTo(Transaksi::class);
     }
 }

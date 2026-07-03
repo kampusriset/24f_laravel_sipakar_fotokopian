@@ -14,7 +14,7 @@ class Transaksi extends Model
     ];
 
     public function pelanggan() {
-        return $this->pelangganTo(Pelanggan::class);
+        return $this->belongsTo(Pelanggan::class);
     }
 
     public function operator() {

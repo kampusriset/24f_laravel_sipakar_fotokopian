@@ -23,7 +23,6 @@ return new class extends Migration
             $table->timestamp('waktu_deadline')->nullable();
             $table->float('skor_prioritas')->nullable(); // Output dari rumus Fuzzy Tsukamoto
             $table->string('status_antrean', 20)->default('Menunggu'); 
-            
             $table->timestamps();
         });
     }

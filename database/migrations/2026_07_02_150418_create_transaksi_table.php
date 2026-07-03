@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('transaksi', function (Blueprint $table) {
             $table->id();
-            // Relasi Foreign Key
             $table->foreignId('pelanggan_id')->constrained('pelanggan')->onDelete('cascade');
             $table->foreignId('operator_id')->constrained('operator')->onDelete('cascade');
             $table->timestamp('tanggal')->useCurrent();
+            $table->integer('total_harga');
             $table->timestamps();
         });
     }
