@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pembayaran', function (Blueprint $table) {
-            $table->id('id_pembayaran');
-            $table->foreignId('id_transaksi')->constrained('transaksi', 'id_transaksi')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('cascade');
             $table->integer('total_bayar');
             $table->string('metode', 50);
             $table->timestamp('tanggal_bayar')->useCurrent();
