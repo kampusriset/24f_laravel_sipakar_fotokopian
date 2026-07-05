@@ -14,7 +14,7 @@ class DetailLayanan extends Model
         'subtotal',
         'file_dokumen', 
         'waktu_deadline', 
-        'skor_prioritas', 
+        // 'skor_prioritas', 
         'status_antrean',
     ];
 

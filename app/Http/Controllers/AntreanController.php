@@ -18,4 +18,24 @@ class AntreanController extends Controller
             'data' => $antrean
         ]);
     }
+
+    // Update Status antrean
+    public function updateStatus($id) {
+        $antrean = DetailLayanan::find($id);
+
+        if (!$antrean) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data antrean tidak ditemukan'
+            ], 404);
+        }
+
+        $antrean->status_antrean = 'Selesai';
+        $antrean->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status berhasil di rubah'
+        ]);
+    }
 }

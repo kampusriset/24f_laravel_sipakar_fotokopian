@@ -10,7 +10,8 @@ class Transaksi extends Model
     protected $fillable = [
         'pelanggan_id', 
         'operator_id', 
-        'tanggal'
+        'tanggal',
+        'total_harga'
     ];
 
     public function pelanggan() {

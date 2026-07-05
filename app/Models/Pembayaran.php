@@ -11,6 +11,6 @@ class Pembayaran extends Model
         'transaksi_id', 
         'total_bayar', 
         'metode', 
-        'tanggal_bayar'
+        'tanggal_bayar',
     ];
 }
