@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('cascade');
             $table->foreignId('layanan_id')->constrained('layanan')->onDelete('cascade');
             $table->integer('jumlah_halaman');
+            $table->integer('harga_satuan');
             $table->integer('subtotal')->nullable(); 
             
             // --- Kebutuhan Database AI ---

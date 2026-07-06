@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Pelanggan extends Model
 {
     protected $table = 'pelanggan';
-    protected $fillabel = [
+    protected $fillable = [
         'nama', 
-        'no_hp', 
+        'no_hp',
         'alamat'
     ];
 }

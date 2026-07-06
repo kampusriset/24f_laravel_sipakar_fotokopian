@@ -13,7 +13,7 @@ use Carbon\Carbon;
 
 class TransaksiController extends Controller
 {
-    // Read
+    // Read | Ambil data gabungan dari Layanan & Pelanggan
     public function getMasterData() {
         $pelanggan = Pelanggan::select('id', 'nama')->get();
         $layanan = Layanan::select('id', 'nama_layanan', 'harga_per_lembar')->get();
@@ -33,8 +33,19 @@ class TransaksiController extends Controller
         DB::beginTransaction();
 
         try {
+            $pelangganId = $request->pelanggan_id;
+
+            if(!$pelangganId) {
+                $pelangganBaru = Pelanggan::create([
+                    'nama' => $request->nama_pelanggan,
+                    'no_hp' => $request->no_hp ?? '-',
+                    'alamat' => $request->alamat ?? '-',
+                ]);
+                $pelangganId = $pelangganBaru->id;
+            }
+
             $transaksi = Transaksi::create([
-                'pelanggan_id' => $request->pelanggan_id,
+                'pelanggan_id' => $pelangganId,
                 'operator_id' => 1, //ID Sementara
                 'tanggal' => Carbon::now(),
                 'total_harga' => $request->total_harga

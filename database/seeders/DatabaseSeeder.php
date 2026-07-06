@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 use App\Models\User;
 use App\Models\Layanan;
@@ -35,7 +35,13 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         // DATA DUMMY
-         // Data Pelaanggan
+        User::create([
+            'name' => 'Owner',
+            'email' => 'admin@kasir.com',
+            'password' => Hash::make('rahasia123')
+        ]);
+
+         // Data Pelanggan
         $pelanggan = Pelanggan::create(['nama' => 'Nindi','no_hp' => '0879845215','alamat' => null]);
         Pelanggan::create(['nama' => 'Andika', 'no_hp' => '087961216', 'alamat' => 'Solo']);
         Pelanggan::create(['nama' => 'Nanda', 'no_hp' => '0879561802', 'alamat' => '']);
@@ -88,7 +94,7 @@ class DatabaseSeeder extends Seeder
             'transaksi_id' => $transaksi->id,
             'layanan_id' => 1,
             'jumlah_halaman' => 100,
-            // 'harga_satuan' => 500,
+            'harga_satuan' => 500,
             'subtotal' => 50000,
             'file_dokumen' => 'tugas_pekan1.pdf',
             'waktu_deadline' => Carbon::now()->addHours(2),
@@ -100,7 +106,7 @@ class DatabaseSeeder extends Seeder
             'transaksi_id' => $transaksi->id,
             'layanan_id' => 2,
             'jumlah_halaman' => 5,
-            // 'harga_satuan' => 1000,
+            'harga_satuan' => 1000,
             'subtotal' => 50000,
             'file_dokumen' => 'tugas_akhir.pdf',
             'waktu_deadline' => Carbon::now()->addMinutes(30),

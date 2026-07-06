@@ -7,6 +7,7 @@ use App\Models\DetailLayanan;
 
 class AntreanController extends Controller
 {
+    // Ambil data
     public function index() {
         $antrean = DetailLayanan::with(['layanan', 'transaksi.pelanggan', 'transaksi.operator'])
                     ->where('status_antrean', 'Menunggu')
