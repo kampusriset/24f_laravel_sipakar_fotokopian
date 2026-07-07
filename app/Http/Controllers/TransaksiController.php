@@ -133,4 +133,36 @@ class TransaksiController extends Controller
             ], 500);
         }
     }
+
+    public function delete($id) {
+        $transaksi = Transaksi::find($id);
+
+        if (!$transaksi) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Transaksi tidak ditemukan'
+            ], 404);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            DetailLayanan:where('transaksi_id', $id)->delete();
+            Pembayaran:where('transaksi_id', $id)->delete();
+            $transaksi->delete();
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'data transaksi berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
