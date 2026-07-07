@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('perangkat_printer', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_printer', 100);
-            $table->string('status', 20)->default('Aktif');
+            $table->string('nama_printer');
+            $table->enum('status', ['Aktif', 'Perbaikan'])->default('Aktif');
             $table->timestamps();
         });
     }

@@ -46,7 +46,7 @@ class TransaksiController extends Controller
 
             $transaksi = Transaksi::create([
                 'pelanggan_id' => $pelangganId,
-                'operator_id' => 1, //ID Sementara
+                'operator_id' => auth('sanctum')->id(),
                 'tanggal' => Carbon::now(),
                 'total_harga' => $request->total_harga
             ]);

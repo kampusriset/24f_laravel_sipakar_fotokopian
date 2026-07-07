@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
         Operator::create([
             'nama' => 'Admin',
             'email' => 'admin@fotcop.com',
-            'password' => Hash::make('admin123')
+            'password' => \Illuminate\Support\Facades\Hash::make('admin123')
         ]);
 
         // Data Transaksi
@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
 
         // Data Perangkat Printer
         PerangkatPrinter::create(['nama_printer' => 'Printer Canon', 'status' => 'Aktif']);
-        PerangkatPrinter::create(['nama_printer' => 'Printer Epson', 'status' => 'Maintenance']);
+        PerangkatPrinter::create(['nama_printer' => 'Printer Epson', 'status' => 'Perbaikan']);
         PerangkatPrinter::create(['nama_printer' => 'Mesin Fotocopy', 'status' => 'Aktif']);
 
         // Data Detail Layanan

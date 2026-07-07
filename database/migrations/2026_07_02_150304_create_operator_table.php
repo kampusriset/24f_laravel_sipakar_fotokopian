@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('operator', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 100);
-            $table->string('email')->unique()->nullable();
-            $table->string('password')->nullable();
+            $table->string('email')->unique();
+            $table->string('password');
             $table->timestamps();
         });
     }

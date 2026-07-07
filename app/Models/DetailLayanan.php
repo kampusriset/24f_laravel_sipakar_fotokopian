@@ -11,6 +11,7 @@ class DetailLayanan extends Model
         'transaksi_id', 
         'layanan_id', 
         'jumlah_halaman', 
+        'harga_satuan',
         'subtotal',
         'file_dokumen', 
         'waktu_deadline', 
