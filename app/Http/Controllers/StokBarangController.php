@@ -77,7 +77,7 @@ class StokBarangController extends Controller
             ], 404);
         }
 
-        // Jika input kosong, dia akan pakai data yang lama (??)
+        // Untuk Update jika ada datanya (?? Null Coalescing Operator)
         $barang->nama_barang = $request->nama_barang ?? $barang->nama_barang;
         $barang->kategori = $request->kategori ?? $barang->kategori;
         $barang->jumlah_stok = $request->jumlah_stok ?? $barang->jumlah_stok;

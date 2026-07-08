@@ -35,6 +35,12 @@ class TransaksiController extends Controller
         try {
             $pelangganId = $request->pelanggan_id;
 
+            $request->validate([
+                'nama_pelanggan' => 'required|string',
+                'no_hp' => 'nullable|string',
+                'alamat' => 'nullable|string',
+            ]);
+
             if(!$pelangganId) {
                 $pelangganBaru = Pelanggan::create([
                     'nama' => $request->nama_pelanggan,

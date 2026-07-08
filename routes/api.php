@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AntreanController;
 use App\Http\Controllers\LayananController;
+use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\StokBarangController;
 use App\Http\Controllers\PerangkatPrinterController;
 
@@ -20,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/layanan', [LayananController::class, 'index']);
     Route::get('/antrean', [AntreanController::class, 'index']);
     Route::get('/operator', [OperatorController::class, 'index']);
+    Route::get('/pelanggan', [PelangganController::class, 'index']);
     Route::get('/stok-barang', [StokBarangController::class, 'index']);
     Route::get('/printer', [PerangkatPrinterController::class, 'index']);
     Route::get('/master-data', [TransaksiController::class, 'getMasterData']);
@@ -47,6 +50,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/operator/{id}', [OperatorController::class, 'update']);
     Route::delete('/operator/{id}', [OperatorController::class, 'delete']);
     
-    // Manajemen Layanan?
-    // Manajemen Pelanggan?
+    // Manajemen Layanan
+    Route::post('/layanan', [LayananController::class, 'create']);
+    Route::put('/layanan/{id}', [LayananController::class, 'update']);
+    Route::delete('/layanan/{id}', [LayananController::class, 'delete']);
+
+    // Manajemen Pelanggan
+    Route::put('/pelanggan/{id}', [PelangganController::class, 'update']);
+    Route::delete('/pelanggan/{id}', [PelangganController::class, 'delete']);
 });
