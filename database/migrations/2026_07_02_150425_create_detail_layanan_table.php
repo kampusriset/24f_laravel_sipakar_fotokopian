@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('detail_layanan', function (Blueprint $table) {
-            $table->id('id_detail');
-            $table->foreignId('id_transaksi')->constrained('transaksi', 'id_transaksi')->onDelete('cascade');
-            $table->foreignId('id_layanan')->constrained('layanan', 'id_layanan')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('cascade');
+            $table->foreignId('layanan_id')->constrained('layanan')->onDelete('cascade');
             $table->integer('jumlah_halaman');
+            $table->integer('harga_satuan');
             $table->integer('subtotal')->nullable(); 
             
             // --- Kebutuhan Database AI ---
@@ -23,7 +24,6 @@ return new class extends Migration
             $table->timestamp('waktu_deadline')->nullable();
             $table->float('skor_prioritas')->nullable(); // Output dari rumus Fuzzy Tsukamoto
             $table->string('status_antrean', 20)->default('Menunggu'); 
-            
             $table->timestamps();
         });
     }

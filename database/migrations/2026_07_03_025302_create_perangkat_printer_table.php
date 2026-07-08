@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pembayaran', function (Blueprint $table) {
+        Schema::create('perangkat_printer', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('cascade');
-            $table->integer('total_bayar');
-            $table->string('metode', 50);
-            $table->timestamp('tanggal_bayar')->useCurrent();
+            $table->string('nama_printer');
+            $table->enum('status', ['Aktif', 'Perbaikan'])->default('Aktif');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pembayaran');
+        Schema::dropIfExists('perangkat_printer');
     }
 };

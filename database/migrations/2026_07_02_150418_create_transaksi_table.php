@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transaksi', function (Blueprint $table) {
-            $table->id('id_transaksi');
-            // Relasi Foreign Key
-            $table->foreignId('id_pelanggan')->constrained('pelanggan', 'id_pelanggan')->onDelete('cascade');
-            $table->foreignId('id_operator')->constrained('operator', 'id_operator')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('pelanggan_id')->constrained('pelanggan')->onDelete('cascade');
+            $table->foreignId('operator_id')->constrained('operator')->onDelete('cascade');
             $table->timestamp('tanggal')->useCurrent();
+            $table->integer('total_harga');
             $table->timestamps();
         });
     }
