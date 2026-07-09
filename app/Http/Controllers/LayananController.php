@@ -50,7 +50,6 @@ class LayananController extends Controller
             ], 404);
         }
 
-        // Untuk Update jika ada datanya (?? Null Coalescing Operator)
         $layanan->nama_layanan = $request->nama_layanan ?? $layanan->nama_layanan;
         $layanan->harga_per_lembar = $request->harga_per_lembar ?? $layanan->harga_per_lembar;
         $layanan->save();

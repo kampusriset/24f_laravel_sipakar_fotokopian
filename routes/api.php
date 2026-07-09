@@ -11,16 +11,15 @@ use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\StokBarangController;
 use App\Http\Controllers\PerangkatPrinterController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/layanan', [LayananController::class, 'index']);
+Route::get('/antrean', [AntreanController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/layanan', [LayananController::class, 'index']);
-    Route::get('/antrean', [AntreanController::class, 'index']);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    })->middleware('auth:sanctum');
+    
     Route::get('/operator', [OperatorController::class, 'index']);
     Route::get('/pelanggan', [PelangganController::class, 'index']);
     Route::get('/stok-barang', [StokBarangController::class, 'index']);
