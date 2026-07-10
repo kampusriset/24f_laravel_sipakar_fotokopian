@@ -44,7 +44,25 @@
 ### Databases
 
    ```bash
+CREATE DATABASE sistem-pos-fotocopy-print
 
+#Create Table Pelanggan
+CREATE TABLE pelanggan (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100) NOT NULL,
+    no_hp VARCHAR(15) NULL,
+    alamat TEXT NULL,
+    created_at TIMESTAMP NULL DEFAULT NULL,
+    updated_at TIMESTAMP NULL DEFAULT NULL
+);
+
+#Create Table Operator
+#Create Table Layanan
+#Create Table Perangkat Printer
+#Create Table Transaksi 
+#Create Table Detail Layanan
+#Create Table Pembayaran
+#Create Table Stok Barang
 ```
 
 Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
