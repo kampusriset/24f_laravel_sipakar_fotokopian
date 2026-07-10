@@ -14,13 +14,14 @@ use App\Http\Controllers\PerangkatPrinterController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/layanan', [LayananController::class, 'index']);
 Route::get('/antrean', [AntreanController::class, 'index']);
+Route::post('/operator', [OperatorController::class, 'create']);
+Route::get('/operator', [OperatorController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     })->middleware('auth:sanctum');
     
-    Route::get('/operator', [OperatorController::class, 'index']);
     Route::get('/pelanggan', [PelangganController::class, 'index']);
     Route::get('/stok-barang', [StokBarangController::class, 'index']);
     Route::get('/printer', [PerangkatPrinterController::class, 'index']);
@@ -45,7 +46,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/stok-barang/{id}', [StokBarangController::class, 'delete']);
 
     // Manajemen Operator
-    Route::post('/operator', [OperatorController::class, 'create']);
     Route::put('/operator/{id}', [OperatorController::class, 'update']);
     Route::delete('/operator/{id}', [OperatorController::class, 'delete']);
     

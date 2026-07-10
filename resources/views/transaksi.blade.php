@@ -1,10 +1,10 @@
-<!-- CEK BELUM SINKRON KE DATABASEA -->
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS Fotocopy - Transaksi</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -24,7 +24,6 @@
             background-color: rgba(255, 255, 255, 0.05); 
             transform: translateY(-2px); 
         }
-        /* Kustomisasi Form agar lebih elegan */
         .form-control, .form-select {
             background-color: #1e2125;
             border-color: #373b3e;
@@ -43,7 +42,7 @@
     </style>
 </head>
 <body>
-
+    
     <nav class="navbar navbar-expand-lg bg-dark border-bottom border-secondary py-3">
         <div class="container-fluid px-4">
             <a class="navbar-brand fs-4 fw-bold me-5" href="/">
@@ -98,38 +97,66 @@
                     <i class="bi bi-cart-plus text-primary" style="font-size: 2rem;"></i>
                 </div>
 
-                <form>
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <form action="/transaksi" method="POST" enctype="multipart/form-data">
+                    @csrf 
+                    
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label for="nama_pelanggan" class="form-label">Nama Pelanggan</label>
-                            <input type="text" class="form-control" id="nama_pelanggan" placeholder="Contoh: Budi Mahasiswa" required>
+                            <input type="text" class="form-control" name="nama_pelanggan" id="nama_pelanggan" placeholder="Contoh: Budi Mahasiswa" required>
                         </div>
                         <div class="col-md-6">
                             <label for="jenis_layanan" class="form-label">Jenis Layanan</label>
-                            <select class="form-select" id="jenis_layanan" required>
+                            <select class="form-select" name="layanan_id" id="jenis_layanan" required>
                                 <option value="" selected disabled>Pilih Layanan...</option>
-                                <option value="1">Print Warna (Rp 1.000/lembar)</option>
-                                <option value="2">Fotocopy Hitam Putih (Rp 500/lembar)</option>
-                                <option value="3">Scan Dokumen (Rp 1.500/lembar)</option>
+                                <option value="1">Fotocopy Hitam Putih</option>
+                                <option value="2">Print Warna</option>
+                                <option value="3">Print Hitam Putih</option>
+                                <option value="4">Scan Dokumen</option>
+                                <option value="5">Pengetikan Dokumen</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
-                            <label for="file_dokumen" class="form-label">File Dokumen (Opsional)</label>
-                            <input class="form-control" type="file" id="file_dokumen">
+                            <label for="file_dokumen" class="form-label">File Dokumen PDF</label>
+                            <input class="form-control" type="file" name="file_dokumen" id="file_dokumen" accept=".pdf">
                         </div>
                         <div class="col-md-3">
                             <label for="tenggat_waktu" class="form-label">Tenggat Waktu</label>
-                            <input type="time" class="form-control" id="tenggat_waktu" required>
+                            <input type="time" class="form-control" name="waktu_deadline" id="tenggat_waktu" required>
                         </div>
                         <div class="col-md-3">
                             <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
-                            <select class="form-select" id="metode_pembayaran" required>
+                            <select class="form-select" name="metode" id="metode_pembayaran" required>
                                 <option value="Cash" selected>Cash</option>
                                 <option value="QRIS">QRIS</option>
-                                <option value="Transfer">Transfer Bank</option>
                             </select>
                         </div>
                     </div>
@@ -156,7 +183,6 @@
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-dark table-hover table-borderless align-middle mb-0">
-                            
                             <thead class="border-bottom border-secondary text-muted">
                                 <tr>
                                     <th scope="col" class="py-3 px-4 fw-medium text-uppercase" style="font-size: 0.85rem;">Pelanggan</th>
@@ -170,19 +196,58 @@
                             </thead>
                             
                             <tbody>
-                                <tr>
-                                    <td class="py-3 px-4 fw-semibold text-light">Dina (Anak FK)</td>
-                                    <td class="py-3 text-muted"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>Jurnal_Medis.pdf</td>
-                                    <td class="py-3">Print Warna</td>
-                                    <td class="py-3 text-warning fw-medium">14:00 WIB</td>
-                                    <td class="py-3"><span class="badge bg-success">Cash</span></td>
-                                    <td class="py-3"><span class="badge bg-primary">Menunggu Cetak</span></td>
-                                    <td class="py-3 text-end px-4">
-                                        <button class="btn btn-sm btn-outline-success" title="Selesai">&#10004;</button>
-                                    </td>
-                                </tr>
+                                @forelse ($antreanAktif as $antrean)
+                                    <tr>
+                                        <td class="py-3 px-4 fw-semibold text-light">
+                                            {{ $antrean->nama_pelanggan }}
+                                        </td>
+                                        
+                                        <td class="py-3 text-muted">
+                                            @if($antrean->file_dokumen)
+                                                <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                                                <span class="d-inline-block text-truncate" style="max-width: 150px;" title="{{ $antrean->file_dokumen }}">
+                                                    {{ preg_replace('/^[0-9]+_/', '', $antrean->file_dokumen) }}
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary text-light">Dokumen Fisik</span>
+                                            @endif
+                                        </td>
+                                        
+                                        <td class="py-3">{{ $antrean->nama_layanan }}</td>
+                                        
+                                        <td class="py-3 text-warning fw-medium">
+                                            {{ \Carbon\Carbon::parse($antrean->waktu_deadline)->format('H:i') }} WIB
+                                        </td>
+                                        
+                                        <td class="py-3">
+                                            @if($antrean->metode == 'Cash')
+                                                <span class="badge bg-success">{{ $antrean->metode }}</span>
+                                            @elseif($antrean->metode == 'QRIS')
+                                                <span class="badge bg-info text-dark">{{ $antrean->metode }}</span>
+                                            @else
+                                                <span class="badge bg-primary">{{ $antrean->metode }}</span>
+                                            @endif
+                                        </td>
+                                        
+                                        <td class="py-3">
+                                            <span class="badge bg-primary">{{ $antrean->status_antrean }}</span>
+                                        </td>
+                                        
+                                        <td class="py-3 text-end px-4">
+                                            <button class="btn btn-sm btn-outline-success" title="Tandai Selesai">
+                                                &#10004;
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5 text-muted">
+                                            <i class="bi bi-emoji-smile fs-4 d-block mb-2"></i>
+                                            Antrean kosong. Belum ada pesanan yang harus diproses.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
-
                         </table>
                     </div>
                 </div>

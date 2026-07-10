@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS Fotocopy & Print</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -78,6 +79,7 @@
         </div>
     </nav>
 
+<!-- JENIS LAYANAN -->
     <div class="container-fluid px-4 py-5">
         <div class="mb-5">
             <h1 class="fw-bold m-0">Dashboard Overview</h1>
@@ -87,7 +89,7 @@
         <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3 mb-5">
             
             @php
-                // Trik variasi warna dan ikon
+                // Variasi warna dan ikon
                 $styles = [
                     ['icon' => 'bi-files', 'bg' => 'rgba(108, 117, 125, 0.15)', 'color' => '#adb5bd'],
                     ['icon' => 'bi-printer-fill', 'bg' => 'rgba(13, 110, 253, 0.15)', 'color' => '#0d6efd'],
@@ -154,40 +156,55 @@
                                 @forelse ($transaksiTerbaru as $trx)
                                     <tr>
                                         <td class="py-3 px-4 fw-semibold text-light">
-                                            {{ $trx->pelanggan->nama ?? 'Pelanggan Umum' }}
+                                            {{ $trx->nama_pelanggan }}
                                         </td>
                                         
                                         <td class="py-3 text-muted">
-                                            <span class="d-inline-block text-truncate" style="max-width: 150px;">
-                                                Dokumen_Skripsi_Bab_1_Revisi.pdf
+                                            @if($trx->file_dokumen)
+                                                <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                                                <span class="d-inline-block text-truncate" style="max-width: 150px;" title="{{ $trx->file_dokumen }}">
+                                                    {{ preg_replace('/^[0-9]+_/', '', $trx->file_dokumen) }}
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary text-light">Dokumen Fisik</span>
+                                            @endif
+                                        </td>
+                                        
+                                        <td class="py-3 text-light">{{ $trx->jumlah_halaman }} Lembar</td>
+                                        
+                                        <td class="py-3 text-warning fw-medium">
+                                            {{ \Carbon\Carbon::parse($trx->waktu_deadline)->format('H:i') }} WIB
+                                        </td>
+                                        
+                                        <td class="py-3">
+                                            <span class="badge bg-success text-white px-2 py-1 rounded-pill">
+                                                {{ $trx->metode }}
                                             </span>
                                         </td>
                                         
-                                        <td class="py-3 text-light">50 Lembar</td>
-                                        
-                                        <td class="py-3 text-warning fw-medium">15:00 WIB</td>
-                                        
                                         <td class="py-3">
-                                            <span class="badge bg-success text-white px-2 py-1 rounded-pill">Lunas</span>
-                                        </td>
-                                        
-                                        <td class="py-3">
-                                            <span class="badge bg-primary px-2 py-1 rounded-pill">Antre Cetak</span>
+                                            @if($trx->status_antrean == 'Selesai')
+                                                <span class="badge bg-success px-2 py-1 rounded-pill">{{ $trx->status_antrean }}</span>
+                                            @else
+                                                <span class="badge bg-primary px-2 py-1 rounded-pill">{{ $trx->status_antrean }}</span>
+                                            @endif
                                         </td>
                                         
                                         <td class="py-3 text-end px-4">
                                             <button class="btn btn-sm btn-outline-info me-1" title="Lihat Detail">
                                                 &#128065;
                                             </button>
-                                            <button class="btn btn-sm btn-outline-success" title="Tandai Selesai">
-                                                &#10004;
-                                            </button>
+                                            @if($trx->status_antrean != 'Selesai')
+                                                <button class="btn btn-sm btn-outline-success" title="Tandai Selesai">
+                                                    &#10004;
+                                                </button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td colspan="7" class="text-center py-5 text-muted">
-                                            Belum ada pesanan masuk.
+                                            Belum ada transaksi terbaru hari ini.
                                         </td>
                                     </tr>
                                 @endforelse

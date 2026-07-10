@@ -29,7 +29,7 @@ class TransaksiController extends Controller
         ]);
     }
 
-    // Create (SUDAH DILENGKAPI FITUR BACA PDF OTOMATIS)
+    // Create
     public function create(Request $request) {
         DB::beginTransaction();
 
@@ -41,10 +41,10 @@ class TransaksiController extends Controller
                 'no_hp' => 'nullable|string',
                 'alamat' => 'nullable|string',
                 'layanan_id' => 'required',
-                'file_dokumen' => 'nullable|file|mimes:pdf', // Pastikan file-nya PDF
+                'file_dokumen' => 'nullable|file|mimes:pdf',
             ]);
 
-            // 1. Proses Pelanggan
+            // Proses Pelanggan
             if(!$pelangganId) {
                 $pelangganBaru = Pelanggan::create([
                     'nama' => $request->nama_pelanggan,
@@ -54,51 +54,51 @@ class TransaksiController extends Controller
                 $pelangganId = $pelangganBaru->id;
             }
 
-            // 2. Logika Ekstrak Halaman PDF
-            $jumlahHalaman = 1; // Nilai dasar jika tidak ada file (misal untuk fotocopy dokumen fisik)
+            // Logika Halaman PDF
+            $jumlahHalaman = 1;
             $namaFileFisik = null;
 
             if ($request->hasFile('file_dokumen')) {
                 $file = $request->file('file_dokumen');
                 
-                // Beri nama unik agar file tidak tertimpa jika namanya sama
+                // nama unik agar file tidak tertimpa jika namanya sama
                 $namaFileFisik = time() . '_' . $file->getClientOriginalName();
                 
-                // Gunakan Smalot PDF Parser untuk menghitung jumlah lembar otomatis
+                // Menggunakan Smalot PDF untuk menghitung jumlah halaman
                 $pdfParser = new Parser();
                 $pdf = $pdfParser->parseFile($file->getPathname());
                 $jumlahHalaman = count($pdf->getPages());
                 
-                // Simpan file asli ke dalam folder storage/app/public/dokumen
+                // Simpan file ke dalam folder storage/app/public/dokumen
                 $file->storeAs('public/dokumen', $namaFileFisik);
             }
 
-            // 3. Kalkulasi Harga Secara Aman di Backend (Bukan dari Frontend)
+            // Kalkulasi Harga
             $layanan = Layanan::findOrFail($request->layanan_id);
             $hargaSatuan = $layanan->harga_per_lembar;
             $totalHarga = $jumlahHalaman * $hargaSatuan;
 
-            // 4. Simpan ke Database
+            // Simpan ke Database
             $transaksi = Transaksi::create([
                 'pelanggan_id' => $pelangganId,
-                'operator_id' => auth('sanctum')->id() ?? 1, // Fallback ke kasir 1 jika testing tanpa login
+                'operator_id' => auth('sanctum')->id() ?? 1, 
                 'tanggal' => Carbon::now(),
-                'total_harga' => $totalHarga // Harga hasil hitungan mesin
+                'total_harga' => $totalHarga
             ]);
 
             Pembayaran::create([
                 'transaksi_id' => $transaksi->id,
                 'total_bayar' => $totalHarga,
-                'metode' => $request->metode ?? 'Cash', // Default ke cash
+                'metode' => $request->metode ?? 'Cash',
                 'tanggal_bayar' => Carbon::now(),
             ]);
 
             DetailLayanan::create([
                 'transaksi_id' => $transaksi->id,
                 'layanan_id' => $layanan->id,
-                'jumlah_halaman' => $jumlahHalaman, // Jumlah halaman dari PDF
+                'jumlah_halaman' => $jumlahHalaman,
                 'harga_satuan' => $hargaSatuan,
-                'file_dokumen' => $namaFileFisik, // Nama file yang tersimpan
+                'file_dokumen' => $namaFileFisik,
                 'subtotal' => $totalHarga,
                 'waktu_deadline' => $request->waktu_deadline ? Carbon::parse($request->waktu_deadline) : Carbon::now()->addHours(2),
                 'status_antrean' => 'Menunggu',
@@ -106,28 +106,22 @@ class TransaksiController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Transaksi berhasil disimpan. Terdeteksi ' . $jumlahHalaman . ' halaman, Total: Rp ' . number_format($totalHarga, 0, ',', '.')
-            ]);
+            return redirect()->back()->with('success', 'Transaksi berhasil disimpan. Terdeteksi ' . $jumlahHalaman . ' halaman, Total: Rp ' . number_format($totalHarga, 0, ',', '.'));
             
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal menyimpan transaksi: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
         }
     }
 
-    // Update (TYPO DIPERBAIKI)
+    // Update
     public function update(Request $request, $id) {
         $transaksi = Transaksi::find($id);
 
         if (!$transaksi) {
             return response()->json([
-                'status' => 'error', // Diubah jadi error, karena ini kondisi gagal
+                'status' => 'error', 
                 'message' => 'Transaksi tidak ditemukan'
             ], 404);
         }
@@ -147,7 +141,6 @@ class TransaksiController extends Controller
             $transaksi->total_harga = $request->total_harga;
             $transaksi->save();
 
-            // TYPO DIPERBAIKI: transsaksi_id menjadi transaksi_id
             $pembayaran = Pembayaran::where('transaksi_id', $id)->first();
             if($pembayaran) {
                 $pembayaran->total_bayar = $request->total_harga;
@@ -165,13 +158,13 @@ class TransaksiController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'status' => 'error', // Diubah jadi error
+                'status' => 'error',
                 'message' => 'Gagal edit transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
 
-    // Delete (TYPO DIPERBAIKI)
+    // Delete
     public function delete($id) {
         $transaksi = Transaksi::find($id);
 
@@ -185,7 +178,6 @@ class TransaksiController extends Controller
         DB::beginTransaction();
 
         try {
-            // TYPO DIPERBAIKI: Menggunakan titik dua ganda (::)
             DetailLayanan::where('transaksi_id', $id)->delete();
             Pembayaran::where('transaksi_id', $id)->delete();
             $transaksi->delete();
