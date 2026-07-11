@@ -10,8 +10,6 @@
     <a href="#-fitur-utama"><strong>Jelajahi Fitur »</strong></a>
     <br />
     <br />
-    <a href="#">Lihat Demo</a>
-    ·
     <a href="#">Laporkan Bug</a>
     ·
     <a href="#">Minta Fitur Tambahan</a>
@@ -27,9 +25,8 @@
 
 ### 🛠️ Teknologi yang Digunakan
 * [![Laravel][Laravel.com]][Laravel-url]
-* [![Tailwind][Tailwind.com]][Tailwind-url]
+* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
 * [![MySQL][MySQL.com]][MySQL-url]
-* [![Filament][Filament.com]][Filament-url]
 
 ---
 
