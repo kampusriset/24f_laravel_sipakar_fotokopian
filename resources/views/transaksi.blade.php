@@ -171,6 +171,7 @@
             </div>
         </div>
 
+        <!-- Daftar Antrean -->
         <div>
             <div class="d-flex justify-content-between align-items-end mb-3">
                 <div>
@@ -185,8 +186,9 @@
                         <table class="table table-dark table-hover table-borderless align-middle mb-0">
                             <thead class="border-bottom border-secondary text-muted">
                                 <tr>
-                                    <th scope="col" class="py-3 px-4 fw-medium text-uppercase" style="font-size: 0.85rem;">Pelanggan</th>
+                                    <th scope="col" class="py-3 px-4 fw-medium text-uppercase" style="font-size: 0.85rem;">Nama Pelanggan</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">File</th>
+                                    <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Halaman</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Layanan</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Tenggat</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Metode</th>
@@ -212,13 +214,15 @@
                                                 <span class="badge bg-secondary text-light">Dokumen Fisik</span>
                                             @endif
                                         </td>
-                                        
+
+                                        <td class="py-3">{{ $antrean->jumlah_halaman ?? '-' }} Lembar</td>
+
                                         <td class="py-3">{{ $antrean->nama_layanan }}</td>
-                                        
+
                                         <td class="py-3 text-warning fw-medium">
                                             {{ \Carbon\Carbon::parse($antrean->waktu_deadline)->format('H:i') }} WIB
                                         </td>
-                                        
+
                                         <td class="py-3">
                                             @if($antrean->metode == 'Cash')
                                                 <span class="badge bg-success">{{ $antrean->metode }}</span>
@@ -233,15 +237,53 @@
                                             <span class="badge bg-primary">{{ $antrean->status_antrean }}</span>
                                         </td>
                                         
-                                        <td class="py-3 text-end px-4">
+                                        <!-- <td class="py-3 text-end px-4">
                                             <button class="btn btn-sm btn-outline-success" title="Tandai Selesai">
                                                 &#10004;
                                             </button>
+                                        </td> -->
+                                        <td class="py-3 px-4">
+                                            <div class="d-flex gap-2 justify-content-end">
+                                                
+                                                <!-- Tombol Edit Cetak -->
+                                                <form action="{{ route('transaksi.update', $antrean->id_transaksi) }}" method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="status_antrean" value="Cetak">
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Tandai Sedang Dicetak">
+                                                        <i class="bi bi-printer"></i>
+                                                    </button>
+                                                </form>
+    
+                                                <!-- Tombol Edit Selesai -->
+                                                <form action="{{ route('transaksi.update', $antrean->id_transaksi) }}" method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="status_antrean" value="Selesai">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Tandai Selesai">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                </form>
+
+                                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ $antrean->id_transaksi }}" title="Edit Transaksi">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+    
+                                                <!-- Tombol Delete -->
+                                                <form action="{{ route('transaksi.delete', $antrean->id_transaksi) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus antrean ini dari sistem?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Antrean">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                                
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-5 text-muted">
+                                        <td colspan="8" class="text-center py-5 text-muted">
                                             <i class="bi bi-emoji-smile fs-4 d-block mb-2"></i>
                                             Antrean kosong. Belum ada pesanan yang harus diproses.
                                         </td>
@@ -253,6 +295,30 @@
                 </div>
             </div>
         </div>
+        @foreach($antreanAktif as $antrean)
+            <div class="modal fade" id="editModal{{ $antrean->id_transaksi }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <form action="{{ route('transaksi.update', $antrean->id_transaksi) }}" method="POST" class="modal-content bg-dark border-secondary">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-header border-secondary">
+                            <h5 class="modal-title">Edit Transaksi {{ $antrean->nama_pelanggan }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Total Harga (Rp)</label>
+                                <input type="number" name="total_harga" class="form-control" value="{{ $antrean->total_bayar ?? $antrean->total_harga }}">
+                            </div>
+                            <!-- Tambahkan input lain sesuai kebutuhan -->
+                        </div>
+                        <div class="modal-footer border-secondary">
+                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endforeach
 
     </div>
 
