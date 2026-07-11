@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Transaksi;
-use App\Models\Pembayaran;
-use App\Models\DetailLayanan;
-use App\Models\Pelanggan;
-use App\Models\Layanan;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\Layanan;
+use App\Models\Transaksi;
+use App\Models\Pelanggan;
+use App\Models\Pembayaran;
+use Smalot\PdfParser\Parser;
+use Illuminate\Http\Request;
+use App\Models\DetailLayanan;
+use Illuminate\Support\Facades\DB;
 
+// CEK KODENYA DAN CEK WORK OR NOT
 class TransaksiController extends Controller
 {
     // Read | Ambil data gabungan dari Layanan & Pelanggan
@@ -29,12 +31,20 @@ class TransaksiController extends Controller
 
     // Create
     public function create(Request $request) {
-        // Kemanan Database
         DB::beginTransaction();
 
         try {
             $pelangganId = $request->pelanggan_id;
 
+            $request->validate([
+                'nama_pelanggan' => 'required|string',
+                'no_hp' => 'nullable|string',
+                'alamat' => 'nullable|string',
+                'layanan_id' => 'required',
+                'file_dokumen' => 'nullable|file|mimes:pdf',
+            ]);
+
+            // Proses Pelanggan
             if(!$pelangganId) {
                 $pelangganBaru = Pelanggan::create([
                     'nama' => $request->nama_pelanggan,
@@ -44,44 +54,64 @@ class TransaksiController extends Controller
                 $pelangganId = $pelangganBaru->id;
             }
 
+            // Logika Halaman PDF
+            $jumlahHalaman = 1;
+            $namaFileFisik = null;
+
+            if ($request->hasFile('file_dokumen')) {
+                $file = $request->file('file_dokumen');
+                
+                // nama unik agar file tidak tertimpa jika namanya sama
+                $namaFileFisik = time() . '_' . $file->getClientOriginalName();
+                
+                // Menggunakan Smalot PDF untuk menghitung jumlah halaman
+                $pdfParser = new Parser();
+                $pdf = $pdfParser->parseFile($file->getPathname());
+                $jumlahHalaman = count($pdf->getPages());
+                
+                // Simpan file ke dalam folder storage/app/public/dokumen
+                $file->storeAs('public/dokumen', $namaFileFisik);
+            }
+
+            // Kalkulasi Harga
+            $layanan = Layanan::findOrFail($request->layanan_id);
+            $hargaSatuan = $layanan->harga_per_lembar;
+            $totalHarga = $jumlahHalaman * $hargaSatuan;
+
+            // Simpan ke Database
             $transaksi = Transaksi::create([
                 'pelanggan_id' => $pelangganId,
-                'operator_id' => auth('sanctum')->id(),
+                'operator_id' => auth('sanctum')->id() ?? 1, 
                 'tanggal' => Carbon::now(),
-                'total_harga' => $request->total_harga
+                'total_harga' => $totalHarga
             ]);
 
             Pembayaran::create([
                 'transaksi_id' => $transaksi->id,
-                'total_bayar' => $request->total_harga,
-                'metode' => $request->metode,
+                'total_bayar' => $totalHarga,
+                'metode' => $request->metode ?? 'Cash',
                 'tanggal_bayar' => Carbon::now(),
             ]);
 
             DetailLayanan::create([
                 'transaksi_id' => $transaksi->id,
-                'layanan_id' => $request->layanan_id,
-                'jumlah_halaman' => $request->jumlah_halaman,
-                'harga_satuan' => $request->harga_satuan,
-                'file_dokumen' => $request->file_dokumen,
-                'subtotal' => $request->total_harga,
-                'waktu_deadline' => Carbon::parse($request->waktu_deadline),
+                'layanan_id' => $layanan->id,
+                'jumlah_halaman' => $jumlahHalaman,
+                'harga_satuan' => $hargaSatuan,
+                'file_dokumen' => $namaFileFisik,
+                'subtotal' => $totalHarga,
+                'waktu_deadline' => $request->waktu_deadline ? Carbon::parse($request->waktu_deadline) : Carbon::now()->addHours(2),
                 'status_antrean' => 'Menunggu',
             ]);
 
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Transaksi berhasil disimpan'
-            ]);
+            return redirect()->back()->with('success', 'Transaksi berhasil disimpan. Terdeteksi ' . $jumlahHalaman . ' halaman, Total: Rp ' . number_format($totalHarga, 0, ',', '.'));
+            
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal menyimpan transaksi: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
         }
     }
 
@@ -91,7 +121,7 @@ class TransaksiController extends Controller
 
         if (!$transaksi) {
             return response()->json([
-                'status' => 'success',
+                'status' => 'error', 
                 'message' => 'Transaksi tidak ditemukan'
             ], 404);
         }
@@ -111,7 +141,7 @@ class TransaksiController extends Controller
             $transaksi->total_harga = $request->total_harga;
             $transaksi->save();
 
-            $pembayaran = Pembayaran::where('transsaksi_id', $id)->first();
+            $pembayaran = Pembayaran::where('transaksi_id', $id)->first();
             if($pembayaran) {
                 $pembayaran->total_bayar = $request->total_harga;
                 $pembayaran->metode = $request->metode;
@@ -128,12 +158,13 @@ class TransaksiController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'status' => 'success',
+                'status' => 'error',
                 'message' => 'Gagal edit transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
 
+    // Delete
     public function delete($id) {
         $transaksi = Transaksi::find($id);
 
@@ -147,14 +178,15 @@ class TransaksiController extends Controller
         DB::beginTransaction();
 
         try {
-            DetailLayanan:where('transaksi_id', $id)->delete();
-            Pembayaran:where('transaksi_id', $id)->delete();
+            DetailLayanan::where('transaksi_id', $id)->delete();
+            Pembayaran::where('transaksi_id', $id)->delete();
             $transaksi->delete();
 
             DB::commit();
+            
             return response()->json([
                 'status' => 'success',
-                'message' => 'data transaksi berhasil dihapus'
+                'message' => 'Data transaksi berhasil dihapus'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

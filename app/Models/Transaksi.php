@@ -21,4 +21,8 @@ class Transaksi extends Model
     public function operator() {
         return $this->belongsTo(Operator::class);
     }
+
+    public function pembayaran() {
+        return $this->hasOne(Pembayaran::class);
+    }
 }

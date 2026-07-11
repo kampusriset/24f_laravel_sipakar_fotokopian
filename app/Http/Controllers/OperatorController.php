@@ -61,6 +61,7 @@ class OperatorController extends Controller
             $request->validate(['email' => 'unique:operator,email']);
         }
 
+        // Untuk Update jika ada datanya (?? Null Coalescing Operator)
         $operator->nama = $request->nama ?? $operator->nama;
         $operator->email = $request->email ?? $operator->email;
         

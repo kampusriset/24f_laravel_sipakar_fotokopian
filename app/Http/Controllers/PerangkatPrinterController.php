@@ -39,6 +39,7 @@ class PerangkatPrinterController extends Controller
             ], 404);
         }
 
+        // Untuk Update jika ada datanya (?? Null Coalescing Operator)
         $printer->nama_printer = $request->nama_printer ?? $printer->naam_printer;
         $printer->status = $request->status ?? $printer->status;
         $printer->save();
