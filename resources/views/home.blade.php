@@ -59,7 +59,7 @@
                         <a class="nav-link text-white" href="#">Jenis Layanan</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="#">Riwayat</a>
+                        <a class="nav-link text-white" href="{{ url('/riwayat') }}">Riwayat</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="#">Stok Barang</a>

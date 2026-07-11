@@ -4,11 +4,31 @@ use App\Models\Layanan;
 use App\Models\Transaksi;
 // use App\Models\Pelanggan;
 // use App\Models\pembayaran;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TransaksiController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+// Rute riwayat dipindahkan ke atas agar diprioritaskan oleh Laravel
+Route::get('/riwayat', function () {
+    // Mengambil semua transaksi yang statusnya 'Selesai' dengan Join Tabel yang benar
+    $riwayatTransaksi = DB::table('transaksi')
+                        ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
+                        ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
+                        ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
+                        ->select(
+                            'pelanggan.nama as nama_pelanggan',
+                            'detail_layanan.file_dokumen',
+                            'detail_layanan.jumlah_halaman',
+                            'pembayaran.metode',
+                            'detail_layanan.status_antrean',
+                            'transaksi.updated_at'
+                        )
+                        ->where('detail_layanan.status_antrean', '=', 'Selesai')
+                        ->orderBy('transaksi.updated_at', 'desc')
+                        ->get();
+
+    return view('riwayat', compact('riwayatTransaksi'));
+});
 
 // Logika mengambil 5 data transaksi 
 Route::get('/', function() {
@@ -22,7 +42,7 @@ Route::get('/', function() {
                             'detail_layanan.jumlah_halaman',
                             'detail_layanan.waktu_deadline',
                             'pembayaran.metode',
-                            'detail_layanan.status_antrean',
+                            'detail_layanan.status_antrean'
                         )
                         ->orderBy('transaksi.created_at', 'desc')
                         ->take(5)
@@ -33,7 +53,7 @@ Route::get('/', function() {
     return view('home', compact('transaksiTerbaru', 'daftarLayanan'));
 });
 
-// Logika pemanggilan data transaki, pelanggan, detail layanan, pembayaran
+// Logika pemanggilan data transaksi, pelanggan, detail layanan, pembayaran
 Route::get('/transaksi', function () {
     $antreanAktif = DB::table('transaksi')
                     ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
@@ -47,7 +67,7 @@ Route::get('/transaksi', function () {
                         'layanan.nama_layanan',
                         'detail_layanan.waktu_deadline',
                         'pembayaran.metode',
-                        'detail_layanan.status_antrean',
+                        'detail_layanan.status_antrean'
                     )
                     ->where('detail_layanan.status_antrean', '!=', 'Selesai')
                     ->orderBy('detail_layanan.waktu_deadline', 'asc')
@@ -58,4 +78,3 @@ Route::get('/transaksi', function () {
 
 // Submit Transaksi
 Route::post('/transaksi', [\App\Http\Controllers\TransaksiController::class, 'create']);
-

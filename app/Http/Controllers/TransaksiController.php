@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Layanan;
 use App\Models\Transaksi;
@@ -196,5 +197,43 @@ class TransaksiController extends Controller
                 'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
             ], 500);
         }
+    }
+// method riwayat
+    public function riwayat(Request $request) {
+    try {
+        // Ambil semua data transaksi beserta relasinya
+        $riwayat = Transaksi::with([
+            'pelanggan:id,nama,no_hp,alamat', 
+            'operator:id,nama,email',
+            'pembayaran', 
+            'detailLayanan.layanan'
+        ])
+        ->orderBy('tanggal', 'desc')
+        ->get();
+
+        // [PERCABANGAN] Jalur API: Jika dipanggil oleh api.php / meminta JSON
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data riwayat transaksi berhasil diambil',
+                'data' => $riwayat
+            ], 200);
+        }
+
+        // [PERCABANGAN] Jalur UI/Web: Jika diakses biasa lewat browser (Navbar)
+        return view('riwayat', compact('riwayat'));
+
+    } catch (\Exception $e) {
+        // [PERCABANGAN ERROR] Sesuai analisis Zidan
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memuat riwayat transaksi: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', 'Gagal memuat riwayat transaksi: ' . $e->getMessage());
+    }
+}
     }
 }
