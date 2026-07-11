@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/stok-barang', [StokBarangController::class, 'index']);
     Route::get('/printer', [PerangkatPrinterController::class, 'index']);
     Route::get('/master-data', [TransaksiController::class, 'getMasterData']);
+    Route::get('/transaksi/riwayat', [App\Http\Controllers\TransaksiController::class, 'riwayat']);
 
     // Manajemen Transaksi
     Route::post('/transaksi', [TransaksiController::class, 'create']);
