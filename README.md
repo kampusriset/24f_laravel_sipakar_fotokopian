@@ -46,7 +46,7 @@
    ```bash
 CREATE DATABASE sistem-pos-fotocopy-print
 
-#Create Table Pelanggan
+#1. Create Table Pelanggan
 CREATE TABLE pelanggan (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nama VARCHAR(100) NOT NULL,
@@ -56,13 +56,92 @@ CREATE TABLE pelanggan (
     updated_at TIMESTAMP NULL DEFAULT NULL
 );
 
-#Create Table Operator
-#Create Table Layanan
-#Create Table Perangkat Printer
-#Create Table Transaksi 
-#Create Table Detail Layanan
-#Create Table Pembayaran
-#Create Table Stok Barang
+#2. Create Table Operator
+CREATE TABLE operator (
+    id BIGINT UMSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100) NOT NULL,
+    email VARCHAR (100) UNIQUE,
+    password VARCHAR (255),
+    created_at timestamp NULL DEFAULT NULL,
+    updated_at timestamp NULL DEFAULT NULL,
+);
+
+#3. Create Table Layanan
+CREATE TABLE layanan (
+    id BIGINT UMSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nama_layanan VARCHAR(255) NOT NULL,
+    harga_per_lembar INT,
+    created_at timestamp NULL DEFAULT NULL,
+    updated_at timestamp NULL DEFAULT NULL,
+);
+
+#4. Create Table Perangkat Printer
+CREATE TABLE perangkat_printer (
+    id BIGINT UMSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nama_printer VARCHAR(255) NOT NULL,
+    status enum ['Aktif', 'Perbaikan'],
+    created_at timestamp NULL DEFAULT NULL,
+    updated_at timestamp NULL DEFAULT NULL,
+);
+
+#5. Create Table Transaksi
+CREATE TABLE transaksi (
+    id BIGINT UMSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pelanggan_id BIGINT UNSIGNED NOT NULL,
+    operator_id BIGINT UNSIGNED NOT NULL,
+    tanggal TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    tota_harga INT NOT NULL,
+    created_at timestamp NULL DEFAULT NULL,
+    updated_at timestamp NULL DEFAULT NULL,
+
+    FOREIGN KEY (pelanggan_id) REFERENCES pelanggan(id) ON DELETE RESTRICT,
+    FOREIGN KEY (opearator_id) REFERENCES operator(id) ON DELETE RESTRICT,
+    
+);
+
+#6. Create Table Detail Layanan
+CREATE TABLE detail_layanan (
+    id BIGINT UMSIGNED AUTO_INCREMENT PRIMARY KEY,
+    transaksi_id BIGINT UNSIGNED NOT NULL,  
+    layanan_id BIGINT UNSIGNED NOT NULL,
+    jumlah_halaman INT NOT NULL,
+    harga_satuan INT NOT NULL,
+    subtotal INT NULL,
+
+    file_dokumen VARCHAR (255) NOT NULL,
+    waktu_deadline TIMESTAMP NOT NULL,
+    skor_prioritas FLOAT NOT NULL,
+    status_antrean varchar (50) NOT NULL DEFAULT 'Menunggu',
+    created_at timestamp NULL DEFAULT NULL,
+    updated_at timestamp NULL DEFAULT NULL,
+
+    FOREIGN KEY (transaksi_id) REFERENCES transaksi(id) ON DELETE RESTRICT,
+    FOREIGN KEY (layanan_id) REFERENCES layanan(id) ON DELETE RESTRICT,
+);
+
+#7. Create Table Pembayaran
+CREATE TABLE pembayaran (
+    id BIGINT UNSIGNED AUTO_INCREAMENT PRIMARY KEY,
+    transaksi_id BIGINT UNSIGNED NOT NULL,
+    total_bayar INT NOT NULL,
+    metode VARCHAR (50) NOT NULL,
+    tanggal_bayar timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at timestamp NULL DEFAULT NULL,
+    updated_at timestamp NULL DEFAULT NULL,
+
+    FOREIGN KEY (transaksi_id) REFERENCES transaksi(id) ON DELETE RESTRICT,
+);
+
+#8. Create Table Stok Barang
+CREATE TABLE stok_barang (
+    id BIGINT UNSIGNED AUTO_INCREAMENT PRIMARY KEY,
+    nama_barang VARCHAR (255) NOT NULL,
+    kategori VARCHAR (255) NOT NULL,
+    jumlah_stok INT NOT NULL,
+    satuan VARHAR (100) NOT NULL,
+    created_at timestamp NULL DEFAULT NULL,
+    updated_at timestamp NULL DEFAULT NULL,
+);
 ```
 
 Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
