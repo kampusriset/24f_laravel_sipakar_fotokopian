@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pembayaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('cascade');
+            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('restrict');
             $table->integer('total_bayar');
             $table->string('metode', 50);
             $table->timestamp('tanggal_bayar')->useCurrent();

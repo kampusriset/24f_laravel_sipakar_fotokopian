@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('detail_layanan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('cascade');
-            $table->foreignId('layanan_id')->constrained('layanan')->onDelete('cascade');
+            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('restrict');
+            $table->foreignId('layanan_id')->constrained('layanan')->onDelete('restrict');
             $table->integer('jumlah_halaman');
             $table->integer('harga_satuan');
             $table->integer('subtotal')->nullable(); 
             
-            // --- Kebutuhan Database AI ---
-            $table->string('file_dokumen')->nullable();
-            $table->timestamp('waktu_deadline')->nullable();
+            // Kebutuhan Database AI 
+            $table->string('file_dokumen', 255);
+            $table->timestamp('waktu_deadline');
             $table->float('skor_prioritas')->nullable(); // Output dari rumus Fuzzy Tsukamoto
-            $table->string('status_antrean', 20)->default('Menunggu'); 
+            $table->string('status_antrean', 50)->default('Menunggu'); 
             $table->timestamps();
         });
     }
