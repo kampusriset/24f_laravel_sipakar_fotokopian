@@ -91,8 +91,10 @@ CREATE TABLE transaksi (
     created_at timestamp NULL DEFAULT NULL,
     updated_at timestamp NULL DEFAULT NULL,
 
-    FOREIGN KEY (pelanggan_id) REFERENCES pelanggan(id) ON DELETE RESTRICT,
-    FOREIGN KEY (opearator_id) REFERENCES operator(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_transaksi_pelanggan
+        FOREIGN KEY (pelanggan_id) REFERENCES pelanggan(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_transaksi_operator
+        FOREIGN KEY (opearator_id) REFERENCES operator(id) ON DELETE RESTRICT,
     
 );
 
@@ -112,8 +114,10 @@ CREATE TABLE detail_layanan (
     created_at timestamp NULL DEFAULT NULL,
     updated_at timestamp NULL DEFAULT NULL,
 
-    FOREIGN KEY (transaksi_id) REFERENCES transaksi(id) ON DELETE RESTRICT,
-    FOREIGN KEY (layanan_id) REFERENCES layanan(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_detail_layanan_transaksi
+        FOREIGN KEY (transaksi_id) REFERENCES transaksi(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_detail_layanan_layanan
+        FOREIGN KEY (layanan_id) REFERENCES layanan(id) ON DELETE RESTRICT,
 );
 
 #7. Create Table Pembayaran
@@ -126,7 +130,8 @@ CREATE TABLE pembayaran (
     created_at timestamp NULL DEFAULT NULL,
     updated_at timestamp NULL DEFAULT NULL,
 
-    FOREIGN KEY (transaksi_id) REFERENCES transaksi(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_pembayaran_transaksi
+        FOREIGN KEY (transaksi_id) REFERENCES transaksi(id) ON DELETE RESTRICT,
 );
 
 #8. Create Table Stok Barang
