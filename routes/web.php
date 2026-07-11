@@ -2,8 +2,6 @@
 
 use App\Models\Layanan;
 use App\Models\Transaksi;
-// use App\Models\Pelanggan;
-// use App\Models\pembayaran;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TransaksiController;
@@ -32,6 +30,7 @@ Route::get('/riwayat', function () {
 
 // Logika mengambil 5 data transaksi 
 Route::get('/', function() {
+    // Read
     $transaksiTerbaru = DB::table('transaksi')
                         ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
                         ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
@@ -53,28 +52,8 @@ Route::get('/', function() {
     return view('home', compact('transaksiTerbaru', 'daftarLayanan'));
 });
 
-// Logika pemanggilan data transaksi, pelanggan, detail layanan, pembayaran
-Route::get('/transaksi', function () {
-    $antreanAktif = DB::table('transaksi')
-                    ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
-                    ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
-                    ->join('layanan', 'detail_layanan.layanan_id', '=', 'layanan.id')
-                    ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
-                    ->select(
-                        'transaksi.id as id_transaksi',
-                        'pelanggan.nama as nama_pelanggan',
-                        'detail_layanan.file_dokumen',
-                        'layanan.nama_layanan',
-                        'detail_layanan.waktu_deadline',
-                        'pembayaran.metode',
-                        'detail_layanan.status_antrean'
-                    )
-                    ->where('detail_layanan.status_antrean', '!=', 'Selesai')
-                    ->orderBy('detail_layanan.waktu_deadline', 'asc')
-                    ->get();
-
-    return view('transaksi', compact('antreanAktif'));
-});
-
-// Submit Transaksi
-Route::post('/transaksi', [\App\Http\Controllers\TransaksiController::class, 'create']);
+// Manajemen Transaksi
+Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('transaksi.getMasterData');
+Route::post('/transaksi', [TransaksiController::class, 'create'])->name('transaksi.create');
+Route::put('/transaksi/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
+Route::delete('/transaksi/{id}', [TransaksiController::class, 'delete'])->name('transaksi.delete');

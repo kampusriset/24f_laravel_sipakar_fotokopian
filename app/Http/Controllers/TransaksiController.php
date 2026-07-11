@@ -13,24 +13,49 @@ use Illuminate\Http\Request;
 use App\Models\DetailLayanan;
 use Illuminate\Support\Facades\DB;
 
-// CEK KODENYA DAN CEK WORK OR NOT
+// CEK KODE UNTUK FULL UPDATE, MASUKNYA EDITNYA MASIH SALAH
 class TransaksiController extends Controller
 {
     // Read | Ambil data gabungan dari Layanan & Pelanggan
-    public function getMasterData() {
+    public function getMasterData(Request $request) {
         $pelanggan = Pelanggan::select('id', 'nama')->get();
         $layanan = Layanan::select('id', 'nama_layanan', 'harga_per_lembar')->get();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => [
-                'pelanggan' => $pelanggan,
-                'layanan' => $layanan,
-            ]
-        ]);
+        $antreanAktif = DB::table('transaksi')
+                    ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
+                    ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
+                    ->join('layanan', 'detail_layanan.layanan_id', '=', 'layanan.id')
+                    ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
+                    ->select(
+                        'transaksi.id as id_transaksi',
+                        'pelanggan.nama as nama_pelanggan',
+                        'detail_layanan.file_dokumen',
+                        'detail_layanan.jumlah_halaman',
+                        'layanan.nama_layanan',
+                        'detail_layanan.waktu_deadline',
+                        'pembayaran.metode',
+                        'detail_layanan.status_antrean',
+                        'transaksi.total_harga',    
+                        'pembayaran.total_bayar'
+                    )
+                    ->where('detail_layanan.status_antrean', '!=', 'Selesai')
+                    ->orderBy('detail_layanan.waktu_deadline', 'asc')
+                    ->get();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'pelanggan' => $pelanggan,
+                    'layanan' => $layanan,
+                    'antrean_aktif' => $antreanAktif,
+                ]
+            ]);
+        }
+        return view('transaksi', compact('antreanAktif', 'pelanggan', 'layanan'));
     }
 
-    // Create
+    // Method Create
     public function create(Request $request) {
         DB::beginTransaction();
 
@@ -107,73 +132,111 @@ class TransaksiController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Transaksi berhasil disimpan. Terdeteksi ' . $jumlahHalaman . ' halaman, Total: Rp ' . number_format($totalHarga, 0, ',', '.'));
+            if ($transaksi) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Transaksi berhasil disimpan: ' . $e->getMessage(),
+                    'data' => [
+                        'jumlah_halaman' => $jumlahHalaman,
+                        'total_harga' => $totalHarga
+                    ]
+                ], 201);
+
+                return redirect()->back()->with('success', 'Transaksi berhasil disimpan. Terdeteksi ' . $jumlahHalaman . ' halaman, Total: Rp ' . number_format($totalHarga, 0, ',', '.'));
+            }
             
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
+            if (!$transaksi) {
+                return response()->json([
+                    'status' => 'error',
+                'message' => 'Gagal edit transaksi: ' . $e->getMessage()
+                ], 500);
+
+                return redirect()->back()->with('error', 'Gagal menyimpan transaksi' . $e->getMessage());
+            }
         }
     }
 
-    // Update
+    // Method Update
     public function update(Request $request, $id) {
         $transaksi = Transaksi::find($id);
 
+        // Cek Transaksi
         if (!$transaksi) {
-            return response()->json([
-                'status' => 'error', 
-                'message' => 'Transaksi tidak ditemukan'
-            ], 404);
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Transaksi tidak ditemukan'], 404);
+            }
+            return redirect()->back()->with('error', 'Transaksi tidak ditemukan');
         }
 
         DB::beginTransaction();
 
         try {
             $detail = DetailLayanan::where('transaksi_id', $id)->first();
-            if($detail) {
-                $detail->layanan_id = $request->layanan_id;
-                $detail->jumlah_halaman = $request->jumlah_halaman;
-                $detail->harga_satuan = $request->harga_satuan;
-                $detail->subtotal = $request->total_harga;
-                $detail->save();
-            }
+            $pesanSukses = 'Data berhasil diperbarui';
 
-            $transaksi->total_harga = $request->total_harga;
-            $transaksi->save();
+            // Logika Update Status atau Full Update
+            if ($request->has('status_antrean')) {
+                if ($detail) {
+                    // FIXED TYPO: status_antrean dan $request
+                    $detail->status_antrean = $request->status_antrean; 
+                    $detail->save();
+                }
+                $pesanSukses = 'Status pesanan berhasil diubah menjadi ' . $request->status_antrean;
+            } else {
+                // Update Full Data
+                if ($detail) {
+                    $detail->layanan_id = $request->layanan_id;
+                    $detail->jumlah_halaman = $request->jumlah_halaman;
+                    $detail->harga_satuan = $request->harga_satuan;
+                    $detail->subtotal = $request->total_harga;
+                    $detail->save();
+                }
 
-            $pembayaran = Pembayaran::where('transaksi_id', $id)->first();
-            if($pembayaran) {
-                $pembayaran->total_bayar = $request->total_harga;
-                $pembayaran->metode = $request->metode;
-                $pembayaran->save();
+                $transaksi->total_harga = $request->total_harga;
+                $transaksi->save();
+
+                $pembayaran = Pembayaran::where('transaksi_id', $id)->first();
+                if ($pembayaran) {
+                    $pembayaran->total_bayar = $request->total_harga;
+                    $pembayaran->metode = $request->metode;
+                    $pembayaran->save();
+                }
+                $pesanSukses = 'Transaksi berhasil terupdate';
             }
 
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data transaksi berhasil diperbaiki',
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'success', 'message' => $pesanSukses], 200);
+            }
+            return redirect()->back()->with('success', $pesanSukses);
+
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal edit transaksi: ' . $e->getMessage()
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Gagal edit: ' . $e->getMessage()], 500);
+            }
+            return redirect()->back()->with('error', 'Gagal edit transaksi: ' . $e->getMessage());
         }
     }
 
-    // Delete
-    public function delete($id) {
+    // Method Delete
+    public function delete(Request $request, $id) {
         $transaksi = Transaksi::find($id);
 
         if (!$transaksi) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Transaksi tidak ditemukan'
-            ], 404);
+            if($request->expectsJson()) {
+                return response->json([
+                    'status' => 'error',
+                    'message' => 'Transaksi tidak ditemukan'
+                ], 404);
+            }
+
+            return redirect()->back()->with('error', 'Transaksi tidak ditemukan');
         }
 
         DB::beginTransaction();
@@ -184,18 +247,28 @@ class TransaksiController extends Controller
             $transaksi->delete();
 
             DB::commit();
+
+            if ($transaksi) {
+                return response()->json([
+                    'status' => 'success', 
+                    'message' => 'Transaksi berhasil terupdate'
+                ], 404);
             
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data transaksi berhasil dihapus'
-            ]);
+                return redirect()->back()->with('success', 'Transaksi berhasil dihapus');
+            }
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
-            ], 500);
+            if (!$transaksi) {
+                if($request->expectJson()) {
+                    return response->json([
+                        'status' => 'error',
+                        'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
+                    ], 500);
+                }
+
+                return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
+            }
         }
     }
 // method riwayat
