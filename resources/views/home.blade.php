@@ -1,4 +1,4 @@
-<!-- FIX DI BAGIAN TRANSAKSI BARU, BELUM SINKRON KE DATABASE -->
+<!-- UDAH SINKRON SAMA DATABASE TAPI BELUM ADA KOLOM HARGANYA -->
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
 <head>
@@ -13,9 +13,8 @@
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #121212; /* Warna background utama */
+            background-color: #121212; 
         }
-        /* Efek hover elegan untuk menu Navigasi Atas */
         .nav-link {
             transition: all 0.3s ease;
             border-radius: 6px;
@@ -26,7 +25,6 @@
             background-color: rgba(255, 255, 255, 0.05); 
             transform: translateY(-2px); 
         }
-        /* Kartu Dashboard */
         .widget-card { 
             transition: transform 0.3s ease, box-shadow 0.3s ease; 
         }
@@ -140,78 +138,92 @@
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-dark table-hover table-borderless align-middle mb-0">
-                            
                             <thead class="border-bottom border-secondary text-muted">
                                 <tr>
-                                    <th scope="col" class="py-3 px-4 fw-medium text-uppercase" style="font-size: 0.85rem;">Nama</th>
+                                    <th scope="col" class="py-3 px-4 fw-medium text-uppercase" style="font-size: 0.85rem;">Nama Pelanggan</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">File</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Halaman</th>
+                                    <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Layanan</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Tenggat</th>
-                                    <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Pembayaran</th>
-                                    <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Proses</th>
+                                    <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Total</th>
+                                    <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Metode</th>
+                                    <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Status</th>
                                     <th scope="col" class="py-3 text-end px-4 fw-medium text-uppercase" style="font-size: 0.85rem;">Aksi</th>
                                 </tr>
                             </thead>
-                            
                             <tbody>
-                                @forelse ($transaksiTerbaru as $trx)
+                                @forelse ($transaksiTerbaru as $antrean)
                                     <tr>
-                                        <td class="py-3 px-4 fw-semibold text-light">
-                                            {{ $trx->nama_pelanggan }}
-                                        </td>
+                                        <td class="py-3 px-4 fw-semibold text-light">{{ $antrean->nama_pelanggan }}</td>
                                         
                                         <td class="py-3 text-muted">
-                                            @if($trx->file_dokumen)
+                                            @if($antrean->file_dokumen)
                                                 <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
-                                                <span class="d-inline-block text-truncate" style="max-width: 150px;" title="{{ $trx->file_dokumen }}">
-                                                    {{ preg_replace('/^[0-9]+_/', '', $trx->file_dokumen) }}
-                                                </span>
+                                                <span class="d-inline-block text-truncate" style="max-width: 150px;">{{ preg_replace('/^[0-9]+_/', '', $antrean->file_dokumen) }}</span>
                                             @else
                                                 <span class="badge bg-secondary text-light">Dokumen Fisik</span>
                                             @endif
                                         </td>
-                                        
-                                        <td class="py-3 text-light">{{ $trx->jumlah_halaman }} Lembar</td>
-                                        
-                                        <td class="py-3 text-warning fw-medium">
-                                            {{ \Carbon\Carbon::parse($trx->waktu_deadline)->format('H:i') }} WIB
+
+                                        <td class="py-3">{{ $antrean->jumlah_halaman ?? '-' }} Lembar</td>
+                                        <td class="py-3">{{ $antrean->nama_layanan }}</td>
+                                        <td class="py-3 text-warning fw-medium">{{ \Carbon\Carbon::parse($antrean->waktu_deadline)->format('H:i') }} WIB</td>
+
+                                        <td class="py-3 fw-semibold text-success">
+                                            Rp {{ number_format($antrean->total_harga, 0, ',', '.') }}
                                         </td>
                                         
                                         <td class="py-3">
-                                            <span class="badge bg-success text-white px-2 py-1 rounded-pill">
-                                                {{ $trx->metode }}
-                                            </span>
+                                            @if($antrean->metode == 'Cash') <span class="badge bg-success">Cash</span>
+                                            @elseif($antrean->metode == 'QRIS') <span class="badge bg-info text-dark">QRIS</span>
+                                            @else <span class="badge bg-primary">{{ $antrean->metode }}</span> @endif
                                         </td>
                                         
                                         <td class="py-3">
-                                            @if($trx->status_antrean == 'Selesai')
-                                                <span class="badge bg-success px-2 py-1 rounded-pill">{{ $trx->status_antrean }}</span>
-                                            @else
-                                                <span class="badge bg-primary px-2 py-1 rounded-pill">{{ $trx->status_antrean }}</span>
-                                            @endif
+                                            <span class="badge {{ $antrean->status_antrean == 'Selesai' ? 'bg-success' : 'bg-primary' }}">{{ $antrean->status_antrean }}</span>
                                         </td>
                                         
                                         <td class="py-3 text-end px-4">
-                                            <button class="btn btn-sm btn-outline-info me-1" title="Lihat Detail">
-                                                &#128065;
+                                            <!-- <button class="btn btn-sm btn-outline-info" title="Lihat Detail"><i class="bi bi-eye"></i></button> -->
+                                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#detailModal{{ $antrean->id_transaksi }}" title="Lihat Detail">
+                                                <i class="bi bi-eye"></i>
                                             </button>
-                                            @if($trx->status_antrean != 'Selesai')
-                                                <button class="btn btn-sm btn-outline-success" title="Tandai Selesai">
-                                                    &#10004;
-                                                </button>
-                                            @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-5 text-muted">
-                                            Belum ada transaksi terbaru hari ini.
-                                        </td>
+                                        <td colspan="8" class="text-center py-5 text-muted">Tidak ada transaksi terbaru.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
-
                         </table>
+
+                        <!-- POP UP Detailing Data -->
+                        @foreach($transaksiTerbaru as $antrean)
+                            <div class="modal fade" id="detailModal{{ $antrean->id_transaksi }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content bg-dark text-light border-secondary">
+                                        <div class="modal-header border-secondary">
+                                            <h5 class="modal-title">Detail: {{ $antrean->nama_pelanggan }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Layanan:</strong> {{ $antrean->nama_layanan }}</p>
+                                            <p><strong>Status:</strong> {{ $antrean->status_antrean }}</p>
+                                            <p><strong>Jumlah:</strong> {{ $antrean->jumlah_halaman }} Lembar</p>
+                                            <p>
+                                                <strong>File:</strong> 
+                                                @if($antrean->file_dokumen)
+                                                    {{ preg_replace('/^[0-9]+_/', '', $antrean->file_dokumen) }}
+                                                @else
+                                                    Tidak ada file
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </div>

@@ -5,9 +5,9 @@ use App\Models\Transaksi;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\HomeController;
 
-// Rute riwayat dipindahkan ke atas agar diprioritaskan oleh Laravel
-Route::get('/riwayat', function () {
+Route::get('/riwayat', function () { //DIPINDAH KE DALAM CONTROLLER CEK ROUTE BAGIAN TRANSAKSI, DIBIKIN GITU AE BIAR CLEAN KODENE
     // Mengambil semua transaksi yang statusnya 'Selesai' dengan Join Tabel yang benar
     $riwayatTransaksi = DB::table('transaksi')
                         ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
@@ -28,29 +28,8 @@ Route::get('/riwayat', function () {
     return view('riwayat', compact('riwayatTransaksi'));
 });
 
-// Logika mengambil 5 data transaksi 
-Route::get('/', function() {
-    // Read
-    $transaksiTerbaru = DB::table('transaksi')
-                        ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
-                        ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
-                        ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
-                        ->select(
-                            'pelanggan.nama as nama_pelanggan',
-                            'detail_layanan.file_dokumen',
-                            'detail_layanan.jumlah_halaman',
-                            'detail_layanan.waktu_deadline',
-                            'pembayaran.metode',
-                            'detail_layanan.status_antrean'
-                        )
-                        ->orderBy('transaksi.created_at', 'desc')
-                        ->take(5)
-                        ->get();
-
-    $daftarLayanan = \App\Models\Layanan::all();
-
-    return view('home', compact('transaksiTerbaru', 'daftarLayanan'));
-});
+// Read part Home
+Route::get('/', [HomeController::class, 'index']);
 
 // Manajemen Transaksi
 Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('transaksi.getMasterData');

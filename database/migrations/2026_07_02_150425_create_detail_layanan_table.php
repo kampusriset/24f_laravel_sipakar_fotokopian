@@ -17,11 +17,11 @@ return new class extends Migration
             $table->foreignId('layanan_id')->constrained('layanan')->onDelete('restrict');
             $table->integer('jumlah_halaman');
             $table->integer('harga_satuan');
-            $table->integer('subtotal')->nullable(); 
+            $table->integer('subtotal')->NotNull();
             
             // Kebutuhan Database AI 
-            $table->string('file_dokumen', 255);
-            $table->timestamp('waktu_deadline');
+            $table->string('file_dokumen', 255)->NotNull();
+            $table->timestamp('waktu_deadline')->NotNull();
             $table->float('skor_prioritas')->nullable(); // Output dari rumus Fuzzy Tsukamoto
             $table->string('status_antrean', 50)->default('Menunggu'); 
             $table->timestamps();

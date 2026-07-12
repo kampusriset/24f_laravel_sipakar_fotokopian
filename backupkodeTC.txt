@@ -12,7 +12,7 @@ use Smalot\PdfParser\Parser;
 use App\Models\DetailLayanan;
 use Illuminate\Support\Facades\DB;
 
-// CEK KODE UNTUK FULL UPDATE, BELUM BISA DI KLIK & MALAH ERROR, BELUM KETEMU 
+// CEK KODE UNTUK FULL UPDATE, MASUKNYA EDITNYA MASIH SALAH
 class TransaksiController extends Controller
 {
     // Read | Ambil data gabungan dari Layanan & Pelanggan
@@ -176,14 +176,10 @@ class TransaksiController extends Controller
         }
 
         // Validasi Update
-        if (!$request->has('status_antrean')) { 
+        if (!$request->has('status_antrean')) { //dikasih tambahan kolom apa?
             $request->validate([
-                'nama_pelanggan' => 'nullable|string|max:255',
-                'no_hp'          => 'nullable|string',
-                'alamat'         => 'nullable|string',
-                'file_dokumen'   => 'nullable|file|mimes:pdf',
-                'jumlah_halaman' => 'nullable|numeric|min:1',
-                'metode'         => 'nullable|string',
+                'nama_pelanggan' => 'required|string|max:255',
+                'jumlah_halaman' => 'required|numeric|min:1',
             ]);
         }
 
@@ -193,39 +189,25 @@ class TransaksiController extends Controller
             $detail = DetailLayanan::where('transaksi_id', $id)->first();
             $pesanSukses = 'Data berhasil diperbarui';
 
-            // Logika Update Status
+            // Logika Update Status atau Full Update
             if ($request->has('status_antrean')) {
                 if ($detail) {
                     $detail->status_antrean = $request->status_antrean; 
                     $detail->save();
                 }
                 $pesanSukses = 'Status pesanan berhasil diubah menjadi ' . $request->status_antrean;
-                
             } else {
-                // Logika Update Full Data
+                // Update Full Data
                 $pelanggan = DB::table('pelanggan')->where('id', $transaksi->pelanggan_id)->first();
-                if ($pelanggan) {
+                if ($pelanggan && $request->has('nama_pelanggan')) {
                     DB::table('pelanggan')
                         ->where('id', $transaksi->pelanggan_id)
-                        ->update([
-                            'nama'   => $request->nama_pelanggan ?? $pelanggan->nama,
-                            'no_hp'  => $request->no_hp ?? $pelanggan->no_hp,
-                            'alamat' => $request->alamat ?? $pelanggan->alamat
-                        ]);
+                        ->update(['nama' => $request->nama_pelanggan]);
                 }
 
                 if ($detail) {
-                    if ($request->hasFile('file_dokumen')) {
-                        $file = $request->file('file_dokumen');
-                        $namaFileFisik = time() . '_' . $file->getClientOriginalName();
-                        $file->storeAs('public/dokumen', $namaFileFisik);
-                        
-                        $detail->file_dokumen = $namaFileFisik; 
-                    }
-
                     // Inputan Baru
                     $layananId = $request->layanan_id ?? $detail->layanan_id;
-                    
                     $jumlahHalaman = $request->jumlah_halaman ?? $detail->jumlah_halaman;
 
                     // Kalkulasi Harga
@@ -247,17 +229,17 @@ class TransaksiController extends Controller
                         $pembayaran->total_bayar = $totalHarga;
                         $pembayaran->metode = $request->metode ?? $pembayaran->metode;
                         $pembayaran->save();
-                    }
+                        }
                 }
-                $pesanSukses = 'Transaksi berhasil terupdate';
+                    $pesanSukses = 'Transaksi berhasil terupdate';
             }
 
             DB::commit();
 
-            if ($request->expectsJson()) {
-                return response()->json(['status' => 'success', 'message' => $pesanSukses], 200);
-            }
-            return redirect()->back()->with('success', $pesanSukses);
+                if ($request->expectsJson()) {
+                    return response()->json(['status' => 'success', 'message' => $pesanSukses], 200);
+                }
+                return redirect()->back()->with('success', $pesanSukses);
 
         } catch (\Exception $e) {
             DB::rollBack();

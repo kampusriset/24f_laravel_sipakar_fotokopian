@@ -1,3 +1,4 @@
+<!-- BELUM SINKRON KE DATABASE BAGIAN UPDATE FULL DATANYA -->
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
 <head>
@@ -98,8 +99,8 @@
                 </div>
 
                 @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                    <div class="alert alert-success alert-dismissible fade show" id="myAlert" role="alert">
+                        {{ session('success') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
@@ -125,14 +126,32 @@
                 <form action="/transaksi" method="POST" enctype="multipart/form-data">
                     @csrf 
                     
-                    <div class="row g-4 mb-4">
+                    <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="nama_pelanggan" class="form-label">Nama Pelanggan</label>
-                            <input type="text" class="form-control" name="nama_pelanggan" id="nama_pelanggan" placeholder="Contoh: Budi Mahasiswa" required>
+                            <label class="form-label text-muted small text-uppercase fw-bold">Nama Pelanggan</label>
+                            <input type="text" name="nama_pelanggan" class="form-control bg-dark text-light border-secondary focus-ring focus-ring-primary" placeholder="Contoh: Budi Mahasiswa" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="jenis_layanan" class="form-label">Jenis Layanan</label>
-                            <select class="form-select" name="layanan_id" id="jenis_layanan" required>
+                            <label class="form-label text-muted small text-uppercase fw-bold">No HP / WhatsApp</label>
+                            <input type="text" name="no_hp" class="form-control bg-dark text-light border-secondary focus-ring focus-ring-primary" placeholder="Contoh: 081234567890" >
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label text-muted small text-uppercase fw-bold">Alamat</label>
+                            <textarea name="alamat" class="form-control bg-dark text-light border-secondary focus-ring focus-ring-primary" rows="2" placeholder="Contoh: Jl. Slamet Riyadi, Solo" ></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase fw-bold">File Dokumen PDF</label>
+                            <input type="file" name="file_dokumen" class="form-control bg-dark text-light border-secondary focus-ring focus-ring-primary" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase fw-bold">Jenis Layanan</label>
+                            <select name="layanan_id" class="form-select bg-dark text-light border-secondary focus-ring focus-ring-primary" required>
                                 <option value="" selected disabled>Pilih Layanan...</option>
                                 <option value="1">Fotocopy Hitam Putih</option>
                                 <option value="2">Print Warna</option>
@@ -143,19 +162,17 @@
                         </div>
                     </div>
 
-                    <div class="row g-4 mb-4">
+                    <div class="row mb-4">
                         <div class="col-md-6">
-                            <label for="file_dokumen" class="form-label">File Dokumen PDF</label>
-                            <input class="form-control" type="file" name="file_dokumen" id="file_dokumen" accept=".pdf">
+                            
+                            <label for="tenggat_waktu" class="form-label text-muted small text-uppercase fw-bold">Tenggat Waktu</label>
+                            <input type="time" class="form-control bg-dark text-light border-secondary focus-ring focus-ring-primary"" name="waktu_deadline" required>
+
                         </div>
-                        <div class="col-md-3">
-                            <label for="tenggat_waktu" class="form-label">Tenggat Waktu</label>
-                            <input type="time" class="form-control" name="waktu_deadline" id="tenggat_waktu" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
-                            <select class="form-select" name="metode" id="metode_pembayaran" required>
-                                <option value="Cash" selected>Cash</option>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small text-uppercase fw-bold">Metode Pembayaran</label>
+                            <select name="metode" class="form-select bg-dark text-light border-secondary focus-ring focus-ring-primary" required>
+                                <option value="Cash">Cash</option>
                                 <option value="QRIS">QRIS</option>
                             </select>
                         </div>
@@ -191,6 +208,7 @@
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Halaman</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Layanan</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Tenggat</th>
+                                    <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Total</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Metode</th>
                                     <th scope="col" class="py-3 fw-medium text-uppercase" style="font-size: 0.85rem;">Status</th>
                                     <th scope="col" class="py-3 text-end px-4 fw-medium text-uppercase" style="font-size: 0.85rem;">Aksi</th>
@@ -223,6 +241,10 @@
                                             {{ \Carbon\Carbon::parse($antrean->waktu_deadline)->format('H:i') }} WIB
                                         </td>
 
+                                        <td class="py-3 fw-semibold text-success">
+                                            Rp {{ number_format($antrean->total_harga, 0, ',', '.') }}
+                                        </td>
+
                                         <td class="py-3">
                                             @if($antrean->metode == 'Cash')
                                                 <span class="badge bg-success">{{ $antrean->metode }}</span>
@@ -236,27 +258,14 @@
                                         <td class="py-3">
                                             <span class="badge bg-primary">{{ $antrean->status_antrean }}</span>
                                         </td>
-                                        
-                                        <!-- <td class="py-3 text-end px-4">
-                                            <button class="btn btn-sm btn-outline-success" title="Tandai Selesai">
-                                                &#10004;
-                                            </button>
-                                        </td> -->
+
                                         <td class="py-3 px-4">
-                                            <div class="d-flex gap-2 justify-content-end">
-                                                
-                                                <!-- Tombol Edit Cetak -->
-                                                <form action="{{ route('transaksi.update', $antrean->id_transaksi) }}" method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <input type="hidden" name="status_antrean" value="Cetak">
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Tandai Sedang Dicetak">
-                                                        <i class="bi bi-printer"></i>
-                                                    </button>
-                                                </form>
-    
-                                                <!-- Tombol Edit Selesai -->
-                                                <form action="{{ route('transaksi.update', $antrean->id_transaksi) }}" method="POST">
+                                                <div class="d-flex gap-2 justify-content-end">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $antrean->id_transaksi }}" title="Edit Data">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+
+                                                <form action="{{ route('transaksi.update', $antrean->id_transaksi) }}" method="POST" onsubmit="return confirm('Tandai antrean ini selesai?');">
                                                     @csrf
                                                     @method('PUT')
                                                     <input type="hidden" name="status_antrean" value="Selesai">
@@ -265,21 +274,17 @@
                                                     </button>
                                                 </form>
 
-                                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ $antrean->id_transaksi }}" title="Edit Transaksi">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-    
-                                                <!-- Tombol Delete -->
                                                 <form action="{{ route('transaksi.delete', $antrean->id_transaksi) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus antrean ini dari sistem?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Antrean">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Data">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
-                                                
+                                                </form>
                                             </div>
                                         </td>
+
                                     </tr>
                                 @empty
                                     <tr>
@@ -296,32 +301,74 @@
             </div>
         </div>
         @foreach($antreanAktif as $antrean)
-            <div class="modal fade" id="editModal{{ $antrean->id_transaksi }}" tabindex="-1">
-                <div class="modal-dialog">
-                    <form action="{{ route('transaksi.update', $antrean->id_transaksi) }}" method="POST" class="modal-content bg-dark border-secondary">
-                        @csrf
-                        @method('PUT')
+            <!-- Modal Edit Data -->
+            <div class="modal fade" id="modalEdit{{ $antrean->id_transaksi }}" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content bg-dark text-white border-secondary">
                         <div class="modal-header border-secondary">
-                            <h5 class="modal-title">Edit Transaksi {{ $antrean->nama_pelanggan }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <h5 class="modal-title" id="modalEditLabel">Edit Data: {{ $antrean->pelanggan->nama }}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Total Harga (Rp)</label>
-                                <input type="number" name="total_harga" class="form-control" value="{{ $antrean->total_bayar ?? $antrean->total_harga }}">
+                        
+                        <form action="{{ route('transaksi.update', $antrean->id_transaksi) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-body">
+                                <!-- Nama, No HP, Alamat -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label>Nama Pelanggan</label>
+                                        <input type="text" name="nama_pelanggan" class="form-control bg-secondary text-white border-0" value="{{ $antrean->pelanggan->nama }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>No HP</label>
+                                        <input type="text" name="no_hp" class="form-control bg-secondary text-white border-0" value="{{ $antrean->pelanggan->no_hp }}">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Alamat</label>
+                                    <textarea name="alamat" class="form-control bg-secondary text-white border-0">{{ $antrean->pelanggan->alamat }}</textarea>
+                                </div>
+
+                                <!-- File, Jml Halaman, Metode -->
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label>Ganti File PDF</label>
+                                        <input type="file" name="file_dokumen" class="form-control bg-secondary text-white border-0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Jml Halaman</label>
+                                        <input type="number" name="jumlah_halaman" class="form-control bg-secondary text-white border-0" value="{{ $antrean->detail_layanan->jumlah_halaman }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Metode Pembayaran</label>
+                                        <select name="metode" class="form-select bg-secondary text-white border-0">
+                                            <option value="Cash" {{ $antrean->pembayaran->metode == 'Cash' ? 'selected' : '' }}>Cash</option>
+                                            <option value="QRIS" {{ $antrean->pembayaran->metode == 'QRIS' ? 'selected' : '' }}>QRIS</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                            <!-- Tambahkan input lain sesuai kebutuhan -->
-                        </div>
-                        <div class="modal-footer border-secondary">
-                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                        </div>
-                    </form>
+                            <div class="modal-footer border-secondary">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         @endforeach
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        setTimeout(function() {
+            var alertElement = document.getElementById('myAlert');
+            if (alertElement) {
+                var alert = new bootstrap.Alert(alertElement);
+                alert.close();
+            }
+        }, 3000); 
+    </script>
 </body>
 </html>

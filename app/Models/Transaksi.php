@@ -15,14 +15,18 @@ class Transaksi extends Model
     ];
 
     public function pelanggan() {
-        return $this->belongsTo(Pelanggan::class);
+        return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
     }
 
     public function operator() {
         return $this->belongsTo(Operator::class);
     }
 
+    public function detail_layanan() { 
+        return $this->hasOne(DetailLayanan::class, 'transaksi_id'); 
+    }
+
     public function pembayaran() {
-        return $this->hasOne(Pembayaran::class);
+        return $this->hasOne(Pembayaran::class, 'transaksi_id');
     }
 }
