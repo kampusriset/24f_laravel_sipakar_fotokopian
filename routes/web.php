@@ -36,3 +36,9 @@ Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('t
 Route::post('/transaksi', [TransaksiController::class, 'create'])->name('transaksi.create');
 Route::put('/transaksi/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
 Route::delete('/transaksi/{id}', [TransaksiController::class, 'delete'])->name('transaksi.delete');
+
+// Manajemen Stok Barang
+Route::get('/stok-barang', [StokBarangController::class, 'index'])->name('stok.index');
+Route::post('/stok-barang', [StokBarangController::class, 'create'])->name('stok.create');
+Route::put('/stok-barang/{id}', [StokBarangController::class, 'update'])->name('stok.update');
+Route::delete('/stok-barang/{id}', [StokBarangController::class, 'destroy'])->name('stok.delete');
