@@ -61,7 +61,7 @@
                         <a class="nav-link text-white" href="{{ url('/riwayat') }}">Riwayat</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="#">Stok Barang</a>
+                        <a class="nav-link text-white" href="{{ url('/stok-barang') }}">Stok Barang</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="#">Laporan</a>

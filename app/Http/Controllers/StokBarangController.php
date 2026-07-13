@@ -21,7 +21,7 @@ class StokBarangController extends Controller
             ], 200);
         }
 
-        return view('barang.index', compact('barang'));
+        return view('stokBarang', compact('barang'));
     }
 
     // CREATE

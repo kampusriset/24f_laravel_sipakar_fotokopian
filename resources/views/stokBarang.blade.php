@@ -3,31 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Manajemen Stok Barang</title>
-
-    <!-- Menggunakan Bootstrap 5 & Bootstrap Icons via CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- Sedikit custom CSS untuk menyamakan dengan tema Dark Mode milikmu -->
+    <title>POS Fotocopy & Print</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            background-color: #121212;
-            color: #f8f9fa;
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #121212; 
         }
-        .bg-dark {
-            background-color: #1e1e1e !important;
+        .nav-link {
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            padding: 8px 16px !important;
+            margin: 0 4px;
         }
-        .border-secondary {
-            border-color: #333 !important;
+        .nav-link:hover:not(.active) { 
+            background-color: rgba(255, 255, 255, 0.05); 
+            transform: translateY(-2px); 
+        }
+        .widget-card { 
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        }
+        .widget-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); 
         }
     </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let alerts = document.querySelectorAll('.alert');
+            
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    let bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 3000);
+            });
+        });
+    </script>
 </head>
 <body>
-
+    <nav class="navbar navbar-expand-lg bg-dark border-bottom border-secondary py-3">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fs-4 fw-bold me-5" href="/">
+                POS <span class="text-primary">Fotocopy</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-medium" href="{{ url('/') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url('/transaksi') }}">Transaksi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">Jenis Layanan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url('/riwayat') }}">Riwayat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active bg-primary text-white" href="{{ url('/stok-barang') }}">Stok Barang</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">Laporan</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center text-end mt-3 mt-lg-0">
+                    <div>
+                        <strong class="d-block lh-1 text-white">Kasir Aktif</strong>
+                        <small class="text-muted" style="font-size: 0.8rem;">Super Admin</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
     <div class="container py-5">
-        
         <!-- Bagian Header & Notifikasi -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="text-white fw-bold">Daftar Stok Barang</h3>
@@ -70,7 +131,7 @@
                         </thead>
                         <tbody class="border-secondary">
                             <!-- Looping data stok -->
-                            @forelse($stok as $item)
+                            @forelse($barang as $item)
                             <tr>
                                 <td class="px-4">{{ $loop->iteration }}</td>
                                 <td class="fw-bold">{{ $item->nama_barang }}</td>
@@ -90,7 +151,7 @@
                                         </button>
 
                                         <!-- Tombol Delete -->
-                                        <form action="{{ route('stok.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus barang ini?');">
+                                        <form action="{{ route('stok.delete', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus barang ini?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Data">
@@ -165,7 +226,7 @@
                     <h5 class="modal-title fw-bold">Tambah / Restok Barang</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('stok.store') }}" method="POST">
+                <form action="{{ route('stok.create') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <!-- Penjelasan Fitur Auto-Restok -->
@@ -201,7 +262,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS (Dibutuhkan agar Modal dan Alert berfungsi) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

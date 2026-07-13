@@ -57,22 +57,22 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="/">Home</a>
+                        <a class="nav-link text-white" href="{{ url('/') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active bg-primary text-white fw-medium" href="/transaksi">Transaksi</a>
+                        <a class="nav-link active bg-primary text-white fw-medium" href="{{ url('/transaksi') }}">Transaksi</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="#">Jenis Layanan</a>
+                        <a class="nav-link text-white" href="{{ url('/stok-barang') }}">Jenis Layanan</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="#">Riwayat</a>
+                        <a class="nav-link text-white" href="{{ url('/riwayat') }}">Riwayat</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="#">Stok Barang</a>
+                        <a class="nav-link text-white" href="{{ url('/stok-barang') }}">Stok Barang</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="#">Laporan</a>
+                        <a class="nav-link text-white" href="{{ url('/stok-barang') }}">Laporan</a>
                     </li>
                 </ul>
                 
@@ -306,7 +306,7 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content bg-dark text-white border-secondary">
                         <div class="modal-header border-secondary">
-                            <h5 class="modal-title" id="modalEditLabel">Edit Data: {{ $antrean->pelanggan->nama }}</h5>
+                            <h5 class="modal-title" id="modalEditLabel">Edit Data: {{ $antrean->nama_pelanggan }}</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         
@@ -318,16 +318,16 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label>Nama Pelanggan</label>
-                                        <input type="text" name="nama_pelanggan" class="form-control bg-secondary text-white border-0" value="{{ $antrean->pelanggan->nama }}" required>
+                                        <input type="text" name="nama_pelanggan" class="form-control bg-secondary text-white border-0" value="{{ $antrean->nama_pelanggan }}" required>
                                     </div>
                                     <div class="col-md-6">
                                         <label>No HP</label>
-                                        <input type="text" name="no_hp" class="form-control bg-secondary text-white border-0" value="{{ $antrean->pelanggan->no_hp }}">
+                                        <input type="text" name="no_hp" class="form-control bg-secondary text-white border-0" value="{{ $antrean->no_hp }}">
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label>Alamat</label>
-                                    <textarea name="alamat" class="form-control bg-secondary text-white border-0">{{ $antrean->pelanggan->alamat }}</textarea>
+                                    <textarea name="alamat" class="form-control bg-secondary text-white border-0">{{ $antrean->alamat }}</textarea>
                                 </div>
 
                                 <!-- File, Jml Halaman, Metode -->
@@ -338,13 +338,13 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label>Jml Halaman</label>
-                                        <input type="number" name="jumlah_halaman" class="form-control bg-secondary text-white border-0" value="{{ $antrean->detail_layanan->jumlah_halaman }}">
+                                        <input type="number" name="jumlah_halaman" class="form-control bg-secondary text-white border-0" value="{{ $antrean->jumlah_halaman }}">
                                     </div>
                                     <div class="col-md-4">
                                         <label>Metode Pembayaran</label>
                                         <select name="metode" class="form-select bg-secondary text-white border-0">
-                                            <option value="Cash" {{ $antrean->pembayaran->metode == 'Cash' ? 'selected' : '' }}>Cash</option>
-                                            <option value="QRIS" {{ $antrean->pembayaran->metode == 'QRIS' ? 'selected' : '' }}>QRIS</option>
+                                            <option value="Cash" {{ $antrean->metode == 'Cash' ? 'selected' : '' }}>Cash</option>
+                                            <option value="QRIS" {{ $antrean->metode == 'QRIS' ? 'selected' : '' }}>QRIS</option>
                                         </select>
                                     </div>
                                 </div>

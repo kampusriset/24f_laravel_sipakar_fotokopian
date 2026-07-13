@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Layanan;
 use App\Models\Transaksi;
 use App\Models\Pelanggan;
 use App\Models\Pembayaran;
-use Smalot\PdfParser\Parser;
 use App\Models\DetailLayanan;
+use Smalot\PdfParser\Parser;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 // CEK KODE UNTUK FULL UPDATE, BELUM BISA DI KLIK & MALAH ERROR, BELUM KETEMU 
@@ -31,6 +31,8 @@ class TransaksiController extends Controller
                         'detail_layanan.file_dokumen',
                         'detail_layanan.jumlah_halaman',
                         'layanan.nama_layanan',
+                        'pelanggan.no_hp',
+                        'pelanggan.alamat',
                         'detail_layanan.waktu_deadline',
                         'pembayaran.metode',
                         'detail_layanan.status_antrean',

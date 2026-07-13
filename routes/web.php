@@ -4,8 +4,9 @@ use App\Models\Layanan;
 use App\Models\Transaksi;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\StokBarangController;
 
 Route::get('/riwayat', function () { //DIPINDAH KE DALAM CONTROLLER CEK ROUTE BAGIAN TRANSAKSI, DIBIKIN GITU AE BIAR CLEAN KODENE
     // Mengambil semua transaksi yang statusnya 'Selesai' dengan Join Tabel yang benar
