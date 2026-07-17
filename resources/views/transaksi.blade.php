@@ -76,10 +76,12 @@
                     </li>
                 </ul>
                 
-                <div class="d-flex align-items-center text-end mt-3 mt-lg-0">
+                <<div class="d-flex align-items-center text-end mt-3 mt-lg-0">
                     <div>
-                        <strong class="d-block lh-1 text-white">Kasir Aktif</strong>
-                        <small class="text-muted" style="font-size: 0.8rem;">Super Admin</small>
+                        <strong class="d-block lh-1 text-white">{{ auth()->user()->name ?? 'Guest' }}</strong>
+                        <small class="text-muted" style="font-size: 0.8rem;">
+                            {{ ucfirst(auth()->user()->role ?? 'Kasir') }}
+                        </small>
                     </div>
                 </div>
             </div>

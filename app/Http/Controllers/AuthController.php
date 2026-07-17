@@ -2,28 +2,82 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Operator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function login(Request $request) {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Email/Password salah!.',
-            ], 401);
+    public function RegisterForm()
+    {
+        return view('register');
+    }
+
+    public function register(Request $request)
+    {
+        // Validasi inputan dari user
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email', 
+            'password' => 'required|min:6',
+            'role' => 'required|in:admin,kasir' 
+        ]);
+
+        // Simpan data ke database
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password), 
+            'role' => $request->role,
+        ]);
+
+        return redirect('/login')->with('success', 'Akun berhasil dibuat! Silakan login.');
+    }
+
+    // Menampilkan halaman form login
+    public function LoginForm()
+    {
+        if (Auth::check()) {
+            return redirect('/transaksi'); 
+        }
+        
+        return view('login');
+    }
+
+    public function login(Request $request)
+    {
+        // Validasi inputan
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            // Mengarahkan berdasarkan role
+            $user = Auth::user();
+            if ($user->role === 'admin') {
+                return redirect()->intended('/stok-barang'); 
+            } else {
+                return redirect()->intended('/transaksi'); 
+            }
         }
 
-            $user = Operator::where('email', $request->email)->firstOrFail();
-            $token = $user->createToken('auth_token')->plainTextToken;
+        // Jika gagal, kembali ke form login dan notif pesan error
+        return back()->withErrors([
+            'email' => 'Email atau password yang Anda masukkan salah.',
+        ])->onlyInput('email');
+    }
 
-            return response()->json([
-                'status' => 'success',
-                'access_token' => $token,
-                'user' => $user,
-            ]);
-        // }
+    // Fungsi untuk Logout
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect('/login');
     }
 }
