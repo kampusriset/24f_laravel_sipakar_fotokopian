@@ -16,8 +16,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::get('/login', [AuthController::class, 'LoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-// Route yang bisa diakses Admin & Kasir
-Route::middleware(['auth'])->group(function () {
+// Route yang bisa diakses Kasir
+Route::middleware(['auth', 'role:kasir'])->group(function () {
     // Read part Home
     Route::get('/home', [HomeController::class, 'index']);
 
@@ -56,8 +56,8 @@ Route::middleware(['auth'])->group(function () {
 
 // Route KHUSUS ADMIN
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    // Read part Home
-    Route::delete('/stok-barang/{id}', [StokBarangController::class, 'destroy']);
+    // Router Home
+    Route::get('/', [HomeController::class, 'index']);
 
     // Manajemen Transaksi
     Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('transaksi.getMasterData');
@@ -93,7 +93,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/stok-barang/{id}', [StokBarangController::class, 'destroy'])->name('stok.delete');
 
     // Manajemen Laporan 
-    Route::get('/laporan', [LaporanController::class, 'index']);
+    // Route::get('/laporan', [LaporanController::class, 'index']);
 
     // Route Log Out
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

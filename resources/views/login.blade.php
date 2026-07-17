@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,25 +9,27 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #121212; 
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .login-card {
             background-color: #1e1e1e;
             border: 1px solid #333;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             width: 100%;
             max-width: 400px;
         }
+
         .form-control:focus {
             background-color: #2b2b2b;
             border-color: #0d6efd;
@@ -35,10 +38,11 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container d-flex justify-content-center">
         <div class="login-card p-4 p-sm-5">
-            
+
             <!-- Logo & Title -->
             <div class="text-center mb-4">
                 <div class="bg-primary text-white d-inline-flex justify-content-center align-items-center rounded-circle mb-3" style="width: 60px; height: 60px;">
@@ -49,24 +53,24 @@
             </div>
 
             @if(session('success'))
-                <div id="success-alert" class="alert alert-success border-0 small py-2 d-flex align-items-center" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    {{ session('success') }}
-                </div>
+            <div class="alert alert-success border-0 small py-2 d-flex align-items-center" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ session('success') }}
+            </div>
             @endif
 
             <!-- Pesan Error -->
             @if($errors->any())
-                <div id="error-alert" class="alert alert-danger border-0 small py-2 d-flex align-items-center" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    {{ $errors->first() }}
-                </div>
+            <div id="error-alert" class="alert alert-danger border-0 small py-2 d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ $errors->first() }}
+            </div>
             @endif
 
             <!-- Form Login -->
             <form action="{{ url('/login') }}" method="POST">
-                @csrf 
-                
+                @csrf
+
                 <div class="mb-3">
                     <label class="form-label text-muted small fw-bold text-uppercase">Alamat Email</label>
                     <div class="input-group">
@@ -100,19 +104,19 @@
 
     <!-- Laert Notif -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const alertElement = document.getElementById('success-alert');
-            const alertElement = document.getElementById('error-alert');
-            
-            if (alertElement) {
-                setTimeout(function () {
-                    alertElement.style.transition = 'opacity 0.3s ease';
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+
+            alerts.forEach(function(alertElement) {
+                setTimeout(function() {
+                    alertElement.style.transition = 'opacity 0.5s ease';
                     alertElement.style.opacity = '0';
-                    
-                    setTimeout(() => alertElement.remove(), 500); 
+
+                    setTimeout(() => alertElement.remove(), 500);
                 }, 3000);
-            }
+            });
         });
     </script>
 </body>
+
 </html>
