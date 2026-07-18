@@ -4,36 +4,8 @@
 
 @section('content')
 <div class="row g-4">
-    <!--  BAGIAN NOTIFIKASI -->
+    <!-- BAGIAN NOTIFIKASI -->
     <div class="col-12 mb-0">
-        <!-- {{-- Notifikasi Sukses --}}
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show bg-success bg-opacity-10 text-success border-success rounded-4" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        {{-- Notifikasi Error dari Try-Catch --}}
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show bg-danger bg-opacity-10 text-danger border-danger rounded-4" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        {{-- Notifikasi Error dari Validasi ($request->validate) --}}
-        @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show bg-danger bg-opacity-10 text-danger border-danger rounded-4" role="alert">
-                <i class="bi bi-shield-x me-2"></i> <strong>Gagal Menyimpan!</strong> Periksa kembali data berikut:
-                <ul class="mb-0 mt-2">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif -->
         @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" id="myAlert" role="alert">
             {{ session('success') }}
@@ -59,6 +31,7 @@
         </div>
         @endif
     </div>
+
     <!-- FORM INPUT TRANSAKSI -->
     <div class="col-12">
         <div class="card bg-dark border-secondary shadow-sm rounded-4">
@@ -155,33 +128,49 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($transaksi as $t)
+                            {{-- Kita standarkan variabelnya menjadi $trx --}}
+                            @forelse($transaksi as $trx)
                             <tr>
-                                <td class="px-4 fw-bold">{{ $t->nama_pelanggan }}</td>
-                                <td><small class="text-secondary">{{ $t->file_dokumen }}</small></td>
-                                <td class="text-center">{{ $t->jumlah_halaman }}</td>
-                                <td>{{ $t->nama_layanan }}</td>
-                                <td>{{ $t->waktu_deadline }} m</td>
-                                <td class="text-primary fw-bold">Rp {{ number_format($t->total_bayar, 0, ',', '.') }}</td>
-                                <td>{{ $t->metode }}</td>
+                                <td class="px-4 fw-bold">{{ $trx->nama_pelanggan }}</td>
+                                <td><small class="text-secondary">{{ $trx->file_dokumen }}</small></td>
+                                <td class="text-center">{{ $trx->jumlah_halaman }}</td>
+                                <td>{{ $trx->nama_layanan }}</td>
+                                <td>{{ $trx->waktu_deadline }} m</td>
+                                <td class="text-primary fw-bold">Rp {{ number_format($trx->total_bayar, 0, ',', '.') }}</td>
+                                <td>{{ $trx->metode }}</td>
                                 <td class="text-center">
-                                    <span class="badge bg-opacity-10 border {{ $t->status_antrean == 'Selesai' ? 'bg-success text-success border-success' : 'bg-warning text-warning border-warning' }}">
-                                        {{ $t->status_antrean }}
+                                    <span class="badge bg-opacity-10 border {{ $trx->status_antrean == 'Selesai' ? 'bg-success text-success border-success' : 'bg-warning text-warning border-warning' }}">
+                                        {{ $trx->status_antrean }}
                                     </span>
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a href="#" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                                        <!-- Tombol Edit Modal -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $trx->id_transaksi }}" title="Edit Data">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+
+                                        <!-- Tombol Status Selesai Cepat -->
+                                        <form action="{{ url('/transaksi/'.$trx->id_transaksi) }}" method="POST" class="m-0">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status_antrean" value="Selesai">
+                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-3" title="Tandai Selesai">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
 
                                         <!-- Update HANYA ADMIN -->
                                         @if(Auth::user()->role === 'admin')
                                         <a href="#" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
-                                        @endif
-
-                                        <form action="#" method="POST" class="d-inline">
-                                            @csrf @method('DELETE')
-                                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                        <form action="{{ url('/transaksi/'.$trx->id) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data antrean ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Hapus Transaksi">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -197,6 +186,92 @@
         </div>
     </div>
 </div>
+
+<!-- ================= KUMPULAN MODAL EDIT (Di-loop di luar tabel) ================= -->
+@foreach($transaksi as $trx)
+<div class="modal fade" id="editModal{{ $trx->id_transaksi }}" tabindex="-1" aria-labelledby="editModalLabel{{ $trx->id_transaksi}}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark border-secondary shadow-lg rounded-4">
+
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white fw-bold" id="editModalLabel{{ $trx->id_transaksi}}">
+                    <i class="bi bi-pencil-square text-primary me-2"></i>Edit Data Antrean
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Form mengarah ke route update -->
+            <form action="{{ url('/transaksi/'.$trx->id_transaksi) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+
+                <div class="modal-body text-start px-4 py-3">
+                    <div class="row g-4">
+                        <!-- Status Antrean -->
+                        <div class="col-12">
+                            <label class="text-secondary small mb-2 text-uppercase fw-semibold">Status Saat Ini</label>
+                            <select name="status_antrean" class="form-select bg-dark text-white border-secondary shadow-none">
+                                <option value="Menunggu" {{ $trx->status_antrean == 'Menunggu' ? 'selected' : '' }}>⏳ Menunggu</option>
+                                <option value="Cetak" {{ $trx->status_antrean == 'Cetak' ? 'selected' : '' }}>🖨️ Cetak</option>
+                                <option value="Selesai" {{ $trx->status_antrean == 'Selesai' ? 'selected' : '' }}>✅ Selesai</option>
+                            </select>
+                        </div>
+
+                        <!-- Edit Nama -->
+                        <div class="col-md-6">
+                            <label class="text-secondary small mb-2 text-uppercase fw-semibold">Nama Pelanggan</label>
+                            <input type="text" name="nama_pelanggan" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $trx->nama_pelanggan }}">
+                        </div>
+
+                        <!-- Edit Layanan -->
+                        <div class="col-md-6">
+                            <label class="text-secondary small mb-2 text-uppercase fw-semibold">Ganti Layanan</label>
+                            <select name="layanan_id" class="form-select bg-dark text-white border-secondary shadow-none">
+                                @foreach($layanan as $l)
+                                <option value="{{ $l->id }}" {{ $trx->layanan_id == $l->id ? 'selected' : '' }}>
+                                    {{ $l->nama_layanan }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Update File PDF -->
+                        <div class="col-12">
+                            <label class="text-secondary small mb-2 text-uppercase fw-semibold">Ganti File Dokumen (Opsional)</label>
+                            <input type="file" name="file_dokumen" class="form-control bg-dark text-white border-secondary shadow-none" accept=".pdf">
+                            <div class="mt-2 text-secondary small">
+                                <i class="bi bi-file-earmark-pdf text-danger me-1"></i> File tersimpan:
+                                <span class="text-light">{{ $trx->file_dokumen ?? 'Tidak ada file' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Edit Tenggat -->
+                        <div class="col-md-6">
+                            <label class="text-secondary small mb-2 text-uppercase fw-semibold">Tenggat Waktu</label>
+                            <input type="time" name="waktu_deadline" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $trx->waktu_deadline }}" >
+                        </div>
+
+                        <!-- Edit Metode Pembayaran -->
+                        <div class="col-md-6">
+                            <label class="text-secondary small mb-2 text-uppercase fw-semibold">Metode Pembayaran</label>
+                            <select name="metode" class="form-select bg-dark text-white border-secondary shadow-none" >
+                                <option value="Cash" {{ $trx->metode == 'Cash' ? 'selected' : '' }}>Cash</option>
+                                <option value="QRIS" {{ $trx->metode == 'QRIS' ? 'selected' : '' }}>QRIS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+<!-- ================= END MODAL ================= -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>

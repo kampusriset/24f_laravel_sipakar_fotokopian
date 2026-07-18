@@ -48,6 +48,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Route Transaksi
     Route::delete('/transaksi/{id}', [TransaksiController::class, 'delete'])->name('transaksi.delete');
 
+    // Route Transaksi
+    Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
+
     // Route Stok Barang
     Route::post('/stok-barang', [StokBarangController::class, 'create'])->name('stok.create');
     Route::delete('/stok-barang/{id}', [StokBarangController::class, 'destroy'])->name('stok.delete');

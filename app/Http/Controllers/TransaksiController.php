@@ -30,6 +30,7 @@ class TransaksiController extends Controller
                         'pelanggan.nama as nama_pelanggan',
                         'detail_layanan.file_dokumen',
                         'detail_layanan.jumlah_halaman',
+                        'detail_layanan.layanan_id',
                         'layanan.nama_layanan',
                         'pelanggan.no_hp',
                         'pelanggan.alamat',

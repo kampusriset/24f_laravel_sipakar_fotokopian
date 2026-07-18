@@ -25,7 +25,8 @@ class HomeController extends Controller
                     'detail_layanan.waktu_deadline',
                     'pembayaran.metode',
                     'detail_layanan.status_antrean',
-                    'transaksi.total_harga'
+                    'transaksi.total_harga',
+                    'transaksi.updated_at'
                 )
                 ->where('detail_layanan.status_antrean', '=', 'Selesai')
                 ->orderBy('transaksi.created_at', 'desc')

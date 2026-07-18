@@ -94,6 +94,11 @@
                             <i class="bi bi-box-seam me-1"></i> Stok Barang
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('riwayat*') ? 'active' : '' }}" href="{{ url('/riwayat') }}">
+                            <i class="bi bi-clock-history me-1"></i> Riwayat Transaksi
+                        </a>
+                    </li>
 
                     <!-- Menu KHUSUS ADMIN (Dibikin Dropdown) -->
                     @if(Auth::check() && Auth::user()->role === 'admin')

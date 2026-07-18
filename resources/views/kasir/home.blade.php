@@ -14,40 +14,40 @@
         <div class="row g-3">
             {{-- Kita pakai $layanan (pastikan controllernya mengirimkan variabel ini) --}}
             @forelse($layanan as $l)
-                @php
-                    $icon = 'bi-file-earmark-text'; 
-                    $color = 'primary'; 
+            @php
+            $icon = 'bi-file-earmark-text';
+            $color = 'primary';
 
-                    if(stripos($l->nama_layanan, 'warna') !== false) {
-                        $icon = 'bi-palette-fill';
-                        $color = 'success';
-                    } elseif(stripos($l->nama_layanan, 'scan') !== false) {
-                        $icon = 'bi-upc-scan';
-                        $color = 'warning';
-                    } elseif(stripos($l->nama_layanan, 'hitam') !== false || stripos($l->nama_layanan, 'putih') !== false) {
-                        $icon = 'bi-printer-fill';
-                        $color = 'secondary';
-                    }
-                @endphp
+            if(stripos($l->nama_layanan, 'warna') !== false) {
+            $icon = 'bi-palette-fill';
+            $color = 'success';
+            } elseif(stripos($l->nama_layanan, 'scan') !== false) {
+            $icon = 'bi-upc-scan';
+            $color = 'warning';
+            } elseif(stripos($l->nama_layanan, 'hitam') !== false || stripos($l->nama_layanan, 'putih') !== false) {
+            $icon = 'bi-printer-fill';
+            $color = 'secondary';
+            }
+            @endphp
 
-                <div class="col-6 col-md-3 col-lg-2">
-                    <!-- Kartu hanya sebagai display, bukan input form -->
-                    <div class="card bg-dark border-secondary shadow-sm h-100 hover-card rounded-4 p-3">
-                        <div class="d-flex flex-column align-items-center text-center justify-content-center h-100">
-                            <!-- Icon -->
-                            <div class="rounded-4 mb-2 d-flex align-items-center justify-content-center bg-{{ $color }} bg-opacity-10" style="width: 50px; height: 50px;">
-                                <i class="bi {{ $icon }} fs-4 text-{{ $color }}"></i>
-                            </div>
-                            <!-- Detail -->
-                            <h6 class="text-light fw-semibold mb-1" style="font-size: 0.9rem;">{{ $l->nama_layanan }}</h6>
-                            <span class="text-primary fw-bold small">Rp {{ number_format($l->harga_per_lembar ?? 0, 0, ',', '.') }}</span>
+            <div class="col-6 col-md-3 col-lg-2">
+                <!-- Kartu hanya sebagai display, bukan input form -->
+                <div class="card bg-dark border-secondary shadow-sm h-100 hover-card rounded-4 p-3">
+                    <div class="d-flex flex-column align-items-center text-center justify-content-center h-100">
+                        <!-- Icon -->
+                        <div class="rounded-4 mb-2 d-flex align-items-center justify-content-center bg-{{ $color }} bg-opacity-10" style="width: 50px; height: 50px;">
+                            <i class="bi {{ $icon }} fs-4 text-{{ $color }}"></i>
                         </div>
+                        <!-- Detail -->
+                        <h6 class="text-light fw-semibold mb-1" style="font-size: 0.9rem;">{{ $l->nama_layanan }}</h6>
+                        <span class="text-primary fw-bold small">Rp {{ number_format($l->harga_per_lembar ?? 0, 0, ',', '.') }}</span>
                     </div>
                 </div>
+            </div>
             @empty
-                <div class="col-12">
-                    <p class="text-secondary fst-italic">Belum ada data jenis layanan.</p>
-                </div>
+            <div class="col-12">
+                <p class="text-secondary fst-italic">Belum ada data jenis layanan.</p>
+            </div>
             @endforelse
         </div>
     </div>
@@ -70,9 +70,10 @@
                                 <th class="py-3">File Dokumen</th>
                                 <th class="py-3 text-center">Halaman</th>
                                 <th class="py-3">Tenggat</th>
+                                <th class="py-3">Total</th>
                                 <th class="py-3">Pembayaran</th>
                                 <th class="py-3 text-center">Status</th>
-                                <th class="px-4 py-3 text-center">Aksi</th>
+                                <!-- <th class="px-4 py-3 text-center">Aksi</th> -->
                             </tr>
                         </thead>
                         <tbody class="border-top-0">
@@ -96,7 +97,12 @@
 
                                 <!-- Tenggat Waktu (Asumsi pakai updated_at) -->
                                 <td class="text-secondary">
-                                    {{ \Carbon\Carbon::parse($trx->updated_at)->format('d/m/Y') }}
+                                    <!-- {{ \Carbon\Carbon::parse($trx->updated_at)->format('d/m/Y') }} -->
+                                    {{ \Carbon\Carbon::parse($trx->waktu_deadline)->format('d/m/Y') }}
+                                </td>
+
+                                <td class="text-primary fw-bold">
+                                    Rp {{ number_format($trx->total_harga, 0, ',', '.') }}
                                 </td>
 
                                 <!-- Pembayaran (Cash/TF) -->
@@ -114,7 +120,7 @@
                                 </td>
 
                                 <!-- Aksi (Edit, Hapus, Selesai) -->
-                                <td class="px-4 text-center">
+                                <!-- <td class="px-4 text-center">
                                     <div class="d-flex justify-content-center gap-2">
                                         <button class="btn btn-sm btn-outline-warning rounded-3" title="Edit">
                                             <i class="bi bi-pencil"></i>
@@ -126,7 +132,7 @@
                                             <i class="bi bi-check2-all"></i>
                                         </button>
                                     </div>
-                                </td>
+                                </td> -->
                             </tr>
                             @empty
                             <tr>
