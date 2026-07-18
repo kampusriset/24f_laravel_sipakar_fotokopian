@@ -11,6 +11,7 @@ use App\Models\DetailLayanan;
 use Smalot\PdfParser\Parser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class TransaksiController extends Controller
 {
@@ -19,8 +20,6 @@ class TransaksiController extends Controller
         $pelanggan = Pelanggan::select('id', 'nama')->get();
         $layanan = Layanan::select('id', 'nama_layanan', 'harga_per_lembar')->get();
         
-        // return view('transaksi');
-
         $transaksi = DB::table('transaksi')
                     ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
                     ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
@@ -62,29 +61,26 @@ class TransaksiController extends Controller
         DB::beginTransaction();
 
         try {
-            $pelangganId = $request->pelanggan_id;
+            // $pelangganId = $request->pelanggan_id;
 
+            // Validasi Input
             $request->validate([
                 'nama_pelanggan' => 'required|string',
-                'no_hp' => 'nullable|string',
-                'alamat' => 'nullable|string',
-                'layanan_id' => 'required',
-                'file_dokumen' => 'required|file|mimes:pdf',
-                'waktu_deadline' => 'required|date_format:H:i',
-                'metode' => 'required|string',
+                'no_hp'          => 'nullable|string',
+                'alamat'         => 'nullable|string',
+                'layanan_id'     => 'required',
+                'file_dokumen'   => 'required|file|mimes:pdf',
+                'waktu_deadline' => 'required|date_format:H:i', 
+                'metode'         => 'required|string',
             ]);
 
-            // $waktuLengkap = \Carbon\Carbon::today()->format('Y-m-d') . ' ' . $request->waktu_deadline . ':00';
-
-            // Proses Pelanggan
-            if(!$pelangganId) {
-                $pelangganBaru = Pelanggan::create([
-                    'nama' => $request->nama_pelanggan,
-                    'no_hp' => $request->no_hp ?? '-',
-                    'alamat' => $request->alamat ?? '-',
-                ]);
-                $pelangganId = $pelangganBaru->id;
-            }
+            // Proses Pelanggan (Tidak perlu cek ID dari request karena form baru tidak mengirimkan pelanggan_id)
+            $pelangganBaru = Pelanggan::create([
+                'nama'   => $request->nama_pelanggan,
+                'no_hp'  => $request->no_hp ?? '-',
+                'alamat' => $request->alamat ?? '-',
+            ]);
+            $pelangganId = $pelangganBaru->id;
 
             // Logika Halaman PDF
             $jumlahHalaman = 1;
@@ -92,77 +88,99 @@ class TransaksiController extends Controller
 
             if ($request->hasFile('file_dokumen')) {
                 $file = $request->file('file_dokumen');
-                
-                // nama unik agar file tidak tertimpa jika namanya sama
+
+                // nama unik agar file tidak tertimpa
                 $namaFileFisik = time() . '_' . $file->getClientOriginalName();
-                
-                // Menggunakan Smalot PDF untuk menghitung jumlah halaman
+
+                // Menggunakan Smalot PDF untuk menghitung jumlah halaman otomatis
                 $pdfParser = new Parser();
                 $pdf = $pdfParser->parseFile($file->getPathname());
                 $jumlahHalaman = count($pdf->getPages());
-                
+
                 // Simpan file ke dalam folder storage/app/public/dokumen
                 $file->storeAs('public/dokumen', $namaFileFisik);
             }
 
-            // Kalkulasi Harga
+            // 4. Kalkulasi Harga
             $layanan = Layanan::findOrFail($request->layanan_id);
             $hargaSatuan = $layanan->harga_per_lembar;
             $totalHarga = $jumlahHalaman * $hargaSatuan;
 
-            // Simpan ke Database
+            // 5. Simpan ke Database
             $transaksi = Transaksi::create([
                 'pelanggan_id' => $pelangganId,
-                'operator_id' => auth('sanctum')->id() ?? 1, 
-                'tanggal' => Carbon::now(),
-                'total_harga' => $totalHarga
+                // 'operator_id'  => Auth::id() ?? 1,
+                'operator_id'  => 1,
+                // 'tanggal'      => Carbon::now(),
+                'total_harga'  => $totalHarga
+
+                // 'pelanggan_id' => $pelangganId,
+                // 'operator_id' => auth('sanctum')->id() ?? 1, 
+                // 'tanggal' => Carbon::now(),
+                // 'total_harga' => $totalHarga
             ]);
 
             Pembayaran::create([
-                'transaksi_id' => $transaksi->id,
-                'total_bayar' => $totalHarga,
-                'metode' => $request->metode ?? 'Cash',
+                'transaksi_id'  => $transaksi->id,
+                'total_bayar'   => $totalHarga,
+                'metode'        => $request->metode,
                 'tanggal_bayar' => Carbon::now(),
+
+                // 'transaksi_id' => $transaksi->id,
+                // 'total_bayar' => $totalHarga,
+                // 'metode' => $request->metode ?? 'Cash',
+                // 'tanggal_bayar' => Carbon::now(),
             ]);
 
+            // Format waktu deadline dari input "time" menjadi datetime hari ini
+            $waktuSelesai = Carbon::today()->format('Y-m-d') . ' ' . $request->waktu_deadline . ':00';
+
             DetailLayanan::create([
-                'transaksi_id' => $transaksi->id,
-                'layanan_id' => $layanan->id,
+                'transaksi_id'   => $transaksi->id,
+                'layanan_id'     => $layanan->id,
                 'jumlah_halaman' => $jumlahHalaman,
-                'harga_satuan' => $hargaSatuan,
-                'file_dokumen' => $namaFileFisik,
-                'subtotal' => $totalHarga,
-                'waktu_deadline' => $request->waktu_deadline ? Carbon::parse($request->waktu_deadline) : Carbon::now()->addHours(2),
+                'harga_satuan'   => $hargaSatuan,
+                'file_dokumen'   => $namaFileFisik,
+                'subtotal'       => $totalHarga,
+                'waktu_deadline' => Carbon::parse($waktuSelesai),
                 'status_antrean' => 'Menunggu',
+
+                // 'transaksi_id' => $transaksi->id,
+                // 'layanan_id' => $layanan->id,
+                // 'jumlah_halaman' => $jumlahHalaman,
+                // 'harga_satuan' => $hargaSatuan,
+                // 'file_dokumen' => $namaFileFisik,
+                // 'subtotal' => $totalHarga,
+                // 'waktu_deadline' => $request->waktu_deadline ? Carbon::parse($request->waktu_deadline) : Carbon::now()->addHours(2),
+                // 'status_antrean' => 'Menunggu',
             ]);
 
             DB::commit();
 
-            if ($transaksi) {
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => 'Transaksi berhasil disimpan',
-                        'data' => [
-                            'jumlah_halaman' => $jumlahHalaman,
-                            'total_harga' => $totalHarga
-                        ]
-                    ], 201);
-                }
-
-                // return redirect()->back()->with('success', 'Transaksi berhasil disimpan. Terdeteksi ' . $jumlahHalaman . ' halaman, Total: Rp ' . number_format($totalHarga, 0, ',', '.'));
-                return redirect()->back()->with('success', 'Transaksi berhasil disimpan.');
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Transaksi berhasil disimpan',
+                    'data'    => [
+                        'jumlah_halaman' => $jumlahHalaman,
+                        'total_harga'    => $totalHarga
+                    ]
+                ], 201);
             }
-            
+
+            return redirect()->back()->with('success', 'Transaksi berhasil disimpan ke antrean.');
+
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal edit transaksi: ' . $e->getMessage(),
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Gagal menyimpan transaksi: ' . $e->getMessage(),
+                ], 500);
+            }
 
-            return redirect()->back()->with('error', 'Gagal menyimpan transaksi' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
         }
     }
 

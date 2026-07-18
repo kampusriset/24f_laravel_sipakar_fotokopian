@@ -32,7 +32,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Manajemen Transaksi (Kasir bisa Read, Create, Update)
     Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('transaksi.index');
-    Route::post('/transaksi', [TransaksiController::class, 'create'])->name('transaksi.create');
+    Route::post('/transaksi/create', [TransaksiController::class, 'create'])->name('transaksi.create');
     Route::put('/transaksi/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
 
     // Manajemen Stok Barang (Kasir bisa Read & Update)

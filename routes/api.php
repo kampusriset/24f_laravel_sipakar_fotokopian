@@ -17,7 +17,7 @@ Route::get('/antrean', [AntreanController::class, 'index']);
 Route::post('/operator', [OperatorController::class, 'create']);
 Route::get('/operator', [OperatorController::class, 'index']);
 
-Route::middleware('auth:sanctum')->group(function () {
+// Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     })->middleware('auth:sanctum');
@@ -58,4 +58,4 @@ Route::middleware('auth:sanctum')->group(function () {
     // Manajemen Pelanggan
     Route::put('/pelanggan/{id}', [PelangganController::class, 'update']);
     Route::delete('/pelanggan/{id}', [PelangganController::class, 'delete']);
-});
+// });

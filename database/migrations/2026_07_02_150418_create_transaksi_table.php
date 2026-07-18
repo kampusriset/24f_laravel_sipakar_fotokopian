@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('pelanggan_id')->constrained('pelanggan')->onDelete('restrict');
             $table->foreignId('operator_id')->constrained('operator')->onDelete('restrict');
-            // $table->timestamp('tanggal')->useCurrent();
             $table->integer('total_harga');
             $table->timestamps();
         });

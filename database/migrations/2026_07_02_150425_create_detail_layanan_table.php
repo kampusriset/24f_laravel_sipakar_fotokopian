@@ -19,10 +19,9 @@ return new class extends Migration
             $table->integer('harga_satuan');
             $table->integer('subtotal')->NotNull();
             
-            // Kebutuhan Database AI 
             $table->string('file_dokumen', 255)->NotNull();
             $table->timestamp('waktu_deadline')->NotNull();
-            $table->float('skor_prioritas')->nullable(); // Output dari rumus Fuzzy Tsukamoto
+            $table->float('skor_prioritas')->nullable(); 
             $table->string('status_antrean', 50)->default('Menunggu'); 
             $table->timestamps();
         });

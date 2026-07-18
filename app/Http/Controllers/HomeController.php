@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Layanan;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Layanan;
 
 class HomeController extends Controller
 {
@@ -26,16 +27,17 @@ class HomeController extends Controller
                     'detail_layanan.status_antrean',
                     'transaksi.total_harga'
                 )
-                ->orderBy('transaksi.created_at', 'asc')
+                ->where('detail_layanan.status_antrean', '=', 'Selesai')
+                ->orderBy('transaksi.created_at', 'desc')
                 ->take(5)
                 ->get();
 
-        $daftarLayanan = Layanan::all();
-        // return view('home', compact('transaksiTerbaru', 'daftarLayanan'));
+        $layanan = Layanan::all();
+        // return view('home', compact('transaksiTerbaru', 'layanan'));
         if (Auth::user()->role === 'admin') {
-            return view('admin.home', compact('transaksiTerbaru', 'daftarLayanan'));
+            return view('admin.home', compact('transaksiTerbaru', 'layanan'));
         } else {
-            return view('kasir.home', compact('transaksiTerbaru', 'daftarLayanan'));
+            return view('kasir.home', compact('transaksiTerbaru', 'layanan'));
         }
     }
 }
