@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Layanan;
 
 class HomeController extends Controller
@@ -30,6 +31,11 @@ class HomeController extends Controller
                 ->get();
 
         $daftarLayanan = Layanan::all();
-        return view('home', compact('transaksiTerbaru', 'daftarLayanan'));
+        // return view('home', compact('transaksiTerbaru', 'daftarLayanan'));
+        if (Auth::user()->role === 'admin') {
+            return view('admin.home', compact('transaksiTerbaru', 'daftarLayanan'));
+        } else {
+            return view('kasir.home', compact('transaksiTerbaru', 'daftarLayanan'));
+        }
     }
 }

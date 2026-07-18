@@ -39,7 +39,7 @@ class AuthController extends Controller
     public function LoginForm()
     {
         if (Auth::check()) {
-            return redirect('/transaksi'); 
+            return redirect('/home'); 
         }
         
         return view('login');

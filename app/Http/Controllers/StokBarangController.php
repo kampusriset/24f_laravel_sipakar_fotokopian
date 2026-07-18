@@ -157,6 +157,7 @@ class StokBarangController extends Controller
                 'status' => 'success',
                 'message' => 'Barang berhasil dihapus.'
             ], 200);
+            
         } catch(\Exception $e) {
             if($request->expectsJson()) {
                 return response()->json([

@@ -1,108 +1,168 @@
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS Fotocopy</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
+    <title>@yield('title', 'POS Fotocopy')</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
-        /* Kustomisasi UI/UX */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        /* Kustomisasi Typography & Background */
+        body {
             background-color: #121212;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
-        .sidebar { 
-            min-height: 100vh; 
-            background-color: #0a0a0a;
-            border-right: 1px solid #333;
+
+        /* Navbar Kustom */
+        .custom-navbar {
+            background-color: rgba(26, 29, 32, 0.98);
+            border-bottom: 1px solid #2b3035;
+            backdrop-filter: blur(10px);
         }
-        .topbar {
-            background-color: #0a0a0a;
-            border-bottom: 1px solid #333;
-        }
-        .nav-link { 
-            transition: all 0.3s ease; 
+
+        /* Efek Hover Menu Atas */
+        .nav-link {
             color: #adb5bd;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 8px 16px !important;
+            margin: 0 4px;
         }
-        .nav-link:hover, .nav-link.active { 
-            background-color: rgba(255,255,255,0.05); 
-            border-radius: 8px; 
-            color: #fff;
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: rgba(13, 110, 253, 0.15);
+            /* Efek biru transparan */
+            color: #0d6efd;
+        }
+
+        /* Kustomisasi Dropdown Admin */
+        .dropdown-menu {
+            background-color: #1a1d20;
+            border: 1px solid #2b3035;
+            border-radius: 8px;
+        }
+
+        .dropdown-item {
+            color: #adb5bd;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(13, 110, 253, 0.15);
+            color: #0d6efd;
         }
     </style>
 </head>
+
 <body class="text-light">
 
-    <div class="d-flex">
-        <!-- ================= SIDEBAR ================= -->
-        <div class="sidebar p-3" style="width: 260px;">
-            <h4 class="mb-4 mt-2 text-center text-primary fw-bold">
-                <i class="bi bi-printer-fill me-2"></i>POS Fotocopy
-            </h4>
-            <hr class="border-secondary">
-            
-            <ul class="nav flex-column gap-1">
-                <!-- Menu Universal (Bisa diakses semua) -->
-                <li class="nav-item">
-                    <a href="#" class="nav-link active"><i class="bi bi-house-door me-2"></i> Home</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link"><i class="bi bi-cart-check me-2"></i> Transaksi</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link"><i class="bi bi-box-seam me-2"></i> Stok Barang</a>
-                </li>
+    <!-- ================= TOP NAVBAR (NAVIGASI ATAS) ================= -->
+    <nav class="navbar navbar-expand-lg custom-navbar sticky-top py-3">
+        <div class="container-fluid px-4">
+            <!-- Logo Aplikasi -->
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white me-4" href="{{ url('/stok-barang') }}">
+                <i class="bi bi-printer-fill text-primary fs-3"></i>
+                <span>POS<span class="text-primary">Fotocopy</span></span>
+            </a>
 
-                <!-- Menu KHUSUS ADMIN (Menggunakan @if) -->
-                @if(Auth::check() && Auth::user()->role === 'admin')
-                <li class="nav-item mt-4 mb-2">
-                    <small class="text-secondary text-uppercase fw-bold px-3" style="font-size: 0.75rem;">Manajemen Admin</small>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link"><i class="bi bi-graph-up me-2"></i> Laporan</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link"><i class="bi bi-people me-2"></i> Pelanggan & Operator</a>
-                </li>
-                @endif
-            </ul>
-        </div>
+            <!-- Tombol Hamburger (Untuk layar HP) -->
+            <button class="navbar-toggler shadow-none border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavigasi">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <!-- ================= MAIN CONTENT ================= -->
-        <div class="flex-grow-1 d-flex flex-column">
-            <!-- Navbar / Topbar -->
-            <nav class="topbar px-4 py-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-semibold">@yield('title', 'Dashboard')</h5>
-                
-                <div class="d-flex align-items-center gap-3">
+            <!-- Daftar Menu -->
+            <div class="collapse navbar-collapse" id="menuNavigasi">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <!-- Menu Universal -->
+                    <li class="nav-item">
+                        <!-- <a class="nav-link active" href="{{ url('/stok-barang') }}">
+                            <i class="bi bi-grid-1x2-fill me-1"></i> Dashboard
+                        </a> -->
+                        <a class="nav-link {{ request()->is('home*') ? 'active' : '' }}" href="{{ url('/home') }}">
+                            <i class="bi bi-grid-1x2-fill me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <!-- <a class="nav-link" href="{{ url('/transaksi') }}">
+                            <i class="bi bi-cart-check-fill me-1"></i> Transaksi
+                        </a> -->
+                        <a class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}" href="{{ url('/transaksi') }}">
+                            <i class="bi bi-cart-fill me-1"></i> Transaksi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <!-- <a class="nav-link" href="{{ url('/stok-barang') }}">
+                            <i class="bi bi-box-seam-fill me-1"></i> Stok Barang
+                        </a> -->
+                        <a class="nav-link {{ request()->is('stok-barang*') ? 'active' : '' }}" href="{{ url('/stok-barang') }}">
+                            <i class="bi bi-box-seam me-1"></i> Stok Barang
+                        </a>
+                    </li>
+
+                    <!-- Menu KHUSUS ADMIN (Dibikin Dropdown) -->
+                    @if(Auth::check() && Auth::user()->role === 'admin')
+                    <li class="nav-item dropdown ms-lg-2 mt-2 mt-lg-0">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-shield-lock-fill me-1"></i> Manajemen Admin
+                        </a>
+                        <ul class="dropdown-menu shadow">
+                            <li>
+                                <a class="dropdown-item py-2" href="{{ url('/laporan') }}">
+                                    <i class="bi bi-file-earmark-bar-graph me-2"></i> Laporan Pendapatan
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2" href="{{ url('/pengguna') }}">
+                                    <i class="bi bi-people me-2"></i> Pelanggan & Operator
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    @endif
+                </ul>
+
+                <!-- Profil User & Logout di sebelah kanan -->
+                <div class="d-flex align-items-center gap-4 mt-3 mt-lg-0">
                     @if(Auth::check())
-                        <div class="text-end me-2">
-                            <div class="fw-bold fs-6">{{ Auth::user()->name }}</div>
-                            <div class="text-muted" style="font-size: 0.8rem;">{{ ucfirst(Auth::user()->role) }}</div>
-                        </div>
-                        <!-- Tombol Logout -->
-                        <form action="/logout" method="POST" class="m-0">
-                            @csrf
-                            <button class="btn btn-outline-danger btn-sm rounded-pill px-3">
-                                <i class="bi bi-box-arrow-right"></i> Logout
-                            </button>
-                        </form>
+                    <div class="text-end d-none d-lg-block">
+                        <div class="fw-bold text-white" style="font-size: 0.95rem;">{{ Auth::user()->name }}</div>
+                        <div class="text-primary fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.5px;">{{ strtoupper(Auth::user()->role) }}</div>
+                    </div>
+
+                    <form action="{{ url('/logout') }}" method="POST" class="m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-4 d-flex align-items-center gap-2 w-100">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
+                    </form>
                     @endif
                 </div>
-            </nav>
+            </div>
+        </div>
+    </nav>
 
-            <!-- Area Konten Dinamis (Di sinilah halaman lain akan disuntikkan) -->
-            <div class="p-4">
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="container-fluid px-4 py-4">
+        <!-- Judul Halaman Dinamis -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-semibold text-white">@yield('title', 'Dashboard')</h4>
+        </div>
+
+        <!-- Area Konten yang disuntikkan dari halaman lain -->
+        <div class="row">
+            <div class="col-12">
                 @yield('content')
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap 5 JS (Wajib agar dropdown berfungsi) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

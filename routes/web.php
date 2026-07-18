@@ -1,14 +1,22 @@
 <?php
 
-use App\Models\Layanan;
-use App\Models\Transaksi;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\StokBarangController;
+
+
+Route::get('/', function() {
+    if (Auth::check()) {
+        return redirect('/home');
+    }
+    return redirect('/login');
+});
 
 // Manajemen Users
 Route::get('/register', [AuthController::class, 'RegisterForm'])->name('register');
@@ -16,85 +24,34 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::get('/login', [AuthController::class, 'LoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-// Route yang bisa diakses Kasir
-Route::middleware(['auth', 'role:kasir'])->group(function () {
-    // Read part Home
+// Route Bisa diakses Kasir & Admin
+Route::middleware(['auth'])->group(function () {
+    // Home & Logout
     Route::get('/home', [HomeController::class, 'index']);
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Manajemen Transaksi
-    // Route::get('/transaksi', [TransaksiController::class, 'index']);
-    Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('transaksi.getMasterData');
+    // Manajemen Transaksi (Kasir bisa Read, Create, Update)
+    Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('transaksi.index');
     Route::post('/transaksi', [TransaksiController::class, 'create'])->name('transaksi.create');
     Route::put('/transaksi/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
 
-    Route::get('/riwayat', function () { //DIPINDAH KE DALAM CONTROLLER CEK ROUTE BAGIAN TRANSAKSI, DIBIKIN GITU AE BIAR CLEAN KODENE
-    // Mengambil semua transaksi yang statusnya 'Selesai' dengan Join Tabel yang benar
-        $riwayatTransaksi = DB::table('transaksi')
-                            ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
-                            ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
-                            ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
-                            ->select(
-                                'pelanggan.nama as nama_pelanggan',
-                                'detail_layanan.file_dokumen',
-                                'detail_layanan.jumlah_halaman',
-                                'pembayaran.metode',
-                                'detail_layanan.status_antrean',
-                                'transaksi.updated_at'
-                            )
-                            ->where('detail_layanan.status_antrean', '=', 'Selesai')
-                            ->orderBy('transaksi.updated_at', 'desc')
-                            ->get();
-
-        return view('riwayat', compact('riwayatTransaksi'));
-    });
-
-    // Manajemen Stok Barang
+    // Manajemen Stok Barang (Kasir bisa Read & Update)
     Route::get('/stok-barang', [StokBarangController::class, 'index'])->name('stok.index');
     Route::put('/stok-barang/{id}', [StokBarangController::class, 'update'])->name('stok.update');
 
+    // Riwayat Transaksi
+    Route::get('/riwayat', [RiwayatController::class, 'index'])->name('transaksi.riwayat');; 
 });
 
-// Route KHUSUS ADMIN
+// Route Admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    // Router Home
-    Route::get('/', [HomeController::class, 'index']);
-
-    // Manajemen Transaksi
-    Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('transaksi.getMasterData');
-    Route::post('/transaksi', [TransaksiController::class, 'create'])->name('transaksi.create');
-    Route::put('/transaksi/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
+    // Route Transaksi
     Route::delete('/transaksi/{id}', [TransaksiController::class, 'delete'])->name('transaksi.delete');
 
-    Route::get('/riwayat', function () { //DIPINDAH KE DALAM CONTROLLER CEK ROUTE BAGIAN TRANSAKSI, DIBIKIN GITU AE BIAR CLEAN KODENE
-    // Mengambil semua transaksi yang statusnya 'Selesai' dengan Join Tabel yang benar
-        $riwayatTransaksi = DB::table('transaksi')
-                            ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
-                            ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
-                            ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
-                            ->select(
-                                'pelanggan.nama as nama_pelanggan',
-                                'detail_layanan.file_dokumen',
-                                'detail_layanan.jumlah_halaman',
-                                'pembayaran.metode',
-                                'detail_layanan.status_antrean',
-                                'transaksi.updated_at'
-                            )
-                            ->where('detail_layanan.status_antrean', '=', 'Selesai')
-                            ->orderBy('transaksi.updated_at', 'desc')
-                            ->get();
-
-        return view('riwayat', compact('riwayatTransaksi'));
-    });
-
-    // Manajemen Stok Barang
-    Route::get('/stok-barang', [StokBarangController::class, 'index'])->name('stok.index');
+    // Route Stok Barang
     Route::post('/stok-barang', [StokBarangController::class, 'create'])->name('stok.create');
-    Route::put('/stok-barang/{id}', [StokBarangController::class, 'update'])->name('stok.update');
     Route::delete('/stok-barang/{id}', [StokBarangController::class, 'destroy'])->name('stok.delete');
 
-    // Manajemen Laporan 
+    // Manajemen Laporan (Eksklusif Admin)
     // Route::get('/laporan', [LaporanController::class, 'index']);
-
-    // Route Log Out
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

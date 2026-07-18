@@ -12,15 +12,16 @@ use Smalot\PdfParser\Parser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-// CEK KODE UNTUK FULL UPDATE, BELUM BISA DI KLIK & MALAH ERROR, BELUM KETEMU 
 class TransaksiController extends Controller
 {
     // Read | Ambil data gabungan dari Layanan & Pelanggan
     public function getMasterData(Request $request) {
         $pelanggan = Pelanggan::select('id', 'nama')->get();
         $layanan = Layanan::select('id', 'nama_layanan', 'harga_per_lembar')->get();
+        
+        // return view('transaksi');
 
-        $antreanAktif = DB::table('transaksi')
+        $transaksi = DB::table('transaksi')
                     ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
                     ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
                     ->join('layanan', 'detail_layanan.layanan_id', '=', 'layanan.id')
@@ -49,11 +50,11 @@ class TransaksiController extends Controller
                 'data' => [
                     'pelanggan' => $pelanggan,
                     'layanan' => $layanan,
-                    'antrean_aktif' => $antreanAktif,
+                    'transaksi' => $transaksi,
                 ]
             ]);
         }
-        return view('transaksi', compact('antreanAktif', 'pelanggan', 'layanan'));
+        return view('transaksi', compact('transaksi', 'pelanggan', 'layanan'));
     }
 
     // Method Create
@@ -280,7 +281,7 @@ class TransaksiController extends Controller
 
         if (!$transaksi) {
             if($request->expectsJson()) {
-                return response->json([
+                return response()->json([
                     'status' => 'error',
                     'message' => 'Transaksi tidak ditemukan'
                 ], 404);
@@ -312,7 +313,7 @@ class TransaksiController extends Controller
             DB::rollBack();
 
             if($request->expectJson()) {
-                return response->json([
+                return response()->json([
                     'status' => 'error',
                     'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
                 ], 500);
@@ -334,7 +335,6 @@ class TransaksiController extends Controller
             ->orderBy('tanggal', 'desc')
             ->get();
 
-            // [PERCABANGAN] Jalur API: Jika dipanggil oleh api.php / meminta JSON
             if ($request->wantsJson() || $request->is('api/*')) {
                 return response()->json([
                     'status' => 'success',
@@ -343,11 +343,9 @@ class TransaksiController extends Controller
                 ], 200);
             }
 
-            // [PERCABANGAN] Jalur UI/Web: Jika diakses biasa lewat browser (Navbar)
             return view('riwayat', compact('riwayat'));
 
         } catch (\Exception $e) {
-            // [PERCABANGAN ERROR] Sesuai analisis Zidan
             if ($request->wantsJson() || $request->is('api/*')) {
                 return response()->json([
                     'status' => 'error',
