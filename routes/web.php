@@ -6,12 +6,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LayananController;
 use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\StokBarangController;
+use App\Http\Controllers\PerangkatPrinterController;
 
 
 Route::get('/', function () {
@@ -44,12 +47,15 @@ Route::middleware(['auth'])->group(function () {
 
     // Manajemen Riwayat 
     Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
+
+    // Manajemen Profil
+    Route::get('/profil', [ProfilController::class, 'index'])->name('profil.index');
+    Route::put('/profil/update', [ProfilController::class, 'update'])->name('profil.update');
 });
 
 // Route Admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
     // Route Transaksi
-    Route::get('/transaksi', [TransaksiController::class, 'getMasterData'])->name('transaksi.index');
     Route::delete('/transaksi/{id}', [TransaksiController::class, 'delete'])->name('transaksi.delete');
 
     // Route Stok Barang
@@ -70,4 +76,16 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
     Route::put('/pelanggan/{id}', [PelangganController::class, 'update'])->name('pelanggan.update');
     Route::delete('/pelanggan/{id}', [PelangganController::class, 'delete'])->name('pelanggan.delete');
+
+    // Manajemen Layanan
+    Route::get('/layanan', [LayananController::class, 'index'])->name('layanan.index');
+    Route::post('/layanan', [LayananController::class, 'create'])->name('layanan.create');
+    Route::put('/layanan/{id}', [LayananController::class, 'update'])->name('layanan.update');
+    Route::delete('/layanan/{id}', [LayananController::class, 'delete'])->name('layanan.delete');
+
+    // Manajemen Prangkat Printer
+    Route::get('/printer', [PerangkatPrinterController::class, 'index'])->name('printer.index');
+    Route::post('/printer', [PerangkatPrinterController::class, 'create'])->name('printer.create');
+    Route::put('/printer/{id}', [PerangkatPrinterController::class, 'update'])->name('printer.update');
+    Route::delete('/printer/{id}', [PerangkatPrinterController::class, 'delete'])->name('printer.delete');
 });

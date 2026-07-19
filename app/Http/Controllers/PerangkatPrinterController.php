@@ -7,65 +7,101 @@ use App\Models\PerangkatPrinter;
 
 class PerangkatPrinterController extends Controller
 {
-    public function index() {
-        $printers = PerangkatPrinter::all();
+    // READ
+    public function index(Request $request)
+    {
+        $printer = PerangkatPrinter::all();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $printers
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json(['status' => 'success', 'data' => $printer]);
+        }
+
+        return view('admin.perangkatPrinter', compact('printer'));
     }
 
-    public function create(Request $request) {
+    // CREATE
+    public function create(Request $request)
+    {
+        $request->validate([
+            'nama_printer' => 'required|string|max:255',
+            'status' => 'required|in:Aktif,Perbaikan',
+        ]);
+
         $printer = PerangkatPrinter::create([
             'nama_printer' => $request->nama_printer,
             'status' => $request->status ?? 'Aktif'
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Perangkat printer berhasil ditambahkan',
-            'data' => $printer
-        ]);
-    }
-
-    public function update(Request $request, $id) {
-        $printer = PerangkatPrinter::find($id);
-
-        if (!$printer) {
+        if ($request->expectsJson()) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Perangkat printer tidak ditemukan'
-            ], 404);
+                'status' => 'success',
+                'message' => 'Printer berhasil ditambahkan',
+                'data' => $printer
+            ], 201);
         }
 
-        // Untuk Update jika ada datanya (?? Null Coalescing Operator)
-        $printer->nama_printer = $request->nama_printer ?? $printer->naam_printer;
-        $printer->status = $request->status ?? $printer->status;
-        $printer->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data printer berhasil diperbarui',
-            'data' => $printer
-        ]);
+        return redirect()->back()->with('success', 'Perangkat printer berhasil ditambahkan!');
     }
 
-    public function delete($id) {
+    // UPDATE
+    public function update(Request $request, $id)
+    {
         $printer = PerangkatPrinter::find($id);
 
         if (!$printer) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Printer tidak ditemukan'
+                ], 404);
+            }
+            return redirect()->back()->with('error', 'Perangkat printer tidak ditemukan');
+        }
+
+        $request->validate([
+            'nama_printer' => 'required|string|max:255',
+            'status' => 'required|in:Aktif,Perbaikan',
+        ]);
+
+        $printer->nama_printer = $request->nama_printer;
+        $printer->status = $request->status;
+        $printer->save();
+
+        if ($request->expectsJson()) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Perangkat printer tidak ditemukan'
-            ], 404);
+                'status' => 'success',
+                'message' => 'Data printer berhasil diperbarui',
+                'data' => $printer
+            ], 200);
+        }
+
+        return redirect()->back()->with('success', 'Data printer berhasil diperbarui!');
+    }
+
+    // DELETE
+    public function delete(Request $request, $id)
+    {
+        $printer = PerangkatPrinter::find($id);
+
+        if (!$printer) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Printer tidak ditemukan'
+                ], 404);
+            }
+            return redirect()->back()->with('error', 'Printer tidak ditemukan');
         }
 
         $printer->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Perangkat printer berhasil dihapus'
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Printer berhasil dihapus'
+            ], 200);
+        }
+
+        return redirect()->back()->with('success', 'Perangkat printer berhasil dihapus');
     }
 }

@@ -90,21 +90,29 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->is('riwayat*') ? 'active' : '' }}" href="{{ url('/riwayat') }}">
+                            <i class="bi bi-clock-history me-1"></i> Riwayat Transaksi
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->is('stok-barang*') ? 'active' : '' }}" href="{{ url('/stok-barang') }}">
                             <i class="bi bi-box-seam me-1"></i> Stok Barang
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('riwayat*') ? 'active' : '' }}" href="{{ url('/riwayat') }}">
-                            <i class="bi bi-clock-history me-1"></i> Riwayat Transaksi
+                    <li>
+                        <a class="nav-link {{ request()->is('layanan') ? 'active' : '' }}" href="{{ url('/layanan') }}">
+                            <i class="bi bi-gear me-2"></i> Jenis Layanan
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link {{ request()->is('printer') ? 'active' : '' }}" href="{{ url('/printer') }}">
+                            <i class="bi bi-gear me-2"></i> Perangkat Printer
                         </a>
                     </li>
 
                     <!-- Menu KHUSUS ADMIN (Dibikin Dropdown) -->
                     @if(Auth::check() && Auth::user()->role === 'admin')
                     <li class="nav-item dropdown ms-lg-2 mt-2 mt-lg-0">
-                        <!-- <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-shield-lock-fill me-1"></i> Manajemen Admin -->
                         <a class="nav-link dropdown-toggle {{ request()->is('laporan*') || request()->is('operator*') || request()->is('pelanggan*') ? 'active fw-bold' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-shield-lock-fill me-1"></i> Manajemen Admin
                         </a>
@@ -133,21 +141,24 @@
                     @endif
                 </ul>
 
-                <!-- Profil User & Logout di sebelah kanan -->
-                <div class="d-flex align-items-center gap-4 mt-3 mt-lg-0">
-                    @if(Auth::check())
-                    <div class="text-end d-none d-lg-block">
-                        <div class="fw-bold text-white" style="font-size: 0.95rem;">{{ Auth::user()->name }}</div>
-                        <div class="text-primary fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.5px;">{{ strtoupper(Auth::user()->role) }}</div>
-                    </div>
-
-                    <form action="{{ url('/logout') }}" method="POST" class="m-0">
+                <!-- ================= BAGIAN PROFIL & LOGOUT ================= -->
+                <div class="d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
+                    <a href="{{ url('/profil') }}" class="d-flex align-items-center text-decoration-none" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                        <div class="text-end me-2">
+                            <div class="fw-bold text-white" style="font-size: 0.95rem;">{{ Auth::user()->name }}</div>
+                            <div class="text-primary" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                {{ strtoupper(Auth::user()->role) }}
+                            </div>
+                        </div>
+                        <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                    </a>
+                    <div class="vr bg-secondary mx-3" style="width: 1px; height: 30px;"></div>
+                    <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
-                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-4 d-flex align-items-center gap-2 w-100">
-                            <i class="bi bi-box-arrow-right"></i> Logout
+                        <button type="submit" class="btn btn-outline-danger btn-sm border-0 px-2" title="Keluar / Logout">
+                            <i class="bi bi-power fs-5"></i>
                         </button>
                     </form>
-                    @endif
                 </div>
             </div>
         </div>
