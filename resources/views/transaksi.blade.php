@@ -33,6 +33,7 @@
     </div>
 
     <!-- FORM INPUT TRANSAKSI -->
+    @if(Auth::user()->role === 'kasir')
     <div class="col-12">
         <div class="card bg-dark border-secondary shadow-sm rounded-4">
             <div class="card-body p-4">
@@ -102,6 +103,7 @@
                     </div>
                 </form>
             </div>
+            @endif
         </div>
     </div>
 
@@ -162,8 +164,8 @@
 
                                         <!-- Update HANYA ADMIN -->
                                         @if(Auth::user()->role === 'admin')
-                                        <a href="#" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
-                                        <form action="{{ url('/transaksi/'.$trx->id) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data antrean ini?');">
+                                        <!-- <a href="#" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a> -->
+                                        <form action="{{ url('/transaksi/'.$trx->id_transaksi) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data antrean ini?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Hapus Transaksi">
@@ -211,9 +213,9 @@
                         <div class="col-12">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Status Saat Ini</label>
                             <select name="status_antrean" class="form-select bg-dark text-white border-secondary shadow-none">
-                                <option value="Menunggu" {{ $trx->status_antrean == 'Menunggu' ? 'selected' : '' }}>⏳ Menunggu</option>
-                                <option value="Cetak" {{ $trx->status_antrean == 'Cetak' ? 'selected' : '' }}>🖨️ Cetak</option>
-                                <option value="Selesai" {{ $trx->status_antrean == 'Selesai' ? 'selected' : '' }}>✅ Selesai</option>
+                                <option value="Menunggu" {{ $trx->status_antrean == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
+                                <option value="Cetak" {{ $trx->status_antrean == 'Cetak' ? 'selected' : '' }}>Cetak</option>
+                                <option value="Selesai" {{ $trx->status_antrean == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                             </select>
                         </div>
 
@@ -248,13 +250,13 @@
                         <!-- Edit Tenggat -->
                         <div class="col-md-6">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Tenggat Waktu</label>
-                            <input type="time" name="waktu_deadline" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $trx->waktu_deadline }}" >
+                            <input type="time" name="waktu_deadline" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $trx->waktu_deadline }}">
                         </div>
 
                         <!-- Edit Metode Pembayaran -->
                         <div class="col-md-6">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Metode Pembayaran</label>
-                            <select name="metode" class="form-select bg-dark text-white border-secondary shadow-none" >
+                            <select name="metode" class="form-select bg-dark text-white border-secondary shadow-none">
                                 <option value="Cash" {{ $trx->metode == 'Cash' ? 'selected' : '' }}>Cash</option>
                                 <option value="QRIS" {{ $trx->metode == 'QRIS' ? 'selected' : '' }}>QRIS</option>
                             </select>

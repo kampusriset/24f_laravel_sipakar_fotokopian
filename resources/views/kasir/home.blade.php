@@ -12,7 +12,7 @@
             <i class="bi bi-grid-1x2 text-primary me-2"></i>Layanan Tersedia
         </h5>
         <div class="row g-3">
-            {{-- Kita pakai $layanan (pastikan controllernya mengirimkan variabel ini) --}}
+            <!-- {{-- Kita pakai $layanan (pastikan controllernya mengirimkan variabel ini) --}} -->
             @forelse($layanan as $l)
             @php
             $icon = 'bi-file-earmark-text';
@@ -30,17 +30,14 @@
             }
             @endphp
 
-            <div class="col-6 col-md-3 col-lg-2">
-                <!-- Kartu hanya sebagai display, bukan input form -->
-                <div class="card bg-dark border-secondary shadow-sm h-100 hover-card rounded-4 p-3">
+            <div class="col-8 col-md-6 col-lg-3">
+                <div class="card bg-dark border-secondary shadow-sm h-100 hover-card rounded-4 p-4">
                     <div class="d-flex flex-column align-items-center text-center justify-content-center h-100">
-                        <!-- Icon -->
-                        <div class="rounded-4 mb-2 d-flex align-items-center justify-content-center bg-{{ $color }} bg-opacity-10" style="width: 50px; height: 50px;">
-                            <i class="bi {{ $icon }} fs-4 text-{{ $color }}"></i>
+                        <div class="rounded-4 mb-3 d-flex align-items-center justify-content-center bg-{{ $color }} bg-opacity-10" style="width: 60px; height: 60px;">
+                            <i class="bi {{ $icon }} fs-3 text-{{ $color }}"></i>
                         </div>
-                        <!-- Detail -->
-                        <h6 class="text-light fw-semibold mb-1" style="font-size: 0.9rem;">{{ $l->nama_layanan }}</h6>
-                        <span class="text-primary fw-bold small">Rp {{ number_format($l->harga_per_lembar ?? 0, 0, ',', '.') }}</span>
+                        <h6 class="text-light fw-bold mb-1" style="font-size: 1rem;">{{ $l->nama_layanan }}</h6>
+                        <span class="text-primary fw-bold" style="font-size: 0.95rem;">Rp {{ number_format($l->harga_per_lembar ?? 0, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
@@ -78,7 +75,7 @@
                         </thead>
                         <tbody class="border-top-0">
                             <!-- Looping data dari $transaksiTerbaru -->
-                            @forelse($transaksiTerbaru as $trx)
+                            @forelse($transaksiTerbaru->take(5) as $trx)
                             <tr>
                                 <!-- Opsional Nama -->
                                 <td class="px-4 text-white fw-medium">
@@ -118,21 +115,6 @@
                                         Selesai
                                     </span>
                                 </td>
-
-                                <!-- Aksi (Edit, Hapus, Selesai) -->
-                                <!-- <td class="px-4 text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn btn-sm btn-outline-warning rounded-3" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger rounded-3" title="Hapus">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success rounded-3" title="Selesai">
-                                            <i class="bi bi-check2-all"></i>
-                                        </button>
-                                    </div>
-                                </td> -->
                             </tr>
                             @empty
                             <tr>

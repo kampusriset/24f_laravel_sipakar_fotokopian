@@ -12,7 +12,6 @@
                     <h4 class="fw-bold text-white mb-2">Selamat Datang, {{ Auth::user()->name }}! 👋</h4>
                     <p class="text-secondary mb-0">Selamat bertugas hari ini. Silakan mulai transaksi baru atau pantau ketersediaan stok barang.</p>
                 </div>
-                <!-- Ikon air watermark di sebelah kanan (Sembunyi di layar HP) -->
                 <div class="d-none d-md-block">
                     <i class="bi bi-cart-check-fill text-primary" style="font-size: 3.5rem; opacity: 0.8;"></i>
                 </div>
@@ -26,13 +25,13 @@
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
                     <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
-                        <i class="bi bi-cart-plus text-primary fs-3"></i>
+                        <i class="bi bi-clock-history text-primary fs-3"></i>
                     </div>
-                    <h5 class="fw-bold text-white mb-0">Transaksi Baru</h5>
+                    <h5 class="fw-bold text-white mb-0">Riwayat Transaksi</h5>
                 </div>
                 <p class="text-secondary">Catat penjualan fotocopy, print, atau alat tulis kantor (ATK) dengan cepat.</p>
-                <a href="{{ url('/transaksi') }}" class="btn btn-primary mt-2 rounded-pill px-4 fw-semibold">
-                    <i class="bi bi-plus-circle me-1"></i> Buka Transaksi
+                <a href="{{ url('/riwayat') }}" class="btn btn-primary mt-2 rounded-pill px-4 fw-semibold">
+                    <i class="bi bi-clock-history me-1"></i> Buka Riwayat Transaksi
                 </a>
             </div>
         </div>

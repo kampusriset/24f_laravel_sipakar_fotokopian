@@ -30,6 +30,5 @@ class RiwayatController extends Controller
             ->get();
 
         return view('riwayat', compact('riwayatTransaksi'));
-        // return view('admin.riwayat', compact('riwayatTransaksi'));
     }
 }

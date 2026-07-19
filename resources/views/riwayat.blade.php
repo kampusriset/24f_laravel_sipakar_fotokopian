@@ -22,35 +22,59 @@
                     <table class="table table-dark table-hover mb-0 align-middle">
                         <thead class="table-active">
                             <tr>
-                                <th class="px-4 py-3">Pelanggan</th>
-                                <th class="py-3">Layanan</th>
+                                <th class="px-4 py-3">Nama Pelanggan</th>
+                                <th class="py-3">File Dokumen</th>
                                 <th class="py-3 text-center">Halaman</th>
-                                <th class="py-3">Total Harga</th>
+                                <th class="py-3 text-center">Tenggat</th>
+                                <th class="py-3">Total</th>
+                                <th class="py-3 text-center">Pembayaran</th>
                                 <th class="py-3 text-center">Status</th>
+                                <!-- Kolom Aksi Hanya Untuk Admin -->
+                                @if(Auth::user()->role === 'admin')
                                 <th class="px-4 py-3 text-center" style="width: 15%;">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="border-top-0">
                             @forelse($riwayatTransaksi as $trx)
                             <tr>
                                 <td class="px-4 text-white fw-medium">{{ $trx->nama_pelanggan }}</td>
-                                <td class="text-secondary">{{ $trx->nama_layanan }}</td>
+                                <td class="text-secondary">{{ $trx->file_dokumen }}</td>
                                 <td class="text-center">{{ $trx->jumlah_halaman }}</td>
-                                <td class="text-white">Rp {{ number_format($trx->total_harga, 0, ',', '.') }}</td>
+                                
+                                <!-- Tenggat Waktu (Menggunakan Format Tanggal d/m/Y) -->
+                                <td class="text-secondary text-center">
+                                    {{ date('d/m/Y', strtotime($trx->updated_at)) }}
+                                </td>
+                                
+                                <!-- Total Harga (Warna Biru) -->
+                                <td class="text-primary fw-semibold">
+                                    Rp {{ number_format($trx->total_harga, 0, ',', '.') }}
+                                </td>
+                                
+                                <!-- Metode Pembayaran (Badge Cash/Transfer) -->
+                                <td class="text-center">
+                                    <span class="badge border border-secondary text-light px-2 py-1 rounded-2">
+                                        {{ $trx->metode ?? 'Cash' }}
+                                    </span>
+                                </td>
+                                
                                 <td class="text-center">
                                     <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 rounded-pill">
                                         {{ $trx->status_antrean }}
                                     </span>
                                 </td>
+                                
+                                <!-- Tombol Aksi Hanya Untuk Admin -->
+                                @if(Auth::user()->role === 'admin')
                                 <td class="px-4 text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <!-- Tombol Edit (Memanggil Modal) -->
-                                        <!-- <button type="button" class="btn btn-sm btn-outline-primary rounded-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $trx->id_transaksi }}">
+                                        <!-- Tombol Edit -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $trx->id_transaksi }}">
                                             <i class="bi bi-pencil-square"></i>
-                                        </button> -->
+                                        </button>
 
-                                        <!-- Hapus Data -->
-                                        @if(Auth::user()->role === 'admin')
+                                        <!-- Tombol Hapus -->
                                         <form action="{{ url('/transaksi/'.$trx->id_transaksi) }}" method="POST" class="m-0" onsubmit="return confirm('Yakin hapus data ini?');">
                                             @csrf
                                             @method('DELETE')
@@ -58,13 +82,14 @@
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
-                                        @endif
                                     </div>
                                 </td>
+                                @endif
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-secondary">
+                                <!-- Colspan dinamis: 8 untuk Admin, 7 untuk Kasir -->
+                                <td colspan="{{ Auth::user()->role === 'admin' ? 8 : 7 }}" class="text-center py-5 text-secondary">
                                     <i class="bi bi-inbox fs-2 d-block mb-2 opacity-50"></i>
                                     Belum ada riwayat transaksi.
                                 </td>
@@ -78,7 +103,7 @@
     </div>
 </div>
 
-<!-- MODAL EDIT (Diletakkan di bawah tabel agar tidak mengganggu layout) -->
+<!-- EDIT POP UP -->
 @foreach($riwayatTransaksi as $trx)
 <div class="modal fade" id="editModal{{ $trx->id_transaksi }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -93,11 +118,11 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Jumlah Halaman</label>
-                        <input type="number" name="jumlah_halaman" class="form-control bg-secondary text-white" value="{{ $trx->jumlah_halaman }}" required>
+                        <input type="number" name="jumlah_halaman" class="form-control bg-secondary text-white border-secondary" value="{{ $trx->jumlah_halaman }}" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Total Harga</label>
-                        <input type="number" name="total_harga" class="form-control bg-secondary text-white" value="{{ $trx->total_harga }}" required>
+                        <input type="number" name="total_harga" class="form-control bg-secondary text-white border-secondary" value="{{ $trx->total_harga }}" required>
                     </div>
                 </div>
                 <div class="modal-footer border-secondary">
