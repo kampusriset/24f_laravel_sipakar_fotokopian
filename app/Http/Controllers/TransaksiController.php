@@ -75,13 +75,21 @@ class TransaksiController extends Controller
                 'metode'         => 'required|string',
             ]);
 
-            // Proses Pelanggan (Tidak perlu cek ID dari request karena form baru tidak mengirimkan pelanggan_id)
-            $pelangganBaru = Pelanggan::create([
-                'nama'   => $request->nama_pelanggan,
-                'no_hp'  => $request->no_hp ?? '-',
-                'alamat' => $request->alamat ?? '-',
-            ]);
-            $pelangganId = $pelangganBaru->id;
+            // $pelangganBaru = Pelanggan::create([
+            //     'nama'   => $request->nama_pelanggan,
+            //     'no_hp'  => $request->no_hp ?? '-',
+            //     'alamat' => $request->alamat ?? '-',
+            // ]);
+            // $pelangganId = $pelangganBaru->id;
+
+            $pelanggan = Pelanggan::updateOrCreate(
+                ['no_hp' => $request->no_hp ?? '-'],
+                [
+                    'nama'   => $request->nama_pelanggan,
+                    'alamat' => $request->alamat ?? '-'
+                ]
+            );
+            $pelangganId = $pelanggan->id;
 
             // Logika Halaman PDF
             $jumlahHalaman = 1;
@@ -110,8 +118,8 @@ class TransaksiController extends Controller
             // 5. Simpan ke Database
             $transaksi = Transaksi::create([
                 'pelanggan_id' => $pelangganId,
-                // 'operator_id'  => Auth::id() ?? 1,
-                'operator_id'  => 1,
+                'operator_id'  => Auth::id() ?? 1,
+                // 'operator_id'  => 1,
                 // 'tanggal'      => Carbon::now(),
                 'total_harga'  => $totalHarga
 

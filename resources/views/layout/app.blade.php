@@ -103,18 +103,29 @@
                     <!-- Menu KHUSUS ADMIN (Dibikin Dropdown) -->
                     @if(Auth::check() && Auth::user()->role === 'admin')
                     <li class="nav-item dropdown ms-lg-2 mt-2 mt-lg-0">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <!-- <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-shield-lock-fill me-1"></i> Manajemen Admin -->
+                        <a class="nav-link dropdown-toggle {{ request()->is('laporan*') || request()->is('operator*') || request()->is('pelanggan*') ? 'active fw-bold' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-shield-lock-fill me-1"></i> Manajemen Admin
                         </a>
+
                         <ul class="dropdown-menu shadow">
                             <li>
-                                <a class="dropdown-item py-2" href="{{ url('/laporan') }}">
+                                <a class="dropdown-item py-2 {{ request()->is('laporan') ? 'active fw-bold' : '' }}" href="{{ url('/laporan') }}">
                                     <i class="bi bi-file-earmark-bar-graph me-2"></i> Laporan Pendapatan
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item py-2" href="{{ url('/pengguna') }}">
-                                    <i class="bi bi-people me-2"></i> Pelanggan & Operator
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 {{ request()->is('operator') ? 'active fw-bold' : '' }}" href="{{ route('operator.index') }}">
+                                    <i class="bi bi-person-badge me-2"></i> Manajemen Karyawan
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 {{ request()->is('pelanggan') ? 'active fw-bold' : '' }}" href="{{ route('pelanggan.index') }}">
+                                    <i class="bi bi-people me-2"></i> Data Pelanggan
                                 </a>
                             </li>
                         </ul>
@@ -149,7 +160,6 @@
             <h4 class="fw-semibold text-white">@yield('title', 'Dashboard')</h4>
         </div>
 
-        <!-- Area Konten yang disuntikkan dari halaman lain -->
         <div class="row">
             <div class="col-12">
                 @yield('content')
@@ -157,7 +167,6 @@
         </div>
     </main>
 
-    <!-- Bootstrap 5 JS (Wajib agar dropdown berfungsi) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

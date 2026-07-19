@@ -8,14 +8,18 @@ use Illuminate\Http\Request;
 class PelangganController extends Controller
 {
     // READ
-    public function index()
+    public function index(Request $request)
     {
-        $pelanggan = Pelanggan::all();
+        $pelanggans = Pelanggan::orderBy('created_at', 'desc')->get();
         
-        return response()->json([
-            'status' => 'success',
-            'data' => $pelanggan
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $pelanggans
+            ]);
+        }
+
+        return view('admin.pelanggan', compact('pelanggans'));
     }
 
     // UPDATE
@@ -24,48 +28,61 @@ class PelangganController extends Controller
         $pelanggan = Pelanggan::find($id);
 
         if (!$pelanggan) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Pelanggan tidak ditemukan'
-            ], 404);
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Pelanggan tidak ditemukan'], 404);
+            }
+            return redirect()->back()->with('error', 'Pelanggan tidak ditemukan');
         }
 
-        // Untuk mengecek sudah ada data pelanggan atau belum
+        // Update data
         $pelanggan->nama = $request->nama ?? $pelanggan->nama;
         $pelanggan->no_hp = $request->no_hp ?? $pelanggan->no_hp;
         $pelanggan->alamat = $request->alamat ?? $pelanggan->alamat;
         $pelanggan->save();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data pelanggan berhasil diperbarui',
-            'data' => $pelanggan
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data pelanggan berhasil diperbarui',
+                'data' => $pelanggan
+            ]);
+        }
+        
+        return redirect()->back()->with('success', 'Data pelanggan berhasil diperbarui.');
     }
 
     // DELETE
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
         $pelanggan = Pelanggan::find($id);
 
         if (!$pelanggan) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Pelanggan tidak ditemukan'
-            ], 404);
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Pelanggan tidak ditemukan'], 404);
+            }
+            return redirect()->back()->with('error', 'Pelanggan tidak ditemukan');
         }
 
         try {
             $pelanggan->delete();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data pelanggan berhasil dihapus'
-            ]);
+            
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'success', 'message' => 'Data pelanggan berhasil dihapus']);
+            }
+            
+            return redirect()->back()->with('success', 'Data pelanggan berhasil dihapus.');
+            
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Pelanggan tidak bisa dihapus karena masih memiliki riwayat transaksi di kasir.'
-            ], 400);
+            $pesanError = 'Pelanggan tidak bisa dihapus karena masih memiliki riwayat transaksi di sistem.';
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error', 
+                    'message' => $pesanError
+                ], 400);
+            }
+            
+            return redirect()->back()->with('error', $pesanError);
         }
     }
 }

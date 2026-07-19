@@ -34,7 +34,6 @@ class HomeController extends Controller
                 ->get();
 
         $layanan = Layanan::all();
-        // return view('home', compact('transaksiTerbaru', 'layanan'));
         if (Auth::user()->role === 'admin') {
             return view('admin.home', compact('transaksiTerbaru', 'layanan'));
         } else {

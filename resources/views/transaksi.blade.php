@@ -46,7 +46,7 @@
                     <i class="bi bi-cart-plus text-primary fs-2"></i>
                 </div>
 
-                <form action="{{ url('/transaksi/create') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ url('/transaksi') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row g-3">
                         <!-- Row 1: Nama & No HP -->
@@ -273,9 +273,7 @@
     </div>
 </div>
 @endforeach
-<!-- ================= END MODAL ================= -->
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     setTimeout(function() {
         var alertElement = document.getElementById('myAlert');

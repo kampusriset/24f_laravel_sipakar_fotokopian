@@ -2,106 +2,95 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Operator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class OperatorController extends Controller
 {
     // READ
     public function index()
     {
-        $operators = Operator::select('id', 'nama', 'email', 'created_at')->get();
-        
-        return response()->json([
-            'status' => 'success',
-            'data' => $operators
-        ]);
+        $operators = Operator::with('user')->get();
+
+        return view('admin.operator', compact('operators'));
     }
 
     // CREATE
     public function create(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string',
-            'email' => 'required|email|unique:operator,email',
+            'nama'     => 'required|string|max:100',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
+            'role'     => 'required|in:admin,kasir'
         ]);
 
-        $operator = Operator::create([
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), 
-        ]);
+        DB::transaction(function () use ($request) {
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Karyawan berhasil didaftarkan',
-            'data' => [
-                'id' => $operator->id,
-                'nama' => $operator->nama,
-                'email' => $operator->email
-            ]
-        ]);
+            $user = User::create([
+                'name'     => $request->nama,
+                'email'    => $request->email,
+                'password' => Hash::make($request->password),
+                'role'     => $request->role,
+            ]);
+
+            Operator::create([
+                'nama'    => $request->nama,
+                'user_id' => $user->id
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Karyawan berhasil didaftarkan');
     }
 
     // UPDATE
     public function update(Request $request, $id)
     {
-        $operator = Operator::find($id);
+        $operator = Operator::findOrfail($id);
+        $user = $operator->user;
 
-        if (!$operator) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Karyawan tidak ditemukan'
-            ], 404);
-        }
-
-        if ($request->email && $request->email !== $operator->email) {
-            $request->validate(['email' => 'unique:operator,email']);
-        }
-
-        // Untuk Update jika ada datanya (?? Null Coalescing Operator)
-        $operator->nama = $request->nama ?? $operator->nama;
-        $operator->email = $request->email ?? $operator->email;
-        
-        // reset password karyawan VIA admin
-        if ($request->password) {
-            $operator->password = Hash::make($request->password);
-        }
-        
-        $operator->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data karyawan berhasil diperbarui'
+        $request->validate([
+            'nama'  => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
         ]);
+
+        DB::transaction(function () use ($request, $operator, $user) {
+            $operator->update(['nama' => $request->nama]);
+
+            $user->email = $request->email;
+
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+
+            $user->save();
+        });
+
+        return redirect()->back()->with('success', 'Data karyawan berhasil diperbarui');
     }
 
     // DELETE
     public function delete($id)
     {
-        $operator = Operator::find($id);
+        $operator = Operator::findOrfail($id);
+        $user = $operator->user;
 
-        if (!$operator) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Karyawan tidak ditemukan'
-            ], 404);
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'Anda tidak bisa menghapus akun Anda sendiri saat sedang login!');
         }
 
-        if ($id == 1) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Admin tidak bisa dihapus!'
-            ], 403);
+        if ($user->role === 'admin') {
+            return redirect()->back()->with('error', 'Admin tidak bisa dihapus!');
         }
 
         $operator->delete();
+        $user->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Akses karyawan berhasil dicabut/dihapus'
-        ]);
+        return redirect()->back()->with('success', 'Akses karyawan berhasil dicabut/dihapus');
     }
 }

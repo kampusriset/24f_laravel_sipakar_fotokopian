@@ -3,21 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+// use Illuminate\foundation\Auth\User as Authenticatable;
 
-class Operator extends Authenticatable
+// class Operator extends Authenticatable
+class Operator extends Model
 {
-    use HasApiTokens;
-
     protected $table = 'operator';
     protected $fillable = [
         'nama',
-        'email',
-        'password'
+        'user_id',
     ];
 
-    protected $hidden = [
-        'password'
-    ];
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
