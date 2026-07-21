@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('operator', function (Blueprint $table) {
             $table->id();
-            $table->string('nama', 100);
+            $table->string('name', 100);
             $table->foreignId('user_id')->nullable()->constrained('users');
             $table->timestamps();
         });

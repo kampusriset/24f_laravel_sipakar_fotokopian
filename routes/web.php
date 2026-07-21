@@ -14,6 +14,7 @@ use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\StokBarangController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\PerangkatPrinterController;
 
 
@@ -29,6 +30,10 @@ Route::get('/register', [AuthController::class, 'RegisterForm'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/login', [AuthController::class, 'LoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+
+// Rute untuk mengarahkan ke halaman login Google
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.login');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 
 // Route Bisa diakses Kasir & Admin
 Route::middleware(['auth'])->group(function () {
@@ -60,7 +65,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Route Stok Barang
     Route::post('/stok-barang', [StokBarangController::class, 'create'])->name('stok.create');
-    Route::delete('/stok-barang/{id}', [StokBarangController::class, 'destroy'])->name('stok.delete');
+    Route::delete('/stok-barang/{id}', [StokBarangController::class, 'delete'])->name('stok.delete');
 
     // Manajemen Laporan
     Route::get('/laporan', [LaporanController::class, 'index']);

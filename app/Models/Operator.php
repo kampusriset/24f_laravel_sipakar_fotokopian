@@ -11,8 +11,8 @@ class Operator extends Model
 {
     protected $table = 'operator';
     protected $fillable = [
-        'nama',
         'user_id',
+        'name',
     ];
 
     public function user() {

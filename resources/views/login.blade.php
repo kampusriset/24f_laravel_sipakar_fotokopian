@@ -95,6 +95,17 @@
                     Login <i class="bi bi-box-arrow-in-right ms-1"></i>
                 </button>
 
+                <div class="d-flex align-items-center my-4">
+                    <hr class="flex-grow-1 border-secondary">
+                    <span class="mx-3 text-secondary" style="font-size: 0.9rem;">ATAU</span>
+                    <hr class="flex-grow-1 border-secondary">
+                </div>
+
+                <a href="{{ route('google.login') }}" class="btn btn-outline-light w-100 py-2 fw-bold d-flex align-items-center justify-content-center" style="border-color: #4285F4;">
+                    <i class="bi bi-google me-2" style="color: #4285F4; font-size: 1.2rem;"></i>
+                    Masuk dengan Google
+                </a>
+
                 <div class="text-center mt-4">
                     <small class="text-muted">Belum punya akun? <a href="{{ url('/register') }}" class="text-primary text-decoration-none">Daftar di sini</a></small>
                 </div>

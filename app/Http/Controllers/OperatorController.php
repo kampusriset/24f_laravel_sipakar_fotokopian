@@ -14,7 +14,7 @@ class OperatorController extends Controller
     // READ
     public function index()
     {
-        $operators = Operator::with('user')->get();
+        $operators = User::with('operator')->get();
 
         return view('admin.operator', compact('operators'));
     }
@@ -23,28 +23,27 @@ class OperatorController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'nama'     => 'required|string|max:100',
+            'name'     => 'required|string|max:100',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
             'role'     => 'required|in:admin,kasir'
         ]);
 
-        DB::transaction(function () use ($request) {
+        DB::transaction(function() use($request) {
 
             $user = User::create([
-                'name'     => $request->nama,
                 'email'    => $request->email,
                 'password' => Hash::make($request->password),
                 'role'     => $request->role,
             ]);
 
             Operator::create([
-                'nama'    => $request->nama,
+                'name'    => $request->name,
                 'user_id' => $user->id
             ]);
         });
 
-        return redirect()->back()->with('success', 'Karyawan berhasil didaftarkan');
+        return redirect()->back()->with('success', 'Operator berhasil didaftarkan');
     }
 
     // UPDATE
@@ -54,13 +53,13 @@ class OperatorController extends Controller
         $user = $operator->user;
 
         $request->validate([
-            'nama'  => 'required|string|max:100',
+            'name'  => 'required|string|max:100',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6',
         ]);
 
         DB::transaction(function () use ($request, $operator, $user) {
-            $operator->update(['nama' => $request->nama]);
+            $operator->update(['name' => $request->name]);
 
             $user->email = $request->email;
 

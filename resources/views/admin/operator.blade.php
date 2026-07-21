@@ -1,4 +1,4 @@
-@extends('layout.app') 
+@extends('layout.app')
 
 @section('title', 'Manajemen Operator')
 
@@ -14,14 +14,18 @@
 
     <!-- Menampilkan Pesan Sukses/Error -->
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" id="myAlert" role="alert">
-            {{ session('success') }}
-        </div>
+    <div class="alert alert-success alert-dismissible fade show" id="myAlert" role="alert">
+        {{ session('success') }}
+    </div>
     @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" id="myAlert" role="alert">
-            {{ session('error') }}
-        </div>
+    @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" id="myAlert" role="alert">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
     @endif
 
     <!-- Tabel Daftar Karyawan -->
@@ -41,16 +45,16 @@
                     @foreach($operators as $index => $op)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $op->nama }}</td>
-                        <td>{{ $op->user->email }}</td>
+                        <td>{{ $op->operator?->name ?? 'Belum ada nama' }}</td>
+                        <td>{{ $op->email }}</td>
                         <td>
-                            <span class="badge bg-secondary">{{ strtoupper($op->user->role) }}</span>
+                            <span class="badge bg-secondary">{{ strtoupper($op->role) }}</span>
                         </td>
                         <td>
                             <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $op->id }}">
                                 Edit
                             </button>
-                            
+
                             <form action="{{ route('operator.delete', $op->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
@@ -65,27 +69,27 @@
                                             <h5 class="modal-title">Edit Data: {{ $op->nama }}</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        
+
                                         <form action="{{ route('operator.update', $op->id) }}" method="POST">
                                             @csrf
                                             @method('PUT')
-                                            
+
                                             <div class="modal-body">
                                                 <div class="mb-3">
                                                     <label class="form-label">Nama Lengkap</label>
-                                                    <input type="text" name="nama" class="form-control" value="{{ $op->nama }}" required>
+                                                    <input type="text" name="name" class="form-control" value="{{ $op->name }}" required>
                                                 </div>
-                                                
+
                                                 <div class="mb-3">
                                                     <label class="form-label">Email Karyawan</label>
-                                                    <input type="email" name="email" class="form-control" value="{{ $op->user->email }}" required>
+                                                    <input type="email" name="email" class="form-control" value="{{ $op->email }}" required>
                                                 </div>
 
                                                 <div class="mb-3">
                                                     <label class="form-label">Jabatan (Role)</label>
                                                     <select name="role" class="form-select" required>
-                                                        <option value="kasir" {{ $op->user->role == 'kasir' ? 'selected' : '' }}>Kasir</option>
-                                                        <option value="admin" {{ $op->user->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                                        <option value="kasir" {{ $op->role == 'kasir' ? 'selected' : '' }}>Kasir</option>
+                                                        <option value="admin" {{ $op->role == 'admin' ? 'selected' : '' }}>Admin</option>
                                                     </select>
                                                 </div>
 
@@ -94,7 +98,7 @@
                                                     <input type="password" name="password" class="form-control" minlength="6" placeholder="Ketik password baru di sini...">
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                 <button type="submit" class="btn btn-warning text-dark fw-bold">Update Data</button>
@@ -126,7 +130,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Nama Lengkap</label>
-                        <input type="text" name="nama" class="form-control" required>
+                        <input type="text" name="name" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email Karyawan</label>
@@ -161,7 +165,7 @@
                 var bsAlert = new bootstrap.Alert(alertElement);
                 bsAlert.close();
             }
-        }, 3000); 
+        }, 3000);
     });
 </script>
 @endsection

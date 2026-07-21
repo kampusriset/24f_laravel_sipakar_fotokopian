@@ -59,10 +59,12 @@ class AuthController extends Controller
             // Mengarahkan berdasarkan role
             $user = Auth::user();
             if ($user->role === 'admin') {
-                return redirect()->intended('/stok-barang'); 
-            } else {
-                return redirect()->intended('/transaksi'); 
-            }
+                return redirect('/home');
+            } 
+            //     return redirect()->intended('/stok-barang'); 
+            // } else {
+            //     return redirect()->intended('/transaksi'); 
+            // }
         }
 
         // Jika gagal, kembali ke form login dan notif pesan error

@@ -6,13 +6,13 @@
 <div class="row g-4">
     <div class="col-12">
         <div class="card bg-dark border-secondary shadow-sm rounded-4">
-            
+
             <!-- Header -->
             <div class="card-header border-secondary d-flex justify-content-between align-items-center py-3 px-4">
                 <h5 class="mb-0 text-white fw-semibold">
                     <i class="bi bi-box-seam text-info me-2"></i>Daftar Stok Barang
                 </h5>
-                
+
                 <!-- HANYA ADMIN YANG BISA TAMBAH BARANG -->
                 @if(Auth::user()->role === 'admin')
                 <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#tambahBarangModal">
@@ -20,7 +20,7 @@
                 </button>
                 @endif
             </div>
-            
+
             <!-- Tabel -->
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -30,7 +30,7 @@
                                 <th class="px-4 py-3">Nama Barang</th>
                                 <th class="py-3">Kategori</th>
                                 <th class="py-3 text-center">Stok</th>
-                                <th class="py-3">Harga Satuan</th>
+                                <th class="py-3">Satuan Barang</th>
                                 <th class="px-4 py-3 text-center" style="width: 15%;">Aksi</th>
                             </tr>
                         </thead>
@@ -40,20 +40,17 @@
                                 <td class="px-4 text-white fw-medium">{{ $item->nama_barang }}</td>
                                 <td class="text-secondary">{{ $item->kategori ?? '-' }}</td>
                                 <td class="text-center">
-                                    <span class="badge {{ $item->stok < 5 ? 'bg-danger' : 'bg-success' }} bg-opacity-10 text-white border px-3 rounded-pill">
-                                        {{ $item->stok }}
+                                    <span class="badge {{ $item->jumlah_stok < 5 ? 'bg-danger' : 'bg-success' }} bg-opacity-10 text-white border px-3 rounded-pill">
+                                        {{ $item->jumlah_stok }}
                                     </span>
                                 </td>
-                                <td class="text-white">Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
+                                <td class="text-white">{{ $item->satuan }}</td>
                                 <td class="px-4 text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        
-                                        <!-- Tombol EDIT (Kasir & Admin Bisa) -->
                                         <button type="button" class="btn btn-sm btn-outline-warning rounded-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $item->id }}" title="Edit Stok">
                                             <i class="bi bi-pencil"></i>
                                         </button>
 
-                                        <!-- Tombol HAPUS (HANYA ADMIN) -->
                                         @if(Auth::user()->role === 'admin')
                                         <form action="{{ url('/stok-barang/'.$item->id) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
                                             @csrf
@@ -63,7 +60,6 @@
                                             </button>
                                         </form>
                                         @endif
-
                                     </div>
                                 </td>
                             </tr>
@@ -92,8 +88,8 @@
                 <h5 class="modal-title text-white fw-bold"><i class="bi bi-plus-circle text-primary me-2"></i>Tambah Barang Baru</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <!-- Sesuaikan action route dengan milikmu -->
-            <form action="{{ url('/stok-barang/create') }}" method="POST">
+            
+            <form action="{{ url('/stok-barang') }}" method="POST">
                 @csrf
                 <div class="modal-body text-start px-4 py-3">
                     <div class="mb-3">
@@ -107,11 +103,11 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="text-secondary small mb-1 text-uppercase fw-semibold">Stok Awal</label>
-                            <input type="number" name="stok" class="form-control bg-dark text-white border-secondary shadow-none" required>
+                            <input type="number" name="jumlah_stok" class="form-control bg-dark text-white border-secondary shadow-none" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="text-secondary small mb-1 text-uppercase fw-semibold">Harga Satuan (Rp)</label>
-                            <input type="number" name="harga" class="form-control bg-dark text-white border-secondary shadow-none" required>
+                            <label class="text-secondary small mb-1 text-uppercase fw-semibold">Satuan Barang</label>
+                            <input type="text" name="satuan" class="form-control bg-dark text-white border-secondary shadow-none" placeholder="Contoh: Lembar, Pcs, Rim" required>
                         </div>
                     </div>
                 </div>
@@ -134,24 +130,27 @@
                 <h5 class="modal-title text-white fw-bold"><i class="bi bi-pencil text-warning me-2"></i>Edit Stok Barang</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <!-- Sesuaikan action route dengan milikmu -->
+            
             <form action="{{ url('/stok-barang/'.$item->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-body text-start px-4 py-3">
                     <div class="mb-3">
                         <label class="text-secondary small mb-1 text-uppercase fw-semibold">Nama Barang</label>
-                        <!-- Kasir tidak boleh ubah nama barang? Tambahkan 'readonly' jika mau dibatasi -->
                         <input type="text" name="nama_barang" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $item->nama_barang }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-secondary small mb-1 text-uppercase fw-semibold">Kategori</label>
+                        <input type="text" name="kategori" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $item->kategori }}" required>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="text-secondary small mb-1 text-uppercase fw-semibold">Update Stok</label>
-                            <input type="number" name="stok" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $item->stok }}" required>
+                            <label class="text-secondary small mb-1 text-uppercase fw-semibold">Jumlah Stok</label>
+                            <input type="number" name="jumlah_stok" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $item->jumlah_stok }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="text-secondary small mb-1 text-uppercase fw-semibold">Harga Satuan (Rp)</label>
-                            <input type="number" name="harga" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $item->harga }}" required>
+                            <label class="text-secondary small mb-1 text-uppercase fw-semibold">Satuan Barang</label>
+                            <input type="text" name="satuan" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $item->satuan }}" required>
                         </div>
                     </div>
                 </div>

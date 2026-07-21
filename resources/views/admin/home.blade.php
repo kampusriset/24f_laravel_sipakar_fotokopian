@@ -9,7 +9,8 @@
         <div class="card border-secondary shadow-sm rounded-4" style="background: linear-gradient(145deg, #1a1d20, #121212);">
             <div class="card-body p-4 d-flex align-items-center justify-content-between">
                 <div>
-                    <h4 class="fw-bold text-white mb-2">Selamat Datang, {{ Auth::user()->name }}! 👋</h4>
+                    <!-- <h4 class="fw-bold text-white mb-2">Selamat Datang, {{ Auth::user()->name }}! 👋</h4> -->
+                    <h4 class="fw-bold text-white mb-2">Selamat datang, {{ Auth::user()->operator->name }} ! 👋</h4>
                     <p class="text-secondary mb-0">Selamat bertugas hari ini. Silakan mulai transaksi baru atau pantau ketersediaan stok barang.</p>
                 </div>
                 <div class="d-none d-md-block">

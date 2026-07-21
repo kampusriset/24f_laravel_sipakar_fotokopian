@@ -30,7 +30,7 @@
             }
             @endphp
 
-            <div class="col-8 col-md-6 col-lg-3">
+            <div class="col-8 col-md-6 col-lg-2">
                 <div class="card bg-dark border-secondary shadow-sm h-100 hover-card rounded-4 p-4">
                     <div class="d-flex flex-column align-items-center text-center justify-content-center h-100">
                         <div class="rounded-4 mb-3 d-flex align-items-center justify-content-center bg-{{ $color }} bg-opacity-10" style="width: 60px; height: 60px;">

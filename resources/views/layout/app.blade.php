@@ -99,19 +99,21 @@
                             <i class="bi bi-box-seam me-1"></i> Stok Barang
                         </a>
                     </li>
+
+
+                    <!-- Menu KHUSUS ADMIN (Dibikin Dropdown) -->
+                    @if(Auth::check() && Auth::user()->role === 'admin')
                     <li>
                         <a class="nav-link {{ request()->is('layanan') ? 'active' : '' }}" href="{{ url('/layanan') }}">
-                            <i class="bi bi-gear me-2"></i> Jenis Layanan
+                            <i class="bi bi-layers me-2"></i> Jenis Layanan
                         </a>
                     </li>
                     <li>
                         <a class="nav-link {{ request()->is('printer') ? 'active' : '' }}" href="{{ url('/printer') }}">
-                            <i class="bi bi-gear me-2"></i> Perangkat Printer
+                            <i class="bi bi-printer me-2"></i> Perangkat Printer
                         </a>
                     </li>
 
-                    <!-- Menu KHUSUS ADMIN (Dibikin Dropdown) -->
-                    @if(Auth::check() && Auth::user()->role === 'admin')
                     <li class="nav-item dropdown ms-lg-2 mt-2 mt-lg-0">
                         <a class="nav-link dropdown-toggle {{ request()->is('laporan*') || request()->is('operator*') || request()->is('pelanggan*') ? 'active fw-bold' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-shield-lock-fill me-1"></i> Manajemen Admin
@@ -145,7 +147,7 @@
                 <div class="d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
                     <a href="{{ url('/profil') }}" class="d-flex align-items-center text-decoration-none" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                         <div class="text-end me-2">
-                            <div class="fw-bold text-white" style="font-size: 0.95rem;">{{ Auth::user()->name }}</div>
+                            <div class="fw-bold text-white" style="font-size: 0.95rem;">{{ Auth::user()->operator->name }}</div>
                             <div class="text-primary" style="font-size: 0.75rem; letter-spacing: 1px;">
                                 {{ strtoupper(Auth::user()->role) }}
                             </div>

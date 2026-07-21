@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StokBarang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StokBarangController extends Controller
 {
@@ -12,7 +13,7 @@ class StokBarangController extends Controller
     {
         $stokBarang = StokBarang::orderBy('created_at', 'desc')->get();
 
-        if($request->expectsJson()) {
+        if ($request->expectsJson()) {
             return response()->json([
                 'status' => 'success',
                 'data' => $stokBarang
@@ -25,6 +26,17 @@ class StokBarangController extends Controller
     // CREATE
     public function create(Request $request)
     {
+        // Blokir jika yang akses bukan admin
+        if (Auth::user()->role !== 'admin') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Akses ditolak. Khusus Admin.'
+                ], 403);
+            }
+            return redirect()->back()->with('error', 'Akses ditolak! Kasir tidak diizinkan menambah barang.');
+        }
+
         $request->validate([
             'nama_barang' => 'required|string',
             'kategori' => 'required|string',
@@ -39,7 +51,7 @@ class StokBarangController extends Controller
                 $barangLama->jumlah_stok += $request->jumlah_stok;
                 $barangLama->save();
 
-                if($request->expectsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Stok ditambahkan (Restock berhasil)',
@@ -53,9 +65,9 @@ class StokBarangController extends Controller
                     'kategori' => $request->kategori,
                     'jumlah_stok' => $request->jumlah_stok,
                     'satuan' => $request->satuan,
-                ]);                
-                
-                if($request->expectsJson()) {
+                ]);
+
+                if ($request->expectsJson()) {
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Barang baru berhasil ditambahkan.',
@@ -68,7 +80,7 @@ class StokBarangController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Gagal menyimpan barang: '. $e->getMessage()
+                    'message' => 'Gagal menyimpan barang: ' . $e->getMessage()
                 ], 500);
             }
             return redirect()->back()->with('error', 'Gagal menyimpan barang: ' . $e->getMessage());
@@ -81,7 +93,7 @@ class StokBarangController extends Controller
         $barang = StokBarang::find($id);
 
         if (!$barang) {
-            if($request->expectsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Barang tidak ditemukan'
@@ -104,7 +116,7 @@ class StokBarangController extends Controller
             $barang->satuan = $request->satuan;
             $barang->save();
 
-            if($request->expectsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data stok barang berhasil diperbarui',
@@ -113,8 +125,8 @@ class StokBarangController extends Controller
             }
 
             return redirect()->back()->with('success', 'Barang berhasil diperbarui');
-        } catch(\Exception $e) {
-            if($request->expectsJson()) {
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Gagal memperbarui barang: ' . $e->getMessage()
@@ -127,12 +139,23 @@ class StokBarangController extends Controller
     // DELETE
     public function delete(Request $request, $id)
     {
+        // Blokir jika yang akses bukan admin
+        if (Auth::user()->role !== 'admin') {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Akses ditolak. Khusus Admin.'
+                ], 403);
+            }
+            return redirect()->back()->with('error', 'Akses ditolak! Kasir tidak diizinkan menghapus barang.');
+        }
+
         $barang = StokBarang::find($id);
 
         if (!$barang) {
-            if($request->expectsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
-                    'status' => 'error', 
+                    'status' => 'error',
                     'message' => 'Barang tidak ditemukan'
                 ], 404);
             }
@@ -141,15 +164,23 @@ class StokBarangController extends Controller
 
         try {
             $barang->delete();
-            return response()->json([
-                'status' => 'success', 
-                'message' => 'Barang berhasil dihapus.'
-            ], 200);
-        } catch(\Exception $e) {
-            return response()->json([
-                'status' => 'error', 
-                'message' => 'Gagal menghapus barang: ' . $e->getMessage()
-            ], 500);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Barang berhasil dihapus.'
+                ], 200);
+            }
+
+            return redirect()->back()->with('success', 'Barang berhasil dihapus');
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Gagal menghapus barang: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
         }
     }
 }
