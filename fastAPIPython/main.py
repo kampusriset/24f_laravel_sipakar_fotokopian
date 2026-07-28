@@ -1,32 +1,28 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-# =====================================================================
-# 1. INISIALISASI FASTAPI & PYDANTIC (Validasi Input)
-# =====================================================================
+# INISIALISASI FASTAPI & PYDANTIC
 app = FastAPI(
     title="API Fuzzy Tsukamoto POS Fotokopi",
     description="Mesin AI untuk menghitung prioritas antrean pesanan",
     version="1.0.0"
 )
 
-# Struktur data yang diterima dari PHP
+# VARIABEL INPUT DARI PHP
 class DataPesanan(BaseModel):
-    waktu: float       # menit (Tenggat Waktu)
-    halaman: float     # lembar (Jumlah Halaman)
-    layanan: float     # detik/lembar (Jenis Layanan)
-    antrean: float     # jumlah antrean menunggu
+    waktu: float       
+    halaman: float     
+    layanan: float     
+    antrean: float     
 
-# =====================================================================
-# 2. KELAS FUZZY TSUKAMOTO (Otak AI)
-# =====================================================================
+# FUZZY LOGIC TSUKAMOTO
 class FuzzyTsukamotoPOS:
     def __init__(self):
         self.rules = self._generate_rules()
 
     def _generate_rules(self):
         rules = {}
-        # 1. TENGGAT WAKTU MEPET
+        # TENGGAT WAKTU MEPET
         rules[('Mepet', 'Sedikit', 'Ringan', 'Sepi')] = 'Tinggi'
         rules[('Mepet', 'Sedikit', 'Sedang', 'Sepi')] = 'Tinggi'
         rules[('Mepet', 'Sedikit', 'Berat', 'Sepi')] = 'Tinggi'
@@ -55,7 +51,7 @@ class FuzzyTsukamotoPOS:
         rules[('Mepet', 'Banyak', 'Sedang', 'Ramai')] = 'Rendah'
         rules[('Mepet', 'Banyak', 'Berat', 'Ramai')] = 'Rendah'
 
-        # 2. TENGGAT WAKTU NORMAL
+        # TENGGAT WAKTU NORMAL
         rules[('Normal', 'Sedikit', 'Ringan', 'Sepi')] = 'Tinggi'
         rules[('Normal', 'Sedikit', 'Sedang', 'Sepi')] = 'Sedang'
         rules[('Normal', 'Sedikit', 'Berat', 'Sepi')] = 'Sedang'
@@ -84,7 +80,7 @@ class FuzzyTsukamotoPOS:
         rules[('Normal', 'Banyak', 'Sedang', 'Ramai')] = 'Rendah'
         rules[('Normal', 'Banyak', 'Berat', 'Ramai')] = 'Rendah'
 
-        # 3. TENGGAT WAKTU LONGGAR
+        # TENGGAT WAKTU LONGGAR
         rules[('Longgar', 'Sedikit', 'Ringan', 'Sepi')] = 'Rendah'
         rules[('Longgar', 'Sedikit', 'Sedang', 'Sepi')] = 'Rendah'
         rules[('Longgar', 'Sedikit', 'Berat', 'Sepi')] = 'Rendah'
@@ -115,7 +111,7 @@ class FuzzyTsukamotoPOS:
         
         return rules
 
-    # --- FUNGSI KEANGGOTAAN (FUZZIFIKASI) ---
+    # FUNGSI KEANGGOTAAN | FUZZIFIKASI
     def fuzzify_waktu(self, x):
         miu = {'Mepet': 0, 'Normal': 0, 'Longgar': 0}
         if x <= 45: miu['Mepet'] = 1
@@ -168,7 +164,7 @@ class FuzzyTsukamotoPOS:
         elif x >= 7: miu['Ramai'] = 1
         return miu
 
-    # --- INFERENSI & DEFUZZIFIKASI ---
+    # INFERENSI & DEFUZZIFIKASI
     def hitung_prioritas(self, val_waktu, val_halaman, val_layanan, val_antrean):
         miu_waktu = self.fuzzify_waktu(val_waktu)
         miu_halaman = self.fuzzify_halaman(val_halaman)
@@ -189,7 +185,7 @@ class FuzzyTsukamotoPOS:
                         if alpha > 0:
                             output_kategori = self.rules[(w_key, h_key, l_key, a_key)]
                             
-                            # Invers / Z Crisp Tsukamoto
+                            # INVERS / Z CRISP TSUKAMOTO
                             if output_kategori == 'Rendah':
                                 z = 50 - (alpha * 50)
                             elif output_kategori == 'Sedang':
@@ -200,7 +196,7 @@ class FuzzyTsukamotoPOS:
                             total_alpha_z += alpha * z
                             total_alpha += alpha
                             
-        # Defuzzifikasi Rata-Rata Terbobot
+        # Terbobot DEFUZZIFIKASI RATA - RATA
         if total_alpha == 0:
             return 0, "Rendah"
             
@@ -215,13 +211,11 @@ class FuzzyTsukamotoPOS:
             
         return z_akhir, label
 
-# Inisialisasi Objek AI
+# INISIALISASI OBJEK AI 
 sistem_fuzzy = FuzzyTsukamotoPOS()
 
 
-# =====================================================================
-# 3. ENDPOINT / JALUR API (Pintu masuk dari PHP)
-# =====================================================================
+# JALUR API
 @app.post("/hitung")
 def hitung_api(pesanan: DataPesanan):
     # Masukkan data dari PHP ke fungsi Fuzzy

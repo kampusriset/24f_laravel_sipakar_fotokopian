@@ -70,17 +70,12 @@ class TransaksiController extends Controller
                 'no_hp'          => 'nullable|string',
                 'alamat'         => 'nullable|string',
                 'layanan_id'     => 'required',
-                'file_dokumen'   => 'required|file|mimes:pdf',
                 'waktu_deadline' => 'required|date_format:H:i', 
                 'metode'         => 'required|string',
+                'sumber_dokumen' => 'required|in:digital,fisik',
+                'file_dokumen'   => 'required_if:sumber_dokumen,digital|mimes:pdf,docx,doc|nullable',
+                'jumlah_halaman_manual' => 'required_if:sumber_dokumen,fisik|numeric|min:1|nullable',
             ]);
-
-            // $pelangganBaru = Pelanggan::create([
-            //     'nama'   => $request->nama_pelanggan,
-            //     'no_hp'  => $request->no_hp ?? '-',
-            //     'alamat' => $request->alamat ?? '-',
-            // ]);
-            // $pelangganId = $pelangganBaru->id;
 
             $pelanggan = Pelanggan::updateOrCreate(
                 ['no_hp' => $request->no_hp ?? '-'],
@@ -95,38 +90,59 @@ class TransaksiController extends Controller
             $jumlahHalaman = 1;
             $namaFileFisik = null;
 
-            if ($request->hasFile('file_dokumen')) {
-                $file = $request->file('file_dokumen');
+            if ($request->sumber_dokumen === 'digital') {
+                if ($request->hasFile('file_dokumen')) {
+                    $file = $request->file('file_dokumen');
+                    $ekstensi = strtolower($file->getClientOriginalExtension());
+                    $namaFileFisik = time() . '_' . $file->getClientOriginalName();
 
-                // nama unik agar file tidak tertimpa
-                $namaFileFisik = time() . '_' . $file->getClientOriginalName();
+                    // Simpan file
+                    $file->storeAs('public/dokumen', $namaFileFisik);
 
-                // Menggunakan Smalot PDF untuk menghitung jumlah halaman otomatis
-                $pdfParser = new Parser();
-                $pdf = $pdfParser->parseFile($file->getPathname());
-                $jumlahHalaman = count($pdf->getPages());
+                    // LOGIKA CEK HALAMAN
+                    if ($ekstensi === 'pdf') {
+                        $pdfParser = new Parser();
+                        $pdf = $pdfParser->parseFile($file->getPathname());
+                        $jumlahHalaman = count($pdf->getPages());
 
-                // Simpan file ke dalam folder storage/app/public/dokumen
-                $file->storeAs('public/dokumen', $namaFileFisik);
+                } elseif ($ekstensi === 'docx') {
+                        $zip = new \ZipArchive();
+
+                        if ($zip->open($file->getPathname()) === true) {
+
+                            if (($index = $zip->locateName('docProps/app.xml')) !== false) {
+                                $xmlData = $zip->getFromIndex($index);
+                                $xml = simplexml_load_string($xmlData);
+
+                                if ($xml && isset($xml->Pages)) {
+                                    $jumlahHalaman = (int) $xml->Pages;
+                                }
+                            }
+                            $zip->close();
+                        }
+
+                        if ($jumlahHalaman == 0) $jumlahHalaman = 1; 
+                    }
+                }
+            } else {
+                $namaFileFisik = '';
+                $jumlahHalaman = $request->jumlah_halaman_manual;
             }
 
-            // 4. Kalkulasi Harga
+            // Kalkulasi Harga
             $layanan = Layanan::findOrFail($request->layanan_id);
             $hargaSatuan = $layanan->harga_per_lembar;
             $totalHarga = $jumlahHalaman * $hargaSatuan;
 
-            // 5. Simpan ke Database
+            $operator = \App\Models\Operator::where('user_id', Auth::id())->first();
+            $operatorId = $operator ? $operator->id : 1;
+
+            // Simpan ke Database
             $transaksi = Transaksi::create([
                 'pelanggan_id' => $pelangganId,
-                'operator_id'  => Auth::id() ?? 1,
-                // 'operator_id'  => 1,
-                // 'tanggal'      => Carbon::now(),
+                'operator_id'  => $operatorId,
                 'total_harga'  => $totalHarga
 
-                // 'pelanggan_id' => $pelangganId,
-                // 'operator_id' => auth('sanctum')->id() ?? 1, 
-                // 'tanggal' => Carbon::now(),
-                // 'total_harga' => $totalHarga
             ]);
 
             Pembayaran::create([
@@ -135,13 +151,8 @@ class TransaksiController extends Controller
                 'metode'        => $request->metode,
                 'tanggal_bayar' => Carbon::now(),
 
-                // 'transaksi_id' => $transaksi->id,
-                // 'total_bayar' => $totalHarga,
-                // 'metode' => $request->metode ?? 'Cash',
-                // 'tanggal_bayar' => Carbon::now(),
             ]);
 
-            // Format waktu deadline dari input "time" menjadi datetime hari ini
             $waktuSelesai = Carbon::today()->format('Y-m-d') . ' ' . $request->waktu_deadline . ':00';
 
             DetailLayanan::create([
@@ -154,14 +165,6 @@ class TransaksiController extends Controller
                 'waktu_deadline' => Carbon::parse($waktuSelesai),
                 'status_antrean' => 'Menunggu',
 
-                // 'transaksi_id' => $transaksi->id,
-                // 'layanan_id' => $layanan->id,
-                // 'jumlah_halaman' => $jumlahHalaman,
-                // 'harga_satuan' => $hargaSatuan,
-                // 'file_dokumen' => $namaFileFisik,
-                // 'subtotal' => $totalHarga,
-                // 'waktu_deadline' => $request->waktu_deadline ? Carbon::parse($request->waktu_deadline) : Carbon::now()->addHours(2),
-                // 'status_antrean' => 'Menunggu',
             ]);
 
             DB::commit();

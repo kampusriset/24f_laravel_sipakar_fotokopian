@@ -34,78 +34,93 @@
 
     <!-- FORM INPUT TRANSAKSI -->
     @if(Auth::user()->role === 'kasir')
-    <div class="col-12">
-        <div class="card bg-dark border-secondary shadow-sm rounded-4">
-            <div class="card-body p-4">
-                <!-- Header Section -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h4 class="text-white fw-bold mb-0">Input Antrean Baru</h4>
-                        <p class="text-secondary mb-0">Masukkan detail pesanan pelanggan ke dalam sistem.</p>
+        <div class="col-12">
+            <div class="card bg-dark border-secondary shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <!-- Header Section -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="text-white fw-bold mb-0">Input Antrean Baru</h4>
+                            <p class="text-secondary mb-0">Masukkan detail pesanan pelanggan ke dalam sistem.</p>
+                        </div>
+                        <i class="bi bi-cart-plus text-primary fs-2"></i>
                     </div>
-                    <i class="bi bi-cart-plus text-primary fs-2"></i>
+
+                    <form action="{{ url('/transaksi') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="row g-3">
+                            <!-- Nama & No HP -->
+                            <div class="col-md-6">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Nama Pelanggan</label>
+                                <input type="text" name="nama_pelanggan" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: Budi Mahasiswa" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">No HP / Whatsapp</label>
+                                <input type="text" name="no_hp" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: 081234567890">
+                            </div>
+
+                            <!-- Alamat -->
+                            <div class="col-12">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Alamat</label>
+                                <input type="text" name="alamat" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: Jl. Slamet Riyadi, Solo">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Sumber Dokumen</label>
+                                <select id="sumber_dokumen" name="sumber_dokumen" class="form-select bg-dark text-white border-secondary" required>
+                                    <option value="digital">Dokumen Digital (Upload File PDF)</option>
+                                    <option value="fisik">Dokumen Fisik (Input Manual Halaman)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Jenis Layanan</label>
+                                <select name="layanan_id" class="form-select bg-dark text-white border-secondary" required>
+                                    <option value="">Pilih Layanan...</option>
+                                    @foreach($layanan as $l)
+                                    <option value="{{ $l->id }}">{{ $l->nama_layanan }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-6" id="wrapper_file">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">File Dokumen PDF</label>
+                                <input type="file" name="file_dokumen" id="file_dokumen" class="form-control bg-dark text-white border-secondary" accept=".pdf">
+                            </div>
+
+                            <div class="col-md-6 d-none" id="wrapper_halaman">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Jumlah Halaman (Manual)</label>
+                                <input type="number" name="jumlah_halaman_manual" id="jumlah_halaman_manual" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: 50" min="1">
+                            </div>
+
+                            <!-- Tenggat & Metode -->
+                            <div class="col-md-6">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Tenggat Waktu</label>
+                                <input type="time" name="waktu_deadline" class="form-control bg-dark text-white border-secondary" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Metode Pembayaran</label>
+                                <select name="metode" class="form-select bg-dark text-white border-secondary" required>
+                                    <option value="Cash">Cash</option>
+                                    <option value="QRIS">QRIS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Footer Buttons -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="reset" class="btn btn-outline-secondary px-4 me-2">Reset</button>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">
+                                <i class="bi bi-send me-1"></i> Masukkan ke Antrean
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <form action="{{ url('/transaksi') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="row g-3">
-                        <!-- Row 1: Nama & No HP -->
-                        <div class="col-md-6">
-                            <label class="text-secondary fw-semibold small mb-1 text-uppercase">Nama Pelanggan</label>
-                            <input type="text" name="nama_pelanggan" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: Budi Mahasiswa" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="text-secondary fw-semibold small mb-1 text-uppercase">No HP / Whatsapp</label>
-                            <input type="text" name="no_hp" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: 081234567890">
-                        </div>
-
-                        <!-- Row 2: Alamat -->
-                        <div class="col-12">
-                            <label class="text-secondary fw-semibold small mb-1 text-uppercase">Alamat</label>
-                            <input type="text" name="alamat" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: Jl. Slamet Riyadi, Solo">
-                        </div>
-
-                        <!-- Row 3: File & Layanan -->
-                        <div class="col-md-6">
-                            <label class="text-secondary fw-semibold small mb-1 text-uppercase">File Dokumen PDF</label>
-                            <input type="file" name="file_dokumen" class="form-control bg-dark text-white border-secondary" accept=".pdf" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="text-secondary fw-semibold small mb-1 text-uppercase">Jenis Layanan</label>
-                            <select name="layanan_id" class="form-select bg-dark text-white border-secondary" required>
-                                <option value="">Pilih Layanan...</option>
-                                @foreach($layanan as $l)
-                                <option value="{{ $l->id }}">{{ $l->nama_layanan }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Tenggat & Metode -->
-                        <div class="col-md-6">
-                            <label class="text-secondary fw-semibold small mb-1 text-uppercase">Tenggat Waktu</label>
-                            <input type="time" name="waktu_deadline" class="form-control bg-dark text-white border-secondary" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="text-secondary fw-semibold small mb-1 text-uppercase">Metode Pembayaran</label>
-                            <select name="metode" class="form-select bg-dark text-white border-secondary" required>
-                                <option value="Cash">Cash</option>
-                                <option value="QRIS">QRIS</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Footer Buttons -->
-                    <div class="d-flex justify-content-end mt-4">
-                        <button type="reset" class="btn btn-outline-secondary px-4 me-2">Reset</button>
-                        <button type="submit" class="btn btn-primary px-4 fw-bold">
-                            <i class="bi bi-send me-1"></i> Masukkan ke Antrean
-                        </button>
-                    </div>
-                </form>
             </div>
-            @endif
         </div>
-    </div>
+    @endif
+        <!-- </div>
+    </div> -->
 
     <!-- TABEL DAFTAR ANTREAN -->
     <div class="col-12">
@@ -134,7 +149,15 @@
                             @forelse($transaksi as $trx)
                             <tr>
                                 <td class="px-4 fw-bold">{{ $trx->nama_pelanggan }}</td>
-                                <td><small class="text-secondary">{{ $trx->file_dokumen }}</small></td>
+                                <td>
+                                @if($trx->file_dokumen)
+                                    <div class="text-info text-wrap text-break" style="max-width: 180px; font-size: 0.85rem;" title="{{ $trx->file_dokumen }}">
+                                        <i class="bi bi-file-earmark-pdf me-1"></i>{{ preg_replace('/^[0-9]+_/', '', $trx->file_dokumen) }}
+                                    </div>
+                                @else
+                                    <span class="badge bg-secondary"><i class="bi bi-file-earmark-text me-1"></i> Dokumen Fisik</span>
+                                @endif
+                                </td>
                                 <td class="text-center">{{ $trx->jumlah_halaman }}</td>
                                 <td>{{ $trx->nama_layanan }}</td>
                                 <td>{{ $trx->waktu_deadline }} m</td>
@@ -164,7 +187,6 @@
 
                                         <!-- Update HANYA ADMIN -->
                                         @if(Auth::user()->role === 'admin')
-                                        <!-- <a href="#" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a> -->
                                         <form action="{{ url('/transaksi/'.$trx->id_transaksi) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data antrean ini?');">
                                             @csrf
                                             @method('DELETE')
@@ -189,7 +211,7 @@
     </div>
 </div>
 
-<!-- ================= KUMPULAN MODAL EDIT (Di-loop di luar tabel) ================= -->
+<!-- MODAL EDIT  -->
 @foreach($transaksi as $trx)
 <div class="modal fade" id="editModal{{ $trx->id_transaksi }}" tabindex="-1" aria-labelledby="editModalLabel{{ $trx->id_transaksi}}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -275,6 +297,35 @@
 @endforeach
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sumberDokumen = document.getElementById('sumber_dokumen');
+        const wrapperFile = document.getElementById('wrapper_file');
+        const wrapperHalaman = document.getElementById('wrapper_halaman');
+        const inputFile = document.getElementById('file_dokumen');
+        const inputHalaman = document.getElementById('jumlah_halaman_manual');
+
+        function toggleSumberDokumen() {
+            if (sumberDokumen.value === 'fisik') {
+                wrapperFile.classList.add('d-none');
+                inputFile.removeAttribute('required');
+                
+                wrapperHalaman.classList.remove('d-none');
+                inputHalaman.setAttribute('required', 'required');
+            } else {
+                wrapperHalaman.classList.add('d-none');
+                inputHalaman.removeAttribute('required');
+                
+                wrapperFile.classList.remove('d-none');
+                inputFile.setAttribute('required', 'required');
+            }
+        }
+
+        if (sumberDokumen) {
+            sumberDokumen.addEventListener('change', toggleSumberDokumen);
+            toggleSumberDokumen();
+        }
+    });
+
     setTimeout(function() {
         var alertElement = document.getElementById('myAlert');
         if (alertElement) {
