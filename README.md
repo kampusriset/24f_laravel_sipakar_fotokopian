@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png" alt="Logo" width="100">
-
   <h1 align="center">Sistem Point of Sale (POS) Fotocopy & Print</h1>
 
   <p align="center">
