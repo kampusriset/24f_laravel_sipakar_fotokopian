@@ -106,9 +106,9 @@
                     Masuk dengan Google
                 </a>
 
-                <div class="text-center mt-4">
+                <!-- <div class="text-center mt-4">
                     <small class="text-muted">Belum punya akun? <a href="{{ url('/register') }}" class="text-primary text-decoration-none">Daftar di sini</a></small>
-                </div>
+                </div> -->
             </form>
         </div>
     </div>

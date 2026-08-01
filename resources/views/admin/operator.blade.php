@@ -61,7 +61,7 @@
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus karyawan ini?')">Hapus</button>
                             </form>
 
-                            <!-- ================= MODAL EDIT UNTUK KARYAWAN INI ================= -->
+                            <!-- ================= MODAL EDIT UNTUK KARYAWAN ================= -->
                             <div class="modal fade" id="editModal{{ $op->id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content text-start">

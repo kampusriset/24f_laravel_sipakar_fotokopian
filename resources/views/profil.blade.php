@@ -9,14 +9,6 @@
 
             <h3 class="fw-bold mb-4">Pengaturan Profil</h3>
 
-            <!-- Menampilkan Pesan Sukses -->
-            <!-- @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif -->
-
             <div class="col-12 mb-0">
                 @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" id="myAlert" role="alert">
@@ -44,13 +36,12 @@
                 @endif
             </div>
 
-
             <div class="card shadow border-secondary">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary">
                         <i class="bi bi-person-circle text-secondary me-3" style="font-size: 4rem;"></i>
                         <div>
-                            <h4 class="fw-bold mb-1">{{ $user->operator->nama ?? 'Nama Pengguna' }}</h4>
+                            <h4 class="fw-bold mb-1">{{ $user->operator->name ?? 'Nama Pengguna' }}</h4>
                             <span class="badge bg-primary">{{ strtoupper($user->role) }}</span>
                         </div>
                     </div>
@@ -61,7 +52,7 @@
 
                         <div class="mb-3">
                             <label class="form-label text-muted">Nama Lengkap</label>
-                            <input type="text" name="nama" class="form-control" value="{{ $user->operator->nama ?? '' }}" required>
+                            <input type="text" name="name" class="form-control" value="{{ $user->operator->name ?? '' }}">
                         </div>
 
                         <div class="mb-3">
@@ -86,7 +77,6 @@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

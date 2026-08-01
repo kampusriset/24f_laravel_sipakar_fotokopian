@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('file_dokumen', 255)->NotNull();
             $table->timestamp('waktu_deadline')->NotNull();
             $table->float('skor_prioritas')->nullable(); 
+            $table->string('tingkat_prioritas')->default('Normal')->after('skor_prioritas'); 
             $table->string('status_antrean', 50)->default('Menunggu'); 
             $table->timestamps();
         });
