@@ -118,18 +118,24 @@ class TransaksiController extends Controller
                         $jumlahHalaman = count($pdf->getPages());
                     } elseif ($ekstensi === 'docx') {
                         $zip = new \ZipArchive();
-                        if ($zip->open($file->getPathname()) === true) {
+                        
+                        $pathFileTersimpan = \Illuminate\Support\Facades\Storage::path('public/dokumen/' . $namaFileFisik);
+                        $statusZip = $zip->open($pathFileTersimpan);
+                        
+                        if ($statusZip === true) {
                             if (($index = $zip->locateName('docProps/app.xml')) !== false) {
                                 $xmlData = $zip->getFromIndex($index);
                                 
-                                // Menggunakan Regex untuk mengatasi masalah XML Namespace di DOCX
-                                if (preg_match('/<[^>]*Pages>(\d+)<\/[^>]*Pages>/i', $xmlData, $matches)) {
+                                if (preg_match('/<[^>]*Pages[^>]*>(\d+)</i', $xmlData, $matches)) {
                                     $jumlahHalaman = (int) $matches[1];
                                 }
                             }
                             $zip->close();
+                        } else {
+                            dd("GAGAL DIBUKA! ZipArchive Error Code: " . $statusZip . " | File: " . $pathFileTersimpan);
                         }
-                        if ($jumlahHalaman == 0) $jumlahHalaman = 1; 
+                        
+                        if ($jumlahHalaman == 0) $jumlahHalaman = 1;
                     }
                 }
             } else {
@@ -162,12 +168,6 @@ class TransaksiController extends Controller
             $diffMinutes = (int) $request->waktu_deadline;
             $waktuSelesai = \Carbon\Carbon::now()->addMinutes($diffMinutes);
 
-            // $waktuSelesai = Carbon::today()->format('Y-m-d') . ' ' . $request->waktu_deadline . ':00';
-
-            // ==========================================================
-            // START: LOGIKA PENENTUAN PRIORITAS & API PYTHON
-            // ==========================================================
-            
             $namaLayananLower = strtolower($layanan->nama_layanan);
             $zScore = 0;
             
@@ -177,7 +177,6 @@ class TransaksiController extends Controller
                 $prioritas = 'Pengetikan';
                 $zScore = 0;
             } else {
-                // JIKA BUKAN KETIK, HITUNG DENGAN AI TSUKAMOTO
                 
                 // 1. Hitung Jumlah Antrean Cetak (Status 'Menunggu', kecualikan 'Pengetikan')
                 // Pastikan antrean ketik tidak dihitung membebani mesin cetak
@@ -214,9 +213,6 @@ class TransaksiController extends Controller
                     Log::error('Gagal terhubung ke API Python: ' . $e->getMessage());
                 }
             }
-            // ==========================================================
-            // END: LOGIKA PENENTUAN PRIORITAS & API PYTHON
-            // ==========================================================
 
             // Simpan Detail Layanan beserta skor AI-nya
             DetailLayanan::create([

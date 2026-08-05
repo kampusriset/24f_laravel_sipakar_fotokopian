@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('detail_layanan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('restrict');
-            $table->foreignId('layanan_id')->constrained('layanan')->onDelete('restrict');
+            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('cascade');
+            $table->foreignId('layanan_id')->constrained('layanan')->onDelete('cascade');
             $table->integer('jumlah_halaman');
             $table->integer('harga_satuan');
             $table->integer('subtotal')->NotNull();
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('file_dokumen', 255)->NotNull();
             $table->timestamp('waktu_deadline')->NotNull();
             $table->float('skor_prioritas')->nullable(); 
-            $table->string('tingkat_prioritas')->default('Normal')->after('skor_prioritas'); 
+            $table->string('tingkat_prioritas')->default('Normal');
             $table->string('status_antrean', 50)->default('Menunggu'); 
             $table->timestamps();
         });

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Models\StokBarang;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
@@ -59,7 +60,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Route Admin
-Route::middleware(['auth', 'role:admin'])->group(function () {
+// Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['role:admin'])->group(function () {
     // Route Transaksi
     Route::delete('/transaksi/{id}', [TransaksiController::class, 'delete'])->name('transaksi.delete');
 

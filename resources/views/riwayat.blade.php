@@ -39,7 +39,7 @@
                             @forelse($riwayatTransaksi as $trx)
                             <tr>
                                 <td class="px-4 text-white fw-medium">{{ $trx->nama_pelanggan }}</td>
-                                <td class="text-secondary">{{ $trx->file_dokumen }}</td>
+                                <td class="text-secondary">{{ preg_replace('/^[0-9]+_/', '', $trx->file_dokumen) }}</td>
                                 <td class="text-center">{{ $trx->jumlah_halaman }}</td>
                                 
                                 <!-- Tenggat Waktu (Menggunakan Format Tanggal d/m/Y) -->

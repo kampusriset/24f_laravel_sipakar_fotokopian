@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Layanan;
+use App\Models\DetailLayanan;
+use App\Models\StokBarang;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,10 +36,12 @@ class HomeController extends Controller
                 ->get();
 
         $layanan = Layanan::all();
+        $stokBarang = StokBarang::all(); 
+
         if (Auth::user()->role === 'admin') {
-            return view('admin.home', compact('transaksiTerbaru', 'layanan'));
+            return view('admin.home', compact('transaksiTerbaru', 'layanan', 'stokBarang'));
         } else {
-            return view('kasir.home', compact('transaksiTerbaru', 'layanan'));
+            return view('kasir.home', compact('transaksiTerbaru', 'layanan', 'stokBarang')); 
         }
     }
 }

@@ -104,10 +104,6 @@
                     <i class="bi bi-google me-2" style="color: #4285F4; font-size: 1.2rem;"></i>
                     Masuk dengan Google
                 </a>
-
-                <!-- <div class="text-center mt-4">
-                    <small class="text-muted">Belum punya akun? <a href="{{ url('/register') }}" class="text-primary text-decoration-none">Daftar di sini</a></small>
-                </div> -->
             </form>
         </div>
     </div>

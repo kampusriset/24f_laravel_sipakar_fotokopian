@@ -46,8 +46,13 @@
                         <i class="bi bi-cart-plus text-primary fs-2"></i>
                     </div>
 
-                    <form action="{{ url('/transaksi') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('/transaksi') }}" method="POST" enctype="multipart/form-data" id="formTransaksi">
                         @csrf
+                        
+                        <!-- Input Hidden (Bisa dibiarkan jika masih terhubung dengan JS lama) -->
+                        <input type="hidden" name="nilai_prioritas" id="input_nilai_prioritas">
+                        <input type="hidden" name="kategori_prioritas" id="input_kategori_prioritas">
+
                         <div class="row g-3">
                             <!-- Nama & No HP -->
                             <div class="col-md-6">
@@ -75,7 +80,7 @@
 
                             <div class="col-md-6">
                                 <label class="text-secondary fw-semibold small mb-1 text-uppercase">Jenis Layanan</label>
-                                <select name="layanan_id" class="form-select bg-dark text-white border-secondary" required>
+                                <select name="layanan_id" id="layanan_id" class="form-select bg-dark text-white border-secondary" required>
                                     <option value="">Pilih Layanan...</option>
                                     @foreach($layanan as $l)
                                     <option value="{{ $l->id }}">{{ $l->nama_layanan }}</option>
@@ -93,10 +98,10 @@
                                 <input type="number" name="jumlah_halaman_manual" id="jumlah_halaman_manual" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: 50" min="1">
                             </div>
 
-                            <!-- Tenggat & Metode -->
+                            <!-- Tenggat (DIBUAT MENJADI INPUT MENIT) & Metode -->
                             <div class="col-md-6">
-                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Tenggat Waktu</label>
-                                <input type="time" name="waktu_deadline" class="form-control bg-dark text-white border-secondary" required>
+                                <label class="text-secondary fw-semibold small mb-1 text-uppercase">Tenggat Waktu (Menit)</label>
+                                <input type="number" name="waktu_deadline" id="waktu_deadline" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: 60" min="1" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="text-secondary fw-semibold small mb-1 text-uppercase">Metode Pembayaran</label>
@@ -110,8 +115,11 @@
                         <!-- Footer Buttons -->
                         <div class="d-flex justify-content-end mt-4">
                             <button type="reset" class="btn btn-outline-secondary px-4 me-2">Reset</button>
-                            <button type="submit" class="btn btn-primary px-4 fw-bold">
-                                <i class="bi bi-send me-1"></i> Masukkan ke Antrean
+                            <button type="submit" id="btnSubmitAntrean" class="btn btn-primary px-4 fw-bold">
+                                <span id="btnText"><i class="bi bi-send me-1"></i> Masukkan ke Antrean</span>
+                                <span id="btnLoading" class="d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Memproses...
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -119,8 +127,6 @@
             </div>
         </div>
     @endif
-        <!-- </div>
-    </div> -->
 
     <!-- TABEL DAFTAR ANTREAN -->
     <div class="col-12">
@@ -130,24 +136,32 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 align-middle">
+                    <table class="table table-dark table-hover mb-0 align-middle" id="tabelAntrean">
                         <thead class="table-active">
                             <tr>
                                 <th class="px-4">Nama Pelanggan</th>
                                 <th>File</th>
                                 <th class="text-center">Halaman</th>
                                 <th>Layanan</th>
-                                <th>Tenggat</th>
+                                <th>Selesai Pada</th>
                                 <th>Total</th>
                                 <th>Metode</th>
                                 <th class="text-center">Status</th>
+                                <th class="text-center">Prioritas</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {{-- Kita standarkan variabelnya menjadi $trx --}}
-                            @forelse($transaksi as $trx)
-                            <tr>
+                        <tbody id="tabel-antrean-body">
+                            <!-- SORTING KHUSUS UNTUK MENARIK PENGETIKAN KE ATAS -->
+                            @php
+                                $sortedTransaksi = $transaksi->sortByDesc(function($trx) {
+                                    return $trx->tingkat_prioritas === 'Pengetikan' ? 1 : 0;
+                                });
+                            @endphp
+
+                            @forelse($sortedTransaksi as $trx)
+                            <!-- HIGHLIGHT BARIS JIKA ITU PENGETIKAN -->
+                            <tr class="{{ $trx->tingkat_prioritas == 'Pengetikan' ? 'border-warning' : '' }}" style="{{ $trx->tingkat_prioritas == 'Pengetikan' ? 'background-color: rgba(255, 193, 7, 0.05);' : '' }}">
                                 <td class="px-4 fw-bold">{{ $trx->nama_pelanggan }}</td>
                                 <td>
                                 @if($trx->file_dokumen)
@@ -160,7 +174,7 @@
                                 </td>
                                 <td class="text-center">{{ $trx->jumlah_halaman }}</td>
                                 <td>{{ $trx->nama_layanan }}</td>
-                                <td>{{ $trx->waktu_deadline }} m</td>
+                                <td>{{ \Carbon\Carbon::parse($trx->waktu_deadline)->format('H:i') }}</td>
                                 <td class="text-primary fw-bold">Rp {{ number_format($trx->total_bayar, 0, ',', '.') }}</td>
                                 <td>{{ $trx->metode }}</td>
                                 <td class="text-center">
@@ -168,6 +182,20 @@
                                         {{ $trx->status_antrean }}
                                     </span>
                                 </td>
+                                
+                                <td class="text-center">
+                                    <!-- BADGE PRIORITAS KHUSUS PENGETIKAN -->
+                                    @if($trx->tingkat_prioritas == 'Pengetikan')
+                                        <span class="badge bg-warning text-dark fw-bold shadow-sm"><i class="bi bi-keyboard me-1"></i>Ketik</span>
+                                    @elseif($trx->tingkat_prioritas == 'Tinggi')
+                                        <span class="badge bg-danger">Tinggi</span>
+                                    @elseif($trx->tingkat_prioritas == 'Normal')
+                                        <span class="badge bg-primary">Normal</span>
+                                    @else
+                                        <span class="badge bg-secondary">Rendah</span>
+                                    @endif
+                                </td>
+
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
                                         <!-- Tombol Edit Modal -->
@@ -200,7 +228,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="9" class="text-center py-4 text-secondary">Belum ada antrean.</td>
+                                <td colspan="10" class="text-center py-4 text-secondary" id="rowKosong">Belum ada antrean.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -216,22 +244,18 @@
 <div class="modal fade" id="editModal{{ $trx->id_transaksi }}" tabindex="-1" aria-labelledby="editModalLabel{{ $trx->id_transaksi}}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-dark border-secondary shadow-lg rounded-4">
-
             <div class="modal-header border-secondary">
                 <h5 class="modal-title text-white fw-bold" id="editModalLabel{{ $trx->id_transaksi}}">
                     <i class="bi bi-pencil-square text-primary me-2"></i>Edit Data Antrean
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
             <!-- Form mengarah ke route update -->
             <form action="{{ url('/transaksi/'.$trx->id_transaksi) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-
                 <div class="modal-body text-start px-4 py-3">
                     <div class="row g-4">
-                        <!-- Status Antrean -->
                         <div class="col-12">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Status Saat Ini</label>
                             <select name="status_antrean" class="form-select bg-dark text-white border-secondary shadow-none">
@@ -240,14 +264,10 @@
                                 <option value="Selesai" {{ $trx->status_antrean == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                             </select>
                         </div>
-
-                        <!-- Edit Nama -->
                         <div class="col-md-6">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Nama Pelanggan</label>
                             <input type="text" name="nama_pelanggan" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $trx->nama_pelanggan }}">
                         </div>
-
-                        <!-- Edit Layanan -->
                         <div class="col-md-6">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Ganti Layanan</label>
                             <select name="layanan_id" class="form-select bg-dark text-white border-secondary shadow-none">
@@ -258,8 +278,6 @@
                                 @endforeach
                             </select>
                         </div>
-
-                        <!-- Update File PDF -->
                         <div class="col-12">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Ganti File Dokumen (Opsional)</label>
                             <input type="file" name="file_dokumen" class="form-control bg-dark text-white border-secondary shadow-none" accept=".pdf">
@@ -268,14 +286,11 @@
                                 <span class="text-light">{{ $trx->file_dokumen ?? 'Tidak ada file' }}</span>
                             </div>
                         </div>
-
-                        <!-- Edit Tenggat -->
+                        <!-- Catatan: Waktu pada form edit tetap menampilkan format Jam (H:i) -->
                         <div class="col-md-6">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Tenggat Waktu</label>
-                            <input type="time" name="waktu_deadline" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ $trx->waktu_deadline }}">
+                            <input type="time" name="waktu_deadline" class="form-control bg-dark text-white border-secondary shadow-none" value="{{ \Carbon\Carbon::parse($trx->waktu_deadline)->format('H:i') }}">
                         </div>
-
-                        <!-- Edit Metode Pembayaran -->
                         <div class="col-md-6">
                             <label class="text-secondary small mb-2 text-uppercase fw-semibold">Metode Pembayaran</label>
                             <select name="metode" class="form-select bg-dark text-white border-secondary shadow-none">
@@ -285,7 +300,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="modal-footer border-secondary">
                     <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary rounded-3 px-4">Simpan Perubahan</button>
@@ -297,41 +311,60 @@
 @endforeach
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const sumberDokumen = document.getElementById('sumber_dokumen');
-        const wrapperFile = document.getElementById('wrapper_file');
-        const wrapperHalaman = document.getElementById('wrapper_halaman');
-        const inputFile = document.getElementById('file_dokumen');
-        const inputHalaman = document.getElementById('jumlah_halaman_manual');
+document.addEventListener('DOMContentLoaded', function () {
+    // --- 1. LOGIKA TOGGLE SUMBER DOKUMEN ---
+    const sumberDokumen = document.getElementById('sumber_dokumen');
+    const wrapperFile = document.getElementById('wrapper_file');
+    const wrapperHalaman = document.getElementById('wrapper_halaman');
+    const inputFile = document.getElementById('file_dokumen');
+    const inputHalaman = document.getElementById('jumlah_halaman_manual');
 
-        function toggleSumberDokumen() {
-            if (sumberDokumen.value === 'fisik') {
-                wrapperFile.classList.add('d-none');
-                inputFile.removeAttribute('required');
-                
-                wrapperHalaman.classList.remove('d-none');
-                inputHalaman.setAttribute('required', 'required');
-            } else {
-                wrapperHalaman.classList.add('d-none');
-                inputHalaman.removeAttribute('required');
-                
-                wrapperFile.classList.remove('d-none');
-                inputFile.setAttribute('required', 'required');
-            }
+    function toggleSumberDokumen() {
+        if (sumberDokumen.value === 'fisik') {
+            wrapperFile.classList.add('d-none');
+            inputFile.removeAttribute('required');
+            
+            wrapperHalaman.classList.remove('d-none');
+            inputHalaman.setAttribute('required', 'required');
+        } else {
+            wrapperHalaman.classList.add('d-none');
+            inputHalaman.removeAttribute('required');
+            
+            wrapperFile.classList.remove('d-none');
+            inputFile.setAttribute('required', 'required');
         }
+    }
 
-        if (sumberDokumen) {
-            sumberDokumen.addEventListener('change', toggleSumberDokumen);
-            toggleSumberDokumen();
-        }
-    });
+    if (sumberDokumen) {
+        sumberDokumen.addEventListener('change', toggleSumberDokumen);
+        toggleSumberDokumen();
+    }
 
+    // --- 2. LOGIKA EFEK LOADING SAAT SUBMIT FORM ---
+    const formTransaksi = document.getElementById('formTransaksi');
+    
+    if(formTransaksi) {
+        formTransaksi.addEventListener('submit', function() {
+            const btnSubmit = document.getElementById('btnSubmitAntrean');
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+            
+            // Ubah tampilan tombol jadi Loading & cegah klik ganda (Double Click)
+            btnSubmit.disabled = true; 
+            btnText.classList.add('d-none');
+            btnLoading.classList.remove('d-none');
+        });
+    }
+
+    // --- 3. AUTO CLOSE ALERT NOTIFIKASI ---
     setTimeout(function() {
         var alertElement = document.getElementById('myAlert');
         if (alertElement) {
+            // Karena menggunakan Bootstrap 5
             var alert = new bootstrap.Alert(alertElement);
             alert.close();
         }
     }, 3000);
+});
 </script>
 @endsection

@@ -5,28 +5,42 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('asset/css/cardLayanan.css') }}">
 
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+        border: 1px solid #2b3035;
+        cursor: pointer;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-5px);
+        border-color: #0d6efd !important;
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.15) !important;
+    }
+</style>
+
 <div class="row g-4">
 
+    <!-- BAGIAN LAYANAN TERSEDIA (CENTERED) -->
     <div class="col-12">
         <h5 class="fw-bold text-white mb-3">
             <i class="bi bi-grid-1x2 text-primary me-2"></i>Layanan Tersedia
         </h5>
-        <div class="row g-3">
-            <!-- {{-- Kita pakai $layanan (pastikan controllernya mengirimkan variabel ini) --}} -->
+        <div class="row g-3 justify-content-center">
             @forelse($layanan as $l)
             @php
             $icon = 'bi-file-earmark-text';
             $color = 'primary';
 
             if(stripos($l->nama_layanan, 'warna') !== false) {
-            $icon = 'bi-palette-fill';
-            $color = 'success';
+                $icon = 'bi-palette-fill';
+                $color = 'success';
             } elseif(stripos($l->nama_layanan, 'scan') !== false) {
-            $icon = 'bi-upc-scan';
-            $color = 'warning';
+                $icon = 'bi-upc-scan';
+                $color = 'warning';
             } elseif(stripos($l->nama_layanan, 'hitam') !== false || stripos($l->nama_layanan, 'putih') !== false) {
-            $icon = 'bi-printer-fill';
-            $color = 'secondary';
+                $icon = 'bi-printer-fill';
+                $color = 'secondary';
             }
             @endphp
 
@@ -49,8 +63,43 @@
         </div>
     </div>
 
-    <!-- ================= BAGIAN BAWAH: TABEL TRANSAKSI SELESAI ================= -->
-    <div class="col-12 mt-2">
+    <!-- BAGIAN INFORMASI STOK BARANG -->
+    <div class="col-12 mt-4">
+        <h5 class="fw-bold text-white mb-3">
+            <i class="bi bi-box-seam text-warning me-2"></i>Informasi Stok Barang Toko
+        </h5>
+
+        <div class="row g-3 justify-content-center">
+            {{-- Pastikan di controller Home/Dashboard kamu mengirimkan variabel $stokBarang --}}
+            @forelse($stokBarang ?? [] as $stok)
+            <div class="col-md-4 col-lg-3">
+                <div class="card bg-dark border-secondary shadow-sm rounded-4 p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-secondary small text-uppercase fw-semibold">{{ $stok->kategori }}</span>
+                            <h6 class="text-white fw-bold mb-1">{{ $stok->nama_barang }}</h6>
+                            <span class="badge {{ $stok->jumlah_stok <= 5 ? 'bg-danger' : 'bg-success' }} bg-opacity-25 text-{{ $stok->jumlah_stok <= 5 ? 'danger' : 'success' }} border border-{{ $stok->jumlah_stok <= 5 ? 'danger' : 'success' }}">
+                                Stok: {{ $stok->jumlah_stok }} {{ $stok->satuan }}
+                            </span>
+                        </div>
+                        <div class="rounded-circle bg-secondary bg-opacity-10 p-3 text-secondary">
+                            <i class="bi bi-box fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @empty
+            <div class="col-12">
+                <div class="card bg-dark border-secondary rounded-4 p-3 text-center text-secondary">
+                    Belum ada data stok barang yang tersedia.
+                </div>
+            </div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- BAGIAN BAWAH: TABEL TRANSAKSI SELESAI -->
+    <div class="col-12 mt-4">
         <div class="card bg-dark border-secondary shadow-sm rounded-4">
             <div class="card-header border-secondary py-3 px-4">
                 <h5 class="mb-0 text-white fw-semibold">
@@ -70,46 +119,31 @@
                                 <th class="py-3">Total</th>
                                 <th class="py-3">Pembayaran</th>
                                 <th class="py-3 text-center">Status</th>
-                                <!-- <th class="px-4 py-3 text-center">Aksi</th> -->
                             </tr>
                         </thead>
                         <tbody class="border-top-0">
-                            <!-- Looping data dari $transaksiTerbaru -->
                             @forelse($transaksiTerbaru->take(5) as $trx)
                             <tr>
-                                <!-- Opsional Nama -->
                                 <td class="px-4 text-white fw-medium">
                                     {{ $trx->nama_pelanggan ?? '-' }}
                                 </td>
-
-                                <!-- File Dokumen -->
                                 <td class="text-secondary">
-                                    {{ $trx->file_dokumen ?? 'Tidak ada file' }}
+                                    {{ preg_replace('/^[0-9]+_/', '', $trx->file_dokumen) }}
                                 </td>
-
-                                <!-- Halaman -->
                                 <td class="text-center text-white">
                                     {{ $trx->jumlah_halaman ?? '-' }}
                                 </td>
-
-                                <!-- Tenggat Waktu (Asumsi pakai updated_at) -->
                                 <td class="text-secondary">
-                                    <!-- {{ \Carbon\Carbon::parse($trx->updated_at)->format('d/m/Y') }} -->
                                     {{ \Carbon\Carbon::parse($trx->waktu_deadline)->format('d/m/Y') }}
                                 </td>
-
                                 <td class="text-primary fw-bold">
                                     Rp {{ number_format($trx->total_harga, 0, ',', '.') }}
                                 </td>
-
-                                <!-- Pembayaran (Cash/TF) -->
                                 <td class="text-white">
                                     <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary px-2 py-1">
                                         {{ $trx->metode ?? 'Cash' }}
                                     </span>
                                 </td>
-
-                                <!-- Status -->
                                 <td class="text-center">
                                     <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-1 rounded-pill">
                                         Selesai
@@ -132,19 +166,4 @@
     </div>
 
 </div>
-
-<!-- CSS untuk efek interaktif kartu -->
-<style>
-    .hover-card {
-        transition: all 0.3s ease;
-        border: 1px solid #2b3035;
-        cursor: pointer;
-    }
-
-    .hover-card:hover {
-        transform: translateY(-5px);
-        border-color: #0d6efd !important;
-        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.15) !important;
-    }
-</style>
 @endsection

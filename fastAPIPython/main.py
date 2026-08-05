@@ -1,243 +1,151 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-# INISIALISASI FASTAPI & PYDANTIC
-app = FastAPI(
-    title="API Fuzzy Tsukamoto POS Fotokopi",
-    description="Mesin AI untuk menghitung prioritas antrean pesanan",
-    version="1.0.0"
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],
 )
 
-# VARIABEL INPUT DARI PHP
-class DataPesanan(BaseModel):
-    waktu: float       
-    halaman: float     
-    layanan: float     
-    antrean: float     
+# Definisi Model Input
+class PesananInput(BaseModel):
+    jenis_layanan_nama: str
+    jumlah_halaman: int
+    tenggat_waktu: int
+    jenis_layanan_angka: int
+    jumlah_antrean: int
 
-# FUZZY LOGIC TSUKAMOTO
-class FuzzyTsukamotoPOS:
-    def __init__(self):
-        self.rules = self._generate_rules()
-
-    def _generate_rules(self):
-        rules = {}
-        # TENGGAT WAKTU MEPET
-        rules[('Mepet', 'Sedikit', 'Ringan', 'Sepi')] = 'Tinggi'
-        rules[('Mepet', 'Sedikit', 'Sedang', 'Sepi')] = 'Tinggi'
-        rules[('Mepet', 'Sedikit', 'Berat', 'Sepi')] = 'Tinggi'
-        rules[('Mepet', 'Sedang', 'Ringan', 'Sepi')] = 'Tinggi'
-        rules[('Mepet', 'Sedang', 'Sedang', 'Sepi')] = 'Tinggi'
-        rules[('Mepet', 'Sedang', 'Berat', 'Sepi')] = 'Tinggi'
-        rules[('Mepet', 'Banyak', 'Ringan', 'Sepi')] = 'Tinggi'
-        rules[('Mepet', 'Banyak', 'Sedang', 'Sepi')] = 'Tinggi'
-        rules[('Mepet', 'Banyak', 'Berat', 'Sepi')] = 'Sedang'
-        rules[('Mepet', 'Sedikit', 'Ringan', 'Normal')] = 'Tinggi'
-        rules[('Mepet', 'Sedikit', 'Sedang', 'Normal')] = 'Tinggi'
-        rules[('Mepet', 'Sedikit', 'Berat', 'Normal')] = 'Tinggi'
-        rules[('Mepet', 'Sedang', 'Ringan', 'Normal')] = 'Tinggi'
-        rules[('Mepet', 'Sedang', 'Sedang', 'Normal')] = 'Tinggi'
-        rules[('Mepet', 'Sedang', 'Berat', 'Normal')] = 'Sedang'
-        rules[('Mepet', 'Banyak', 'Ringan', 'Normal')] = 'Sedang'
-        rules[('Mepet', 'Banyak', 'Sedang', 'Normal')] = 'Sedang'
-        rules[('Mepet', 'Banyak', 'Berat', 'Normal')] = 'Rendah'
-        rules[('Mepet', 'Sedikit', 'Ringan', 'Ramai')] = 'Tinggi'
-        rules[('Mepet', 'Sedikit', 'Sedang', 'Ramai')] = 'Tinggi'
-        rules[('Mepet', 'Sedikit', 'Berat', 'Ramai')] = 'Sedang'
-        rules[('Mepet', 'Sedang', 'Ringan', 'Ramai')] = 'Sedang'
-        rules[('Mepet', 'Sedang', 'Sedang', 'Ramai')] = 'Sedang'
-        rules[('Mepet', 'Sedang', 'Berat', 'Ramai')] = 'Rendah'
-        rules[('Mepet', 'Banyak', 'Ringan', 'Ramai')] = 'Rendah'
-        rules[('Mepet', 'Banyak', 'Sedang', 'Ramai')] = 'Rendah'
-        rules[('Mepet', 'Banyak', 'Berat', 'Ramai')] = 'Rendah'
-
-        # TENGGAT WAKTU NORMAL
-        rules[('Normal', 'Sedikit', 'Ringan', 'Sepi')] = 'Tinggi'
-        rules[('Normal', 'Sedikit', 'Sedang', 'Sepi')] = 'Sedang'
-        rules[('Normal', 'Sedikit', 'Berat', 'Sepi')] = 'Sedang'
-        rules[('Normal', 'Sedang', 'Ringan', 'Sepi')] = 'Sedang'
-        rules[('Normal', 'Sedang', 'Sedang', 'Sepi')] = 'Sedang'
-        rules[('Normal', 'Sedang', 'Berat', 'Sepi')] = 'Sedang'
-        rules[('Normal', 'Banyak', 'Ringan', 'Sepi')] = 'Sedang'
-        rules[('Normal', 'Banyak', 'Sedang', 'Sepi')] = 'Sedang'
-        rules[('Normal', 'Banyak', 'Berat', 'Sepi')] = 'Sedang'
-        rules[('Normal', 'Sedikit', 'Ringan', 'Normal')] = 'Tinggi'
-        rules[('Normal', 'Sedikit', 'Sedang', 'Normal')] = 'Sedang'
-        rules[('Normal', 'Sedikit', 'Berat', 'Normal')] = 'Sedang'
-        rules[('Normal', 'Sedang', 'Ringan', 'Normal')] = 'Sedang'
-        rules[('Normal', 'Sedang', 'Sedang', 'Normal')] = 'Sedang'
-        rules[('Normal', 'Sedang', 'Berat', 'Normal')] = 'Rendah'
-        rules[('Normal', 'Banyak', 'Ringan', 'Normal')] = 'Rendah'
-        rules[('Normal', 'Banyak', 'Sedang', 'Normal')] = 'Rendah'
-        rules[('Normal', 'Banyak', 'Berat', 'Normal')] = 'Rendah'
-        rules[('Normal', 'Sedikit', 'Ringan', 'Ramai')] = 'Sedang'
-        rules[('Normal', 'Sedikit', 'Sedang', 'Ramai')] = 'Sedang'
-        rules[('Normal', 'Sedikit', 'Berat', 'Ramai')] = 'Rendah'
-        rules[('Normal', 'Sedang', 'Ringan', 'Ramai')] = 'Rendah'
-        rules[('Normal', 'Sedang', 'Sedang', 'Ramai')] = 'Rendah'
-        rules[('Normal', 'Sedang', 'Berat', 'Ramai')] = 'Rendah'
-        rules[('Normal', 'Banyak', 'Ringan', 'Ramai')] = 'Rendah'
-        rules[('Normal', 'Banyak', 'Sedang', 'Ramai')] = 'Rendah'
-        rules[('Normal', 'Banyak', 'Berat', 'Ramai')] = 'Rendah'
-
-        # TENGGAT WAKTU LONGGAR
-        rules[('Longgar', 'Sedikit', 'Ringan', 'Sepi')] = 'Rendah'
-        rules[('Longgar', 'Sedikit', 'Sedang', 'Sepi')] = 'Rendah'
-        rules[('Longgar', 'Sedikit', 'Berat', 'Sepi')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Ringan', 'Sepi')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Sedang', 'Sepi')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Berat', 'Sepi')] = 'Sedang'
-        rules[('Longgar', 'Banyak', 'Ringan', 'Sepi')] = 'Sedang'
-        rules[('Longgar', 'Banyak', 'Sedang', 'Sepi')] = 'Sedang'
-        rules[('Longgar', 'Banyak', 'Berat', 'Sepi')] = 'Sedang'
-        rules[('Longgar', 'Sedikit', 'Ringan', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Sedikit', 'Sedang', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Sedikit', 'Berat', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Ringan', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Sedang', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Berat', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Banyak', 'Ringan', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Banyak', 'Sedang', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Banyak', 'Berat', 'Normal')] = 'Rendah'
-        rules[('Longgar', 'Sedikit', 'Ringan', 'Ramai')] = 'Rendah'
-        rules[('Longgar', 'Sedikit', 'Sedang', 'Ramai')] = 'Rendah'
-        rules[('Longgar', 'Sedikit', 'Berat', 'Ramai')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Ringan', 'Ramai')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Sedang', 'Ramai')] = 'Rendah'
-        rules[('Longgar', 'Sedang', 'Berat', 'Ramai')] = 'Rendah'
-        rules[('Longgar', 'Banyak', 'Ringan', 'Ramai')] = 'Rendah'
-        rules[('Longgar', 'Banyak', 'Sedang', 'Ramai')] = 'Rendah'
-        rules[('Longgar', 'Banyak', 'Berat', 'Ramai')] = 'Rendah'
-        
-        return rules
-
-    # FUNGSI KEANGGOTAAN | FUZZIFIKASI
-    def fuzzify_waktu(self, x):
-        miu = {'Mepet': 0, 'Normal': 0, 'Longgar': 0}
-        if x <= 45: miu['Mepet'] = 1
-        elif 45 < x < 60: miu['Mepet'] = (60 - x) / (60 - 45)
-        
-        if 45 < x <= 60: miu['Normal'] = (x - 45) / (60 - 45)
-        elif 60 < x <= 120: miu['Normal'] = 1
-        elif 120 < x < 135: miu['Normal'] = (135 - x) / (135 - 120)
-        
-        if 120 < x < 135: miu['Longgar'] = (x - 120) / (135 - 120)
-        elif x >= 135: miu['Longgar'] = 1
-        return miu
-
-    def fuzzify_halaman(self, x):
-        miu = {'Sedikit': 0, 'Sedang': 0, 'Banyak': 0}
-        if x <= 25: miu['Sedikit'] = 1
-        elif 25 < x < 40: miu['Sedikit'] = (40 - x) / (40 - 25)
-        
-        if 25 < x <= 40: miu['Sedang'] = (x - 25) / (40 - 25)
-        elif 40 < x <= 75: miu['Sedang'] = 1
-        elif 75 < x < 100: miu['Sedang'] = (100 - x) / (100 - 75)
-        
-        if 75 < x < 100: miu['Banyak'] = (x - 75) / (100 - 75)
-        elif x >= 100: miu['Banyak'] = 1
-        return miu
-
-    def fuzzify_layanan(self, x):
-        miu = {'Ringan': 0, 'Sedang': 0, 'Berat': 0}
-        if x <= 4: miu['Ringan'] = 1
-        elif 4 < x < 5: miu['Ringan'] = (5 - x) / (5 - 4)
-        
-        if 4 < x <= 5: miu['Sedang'] = (x - 4) / (5 - 4)
-        elif 5 < x <= 15: miu['Sedang'] = 1
-        elif 15 < x < 100: miu['Sedang'] = (100 - x) / (100 - 15)
-        
-        if 15 < x < 100: miu['Berat'] = (x - 15) / (100 - 15)
-        elif x >= 100: miu['Berat'] = 1
-        return miu
-
-    def fuzzify_antrean(self, x):
-        miu = {'Sepi': 0, 'Normal': 0, 'Ramai': 0}
-        if x <= 2: miu['Sepi'] = 1
-        elif 2 < x < 3: miu['Sepi'] = (3 - x) / (3 - 2)
-        
-        if 2 < x <= 3: miu['Normal'] = (x - 2) / (3 - 2)
-        elif 3 < x <= 5: miu['Normal'] = 1
-        elif 5 < x < 7: miu['Normal'] = (7 - x) / (7 - 5)
-        
-        if 5 < x < 7: miu['Ramai'] = (x - 5) / (7 - 5)
-        elif x >= 7: miu['Ramai'] = 1
-        return miu
-
-    # INFERENSI & DEFUZZIFIKASI
-    def hitung_prioritas(self, val_waktu, val_halaman, val_layanan, val_antrean):
-        miu_waktu = self.fuzzify_waktu(val_waktu)
-        miu_halaman = self.fuzzify_halaman(val_halaman)
-        miu_layanan = self.fuzzify_layanan(val_layanan)
-        miu_antrean = self.fuzzify_antrean(val_antrean)
-        
-        total_alpha_z = 0
-        total_alpha = 0
-        
-        for w_key, w_val in miu_waktu.items():
-            for h_key, h_val in miu_halaman.items():
-                for l_key, l_val in miu_layanan.items():
-                    for a_key, a_val in miu_antrean.items():
-                        
-                        # Operator MIN (Logika AND)
-                        alpha = min(w_val, h_val, l_val, a_val)
-                        
-                        if alpha > 0:
-                            output_kategori = self.rules[(w_key, h_key, l_key, a_key)]
-                            
-                            # INVERS / Z CRISP TSUKAMOTO
-                            if output_kategori == 'Rendah':
-                                z = 50 - (alpha * 50)
-                            elif output_kategori == 'Sedang':
-                                z = 50
-                            elif output_kategori == 'Tinggi':
-                                z = 50 + (alpha * 50)
-                                
-                            total_alpha_z += alpha * z
-                            total_alpha += alpha
-                            
-        # Terbobot DEFUZZIFIKASI RATA - RATA
-        if total_alpha == 0:
-            return 0, "Rendah"
-            
-        z_akhir = total_alpha_z / total_alpha
-        
-        if z_akhir >= 75:
-            label = "Tinggi"
-        elif z_akhir >= 40:
-            label = "Sedang"
-        else:
-            label = "Rendah"
-            
-        return z_akhir, label
-
-# INISIALISASI OBJEK AI 
-sistem_fuzzy = FuzzyTsukamotoPOS()
-
-
-# JALUR API
-@app.post("/hitung")
-def hitung_api(pesanan: DataPesanan):
-    # Masukkan data dari PHP ke fungsi Fuzzy
-    z_score, label = sistem_fuzzy.hitung_prioritas(
-        val_waktu=pesanan.waktu,
-        val_halaman=pesanan.halaman,
-        val_layanan=pesanan.layanan,
-        val_antrean=pesanan.antrean
-    )
+@app.post("/hitung-prioritas")
+def hitung_prioritas(data: PesananInput):
     
-    # Kembalikan jawaban ke PHP dalam bentuk JSON
-    return {
-        "status": 200,
-        "message": "Perhitungan Fuzzy Berhasil",
-        "input": {
-            "waktu": pesanan.waktu,
-            "halaman": pesanan.halaman,
-            "layanan": pesanan.layanan,
-            "antrean": pesanan.antrean
-        },
-        "output": {
-            "z_score": round(z_score, 2),
-            "prioritas": label
+    # Eksekusi Bypass Layanan Pengecualian (Jasa Ketik)
+    if data.jenis_layanan_nama.lower() == 'pengetikan dokumen':
+        return {
+            "status": "success",
+            "pesan": "Pesanan Jasa Ketik dialihkan dari antrean mesin cetak.",
+            "nilai_prioritas": 0,
+            "kategori_prioritas": "Tunda"
         }
+
+    # Inisialisasi variabel untuk mempermudah pembacaan
+    halaman = data.jumlah_halaman
+    waktu = data.tenggat_waktu
+    layanan = data.jenis_layanan_angka
+    antrean = data.jumlah_antrean
+
+    # Fuzzifikasi: Konversi Parameter ke Derajat Keanggotaan
+    u_hal = {'sedikit': 0, 'sedang': 0, 'banyak': 0}
+    u_hal['sedikit'] = 1 if halaman <= 1 else (0 if halaman >= 25 else (25 - halaman) / 24)
+    if halaman <= 15 or halaman >= 75:
+        u_hal['sedang'] = 0
+    elif halaman <= 45:
+        u_hal['sedang'] = (halaman - 15) / 30
+    else:
+        u_hal['sedang'] = (75 - halaman) / 30
+    u_hal['banyak'] = 0 if halaman <= 65 else (1 if halaman >= 100 else (halaman - 65) / 35)
+
+    u_waktu = {'mepet': 0, 'normal': 0, 'longgar': 0}
+    u_waktu['mepet'] = 1 if waktu <= 0 else (0 if waktu >= 60 else (60 - waktu) / 60)
+    if waktu <= 40 or waktu >= 120:
+        u_waktu['normal'] = 0
+    elif waktu <= 80:
+        u_waktu['normal'] = (waktu - 40) / 40
+    else:
+        u_waktu['normal'] = (120 - waktu) / 40
+    u_waktu['longgar'] = 0 if waktu <= 100 else (1 if waktu >= 180 else (waktu - 100) / 80)
+
+    u_layanan = {'ringan': 0, 'berat': 0}
+    u_layanan['ringan'] = 1 if layanan <= 1 else (0 if layanan >= 8 else (8 - layanan) / 7)
+    u_layanan['berat'] = 0 if layanan <= 5 else (1 if layanan >= 13 else (layanan - 5) / 8)
+
+    u_antrean = {'sepi': 0, 'ramai': 0}
+    u_antrean['sepi'] = 1 if antrean <= 0 else (0 if antrean >= 6 else (6 - antrean) / 6)
+    u_antrean['ramai'] = 0 if antrean <= 3 else (1 if antrean >= 10 else (antrean - 3) / 7)
+
+    # Matrix Basis Aturan (36 Rule Base)
+    rules = [
+        {'w': 'mepet', 'h': 'sedikit', 'l': 'ringan', 'a': 'sepi', 'out': 'Normal'},
+        {'w': 'mepet', 'h': 'sedikit', 'l': 'ringan', 'a': 'ramai', 'out': 'Tinggi'},
+        {'w': 'mepet', 'h': 'sedikit', 'l': 'berat', 'a': 'sepi', 'out': 'Normal'},
+        {'w': 'mepet', 'h': 'sedikit', 'l': 'berat', 'a': 'ramai', 'out': 'Tinggi'},
+        {'w': 'mepet', 'h': 'sedang', 'l': 'ringan', 'a': 'sepi', 'out': 'Normal'},
+        {'w': 'mepet', 'h': 'sedang', 'l': 'ringan', 'a': 'ramai', 'out': 'Tinggi'},
+        {'w': 'mepet', 'h': 'sedang', 'l': 'berat', 'a': 'sepi', 'out': 'Tinggi'},
+        {'w': 'mepet', 'h': 'sedang', 'l': 'berat', 'a': 'ramai', 'out': 'Tinggi'},
+        {'w': 'mepet', 'h': 'banyak', 'l': 'ringan', 'a': 'sepi', 'out': 'Tinggi'},
+        {'w': 'mepet', 'h': 'banyak', 'l': 'ringan', 'a': 'ramai', 'out': 'Tinggi'},
+        {'w': 'mepet', 'h': 'banyak', 'l': 'berat', 'a': 'sepi', 'out': 'Tinggi'},
+        {'w': 'mepet', 'h': 'banyak', 'l': 'berat', 'a': 'ramai', 'out': 'Tinggi'},
+        
+        {'w': 'normal', 'h': 'sedikit', 'l': 'ringan', 'a': 'sepi', 'out': 'Rendah'},
+        {'w': 'normal', 'h': 'sedikit', 'l': 'ringan', 'a': 'ramai', 'out': 'Rendah'},
+        {'w': 'normal', 'h': 'sedikit', 'l': 'berat', 'a': 'sepi', 'out': 'Rendah'},
+        {'w': 'normal', 'h': 'sedikit', 'l': 'berat', 'a': 'ramai', 'out': 'Normal'},
+        {'w': 'normal', 'h': 'sedang', 'l': 'ringan', 'a': 'sepi', 'out': 'Normal'},
+        {'w': 'normal', 'h': 'sedang', 'l': 'ringan', 'a': 'ramai', 'out': 'Normal'},
+        {'w': 'normal', 'h': 'sedang', 'l': 'berat', 'a': 'sepi', 'out': 'Tinggi'},
+        {'w': 'normal', 'h': 'sedang', 'l': 'berat', 'a': 'ramai', 'out': 'Normal'},
+        {'w': 'normal', 'h': 'banyak', 'l': 'ringan', 'a': 'sepi', 'out': 'Tinggi'},
+        {'w': 'normal', 'h': 'banyak', 'l': 'ringan', 'a': 'ramai', 'out': 'Normal'},
+        {'w': 'normal', 'h': 'banyak', 'l': 'berat', 'a': 'sepi', 'out': 'Tinggi'},
+        {'w': 'normal', 'h': 'banyak', 'l': 'berat', 'a': 'ramai', 'out': 'Tinggi'},
+        
+        {'w': 'longgar', 'h': 'sedikit', 'l': 'ringan', 'a': 'sepi', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'sedikit', 'l': 'ringan', 'a': 'ramai', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'sedikit', 'l': 'berat', 'a': 'sepi', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'sedikit', 'l': 'berat', 'a': 'ramai', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'sedang', 'l': 'ringan', 'a': 'sepi', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'sedang', 'l': 'ringan', 'a': 'ramai', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'sedang', 'l': 'berat', 'a': 'sepi', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'sedang', 'l': 'berat', 'a': 'ramai', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'banyak', 'l': 'ringan', 'a': 'sepi', 'out': 'Rendah'},
+        {'w': 'longgar', 'h': 'banyak', 'l': 'ringan', 'a': 'ramai', 'out': 'Normal'},
+        {'w': 'longgar', 'h': 'banyak', 'l': 'berat', 'a': 'sepi', 'out': 'Normal'},
+        {'w': 'longgar', 'h': 'banyak', 'l': 'berat', 'a': 'ramai', 'out': 'Normal'},
+    ]
+
+    # Inferensi Z dan Predikat Alpha
+    total_alpha_z = 0
+    total_alpha = 0
+
+    for rule in rules:
+        alpha = min(
+            u_waktu[rule['w']], 
+            u_hal[rule['h']], 
+            u_layanan[rule['l']], 
+            u_antrean[rule['a']]
+        )
+
+        if alpha > 0:
+            # Invers Kurva Output
+            if rule['out'] == 'Rendah':
+                z = 50 - (alpha * 50)
+            elif rule['out'] == 'Normal':
+                z = 25 + (alpha * 50)
+            else:  # Tinggi
+                z = 50 + (alpha * 50)
+            
+            total_alpha_z += (alpha * z)
+            total_alpha += alpha
+
+    # Defuzzifikasi (Weighted Average)
+    hasil_prioritas = (total_alpha_z / total_alpha) if total_alpha > 0 else 0
+
+    # Label Kategori
+    if hasil_prioritas <= 37.5:
+        kategori_akhir = 'Rendah'
+    elif hasil_prioritas <= 62.5:
+        kategori_akhir = 'Normal'
+    else:
+        kategori_akhir = 'Tinggi'
+
+    return {
+        "status": "success",
+        "nilai_prioritas": round(hasil_prioritas, 2),
+        "kategori_prioritas": kategori_akhir
     }
