@@ -21,25 +21,24 @@ class ProfilController extends Controller
         $user = User::find(Auth::id());
         
         $request->validate([
-            'nama'     => 'required|string|max:255',
+            'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $user->id, 
             'password' => 'nullable|min:6'
         ]);
 
-        // Update Data User (Tabel users: Email & Password)
+        // Update Data User
         $user->email = $request->email;
         
-        // Cek jika kolom password diisi, maka enkripsi lalu simpan
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
         
         $user->save();
 
-        // Update Data Operator (Tabel operators: Nama)
+        // Update Data Operator
         $operator = Operator::where('user_id', $user->id)->first();
         if ($operator) {
-            $operator->nama = $request->nama;
+            $operator->name = $request->name;
             $operator->save();
         }
 

@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Models\StokBarang;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;

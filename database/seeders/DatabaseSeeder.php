@@ -30,21 +30,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserOperatorSeeder::class,
         ]);
-
-        // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
-        // DATA DUMMY
-        // User::create([
-        //     'name' => 'Owner',
-        //     'email' => 'admin@kasir.com',
-        //     'password' => Hash::make('rahasia123')
-        // ]);
-
          // Data Pelanggan
         // $pelanggan = Pelanggan::create(['nama' => 'Nindi','no_hp' => '0879845215','alamat' => null]);
         // Pelanggan::create(['nama' => 'Andika', 'no_hp' => '087961216', 'alamat' => 'Solo']);

@@ -12,7 +12,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Definisi Model Input
+# Definisi Model Input 
 class PesananInput(BaseModel):
     jenis_layanan_nama: str
     jumlah_halaman: int
@@ -23,7 +23,7 @@ class PesananInput(BaseModel):
 @app.post("/hitung-prioritas")
 def hitung_prioritas(data: PesananInput):
     
-    # Eksekusi Bypass Layanan Pengecualian (Jasa Ketik)
+    # Eksekusi Bypass Layanan Pengecualian Pengetikan Dokumen
     if data.jenis_layanan_nama.lower() == 'pengetikan dokumen':
         return {
             "status": "success",
@@ -32,7 +32,6 @@ def hitung_prioritas(data: PesananInput):
             "kategori_prioritas": "Tunda"
         }
 
-    # Inisialisasi variabel untuk mempermudah pembacaan
     halaman = data.jumlah_halaman
     waktu = data.tenggat_waktu
     layanan = data.jenis_layanan_angka
@@ -67,7 +66,7 @@ def hitung_prioritas(data: PesananInput):
     u_antrean['sepi'] = 1 if antrean <= 0 else (0 if antrean >= 6 else (6 - antrean) / 6)
     u_antrean['ramai'] = 0 if antrean <= 3 else (1 if antrean >= 10 else (antrean - 3) / 7)
 
-    # Matrix Basis Aturan (36 Rule Base)
+    # Basis Aturan (36 Rule Base)
     rules = [
         {'w': 'mepet', 'h': 'sedikit', 'l': 'ringan', 'a': 'sepi', 'out': 'Normal'},
         {'w': 'mepet', 'h': 'sedikit', 'l': 'ringan', 'a': 'ramai', 'out': 'Tinggi'},
@@ -133,10 +132,10 @@ def hitung_prioritas(data: PesananInput):
             total_alpha_z += (alpha * z)
             total_alpha += alpha
 
-    # Defuzzifikasi (Weighted Average)
+    # Defuzzifikasi Rata - Rata Terbobot
     hasil_prioritas = (total_alpha_z / total_alpha) if total_alpha > 0 else 0
 
-    # Label Kategori
+    # Pemetaan Kategori Akhir
     if hasil_prioritas <= 37.5:
         kategori_akhir = 'Rendah'
     elif hasil_prioritas <= 62.5:

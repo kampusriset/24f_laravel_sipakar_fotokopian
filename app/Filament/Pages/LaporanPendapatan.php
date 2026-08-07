@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Transaksi;
+use App\Models\DetailLayanan;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -27,29 +28,15 @@ class LaporanPendapatan extends Page
                 ->color('danger') 
                 ->icon('heroicon-o-document-arrow-down')
                 ->action(function () {
-                    $laporan = DB::table('transaksi')
-                    ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
-                    ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
-                    ->join('layanan', 'detail_layanan.layanan_id', '=', 'layanan.id')
-                    ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
-                    ->select(
-                        'transaksi.*',
-                        'pelanggan.nama as nama_pelanggan',
-                        'layanan.nama_layanan',
-                        'detail_layanan.file_dokumen',
-                        'detail_layanan.jumlah_halaman',
-                        'pembayaran.metode',
-                        'transaksi.total_harga',
-                    )
-                    ->orderBy('transaksi.updated_at', 'desc')
-                    ->get();
+                    // Menggunakan query yang konsisten dengan data yang ditampilkan
+                    $laporan = Transaksi::with(['pelanggan', 'detail_layanan.layanan', 'pembayaran'])
+                                ->orderBy('updated_at', 'desc')
+                                ->get();
 
                     $totalPendapatan = $laporan->sum('total_harga');
 
-                    // Memanggil view PDF yang sudah ada (admin.cetakPdf)
                     $pdf = Pdf::loadView('admin.cetakPdf', compact('laporan', 'totalPendapatan'));
 
-                    // Mengirim file PDF sebagai respons download ke browser
                     return response()->streamDownload(function () use ($pdf) {
                         echo $pdf->output();
                     }, 'Laporan-Pendapatan-' . date('d-m-Y') . '.pdf');
@@ -57,16 +44,35 @@ class LaporanPendapatan extends Page
         ];
     }
 
-    // --- MENGIRIM DATA KE TAMPILAN BLADE ---
     protected function getViewData(): array
     {
+        // 1. Ambil semua data transaksi untuk tabel
         $transaksis = Transaksi::with(['detail_layanan.layanan', 'pembayaran'])->orderBy('created_at', 'desc')->get();
         
-        $totalPendapatan = $transaksis->sum('total_harga'); 
+        // 2. Kalkulasi Metrik (Untuk Kartu Informasi)
+        $totalPendapatan = $transaksis->sum('total_harga');
+        $totalPesanan = $transaksis->count();
+        $totalPelanggan = $transaksis->unique('pelanggan_id')->count();
+
+        // 3. Cari Layanan Terlaris (Query khusus)
+        $layananTerlaris = DB::table('detail_layanan')
+            ->select('layanan_id', DB::raw('count(*) as total'))
+            ->groupBy('layanan_id')
+            ->orderBy('total', 'desc')
+            ->first();
+
+        $namaLayananTerlaris = '-';
+        if ($layananTerlaris) {
+            $layanan = \App\Models\Layanan::find($layananTerlaris->layanan_id);
+            $namaLayananTerlaris = $layanan ? $layanan->nama_layanan : '-';
+        }
 
         return [
             'transaksis' => $transaksis,
             'totalPendapatan' => $totalPendapatan,
+            'totalPesanan' => $totalPesanan,
+            'totalPelanggan' => $totalPelanggan,
+            'namaLayananTerlaris' => $namaLayananTerlaris,
         ];
     }
 }

@@ -18,6 +18,8 @@ class DetailLayanan extends Model
         'skor_prioritas', 
         'tingkat_prioritas', 
         'status_antrean',
+        'ukuran_kertas',
+        'warna_cetak'
     ];
 
     public function layanan() {

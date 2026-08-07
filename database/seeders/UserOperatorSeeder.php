@@ -26,14 +26,14 @@ class UserOperatorSeeder extends Seeder
 
         // Akun Kasir 
         $kasirUser = User::create([
-            'email' => 'kasir@toko.com',
+            'email' => 'kasir@gmail.com',
             'password' => Hash::make('password123'),
             'role' => 'kasir',
         ]);
 
-        Operator::create([
-            'user_id' => $kasirUser->id,
-            'name' => 'Siti Kasir Andalan',
-        ]);
+        // Operator::create([
+        //     'user_id' => $kasirUser->id,
+        //     'name' => 'Siti Kasir Andalan',
+        // ]);
     }
 }

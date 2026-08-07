@@ -27,7 +27,8 @@ class RiwayatController extends Controller
             )
             ->where('detail_layanan.status_antrean', '=', 'Selesai')
             ->orderBy('transaksi.updated_at', 'desc')
-            ->get();
+            // ->get();
+            ->paginate(10);
 
         return view('riwayat', compact('riwayatTransaksi'));
     }

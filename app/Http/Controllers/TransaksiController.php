@@ -66,12 +66,14 @@ class TransaksiController extends Controller
         DB::beginTransaction();
 
         try {
-            // Validasi Input
+            // Validasi Input (Ditambahkan ukuran_kertas & warna_cetak)
             $request->validate([
                 'nama_pelanggan'        => 'required|string',
                 'no_hp'                 => 'nullable|string',
                 'alamat'                => 'nullable|string',
                 'layanan_id'            => 'required',
+                'ukuran_kertas'         => 'required|string', // <--- BARU
+                'warna_cetak'           => 'required|string', // <--- BARU
                 'waktu_deadline'        => 'required|numeric|min:1', 
                 'metode'                => 'required|string',
                 'sumber_dokumen'        => 'required|in:digital,fisik',
@@ -101,7 +103,7 @@ class TransaksiController extends Controller
             
             $pelangganId = $pelanggan->id;
 
-            // Logika Halaman PDF
+            // Logika Halaman PDF / Dokumen
             $jumlahHalaman = 1;
             $namaFileFisik = null;
 
@@ -162,7 +164,7 @@ class TransaksiController extends Controller
                 'transaksi_id'  => $transaksi->id,
                 'total_bayar'   => $totalHarga,
                 'metode'        => $request->metode,
-                'tanggal_bayar' => Carbon::now(),
+                'tanggal_bayar' => \Carbon\Carbon::now(),
             ]);
 
             $diffMinutes = (int) $request->waktu_deadline;
@@ -179,8 +181,7 @@ class TransaksiController extends Controller
             } else {
                 
                 // 1. Hitung Jumlah Antrean Cetak (Status 'Menunggu', kecualikan 'Pengetikan')
-                // Pastikan antrean ketik tidak dihitung membebani mesin cetak
-                $jumlahAntrean = DetailLayanan::where('status_antrean', 'Menunggu')
+                $jumlahAntrean = \App\Models\DetailLayanan::where('status_antrean', 'Menunggu')
                                                 ->where('tingkat_prioritas', '!=', 'Pengetikan')
                                                 ->count();
                 
@@ -195,7 +196,7 @@ class TransaksiController extends Controller
                 // 4. Tembak Data ke Python via HTTP POST
                 $prioritas = 'Normal'; // Fallback jika API mati
                 try {
-                    $response = Http::post('http://127.0.0.1:8000/hitung-prioritas', [
+                    $response = \Illuminate\Support\Facades\Http::post('http://127.0.0.1:8000/hitung-prioritas', [
                         'jenis_layanan_nama'  => $layanan->nama_layanan,
                         'jumlah_halaman'      => (int) $jumlahHalaman,
                         'tenggat_waktu'       => (int) $diffMinutes,
@@ -209,20 +210,21 @@ class TransaksiController extends Controller
                         $prioritas = $hasilAI['kategori_prioritas'];
                     }
                 } catch (\Exception $e) {
-                    // Catat ke log Laravel jika API Python tidak menyala (opsional)
-                    Log::error('Gagal terhubung ke API Python: ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::error('Gagal terhubung ke API Python: ' . $e->getMessage());
                 }
             }
 
-            // Simpan Detail Layanan beserta skor AI-nya
-            DetailLayanan::create([
+            // Simpan Detail Layanan beserta skor AI-nya (Ditambahkan ukuran_kertas & warna_cetak)
+            \App\Models\DetailLayanan::create([
                 'transaksi_id'      => $transaksi->id,
                 'layanan_id'        => $layanan->id,
                 'jumlah_halaman'    => $jumlahHalaman,
                 'harga_satuan'      => $hargaSatuan,
                 'file_dokumen'      => $namaFileFisik,
+                'ukuran_kertas'     => $request->ukuran_kertas, // <--- BARU
+                'warna_cetak'       => $request->warna_cetak,   // <--- BARU
                 'subtotal'          => $totalHarga,
-                'waktu_deadline'    => Carbon::parse($waktuSelesai),
+                'waktu_deadline'    => \Carbon\Carbon::parse($waktuSelesai),
                 'status_antrean'    => 'Menunggu',
                 'tingkat_prioritas' => $prioritas, 
                 'skor_prioritas'    => $zScore
