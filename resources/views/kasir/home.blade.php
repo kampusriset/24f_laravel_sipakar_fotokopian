@@ -6,12 +6,11 @@
 <style>
     body { background-color: #f8f9fa !important; }
 
-    /* Penyesuaian shadow agar lebih terlihat namun tetap lembut */
     .dashboard-card {
         background: #ffffff;
         border: 1px solid #f0f0f0;
         border-radius: 18px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05); /* Shadow dipertegas di sini */
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
     }
     .hover-card:hover {
@@ -20,7 +19,6 @@
         border-color: #e2e8f0;
     }
 
-    /* CSS BARU UNTUK BAR VOLUME (PROGRESS LINE) */
     .progress-line {
         height: 6px;
         border-radius: 10px;
@@ -37,7 +35,6 @@
     .bg-warning-custom { background-color: #f59e0b; }
     .bg-success-custom { background-color: #10b981; }
 
-    /* Badge disesuaikan ukurannya */
     .badge-soft-success { background-color: #ecfdf5; color: #059669; padding: 5px 10px; font-weight: 600; font-size: 0.75rem;}
     .badge-soft-warning { background-color: #fffbeb; color: #d97706; padding: 5px 10px; font-weight: 600; font-size: 0.75rem;}
     .badge-soft-danger { background-color: #fef2f2; color: #dc2626; padding: 5px 10px; font-weight: 600; font-size: 0.75rem;}
@@ -71,7 +68,6 @@
     .btn-outline-light-custom:hover { background-color: #f8f9fa; color: #0d6efd; border-color: #0d6efd; }
     .btn-icon-only { padding: 0.4rem 0.6rem; border-radius: 8px; }
 
-    /* UKURAN ICON BARU UNTUK LAYANAN AKTIF BIAR LEBIH PAS */
     .icon-box-md {
         width: 45px;
         height: 45px;
@@ -81,14 +77,13 @@
         border-radius: 12px;
     }
 
-    /* CSS FOOTER HALAMAN DENGAN GARIS TIPIS */
     .page-footer {
         text-align: center;
         padding: 1.5rem 0;
         margin-top: 2rem;
         color: #94a3b8;
         font-size: 0.85rem;
-        border-top: 1px solid #e2e8f0; /* Garis tipis estetik */
+        border-top: 1px solid #e2e8f0;
     }
 </style>
 
@@ -112,8 +107,9 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="text-muted small fw-semibold mb-2">Total Antrean</p>
-                        <h2 class="fw-bold mb-2 fs-2 text-dark">12</h2>
-                        <small class="text-success fw-medium">&uarr; +3 dari jam lalu</small>
+                        <!-- Ganti angka 12 dengan variabel -->
+                        <h2 class="fw-bold mb-2 fs-2 text-dark">{{ $totalAntrean }}</h2>
+                        <small class="text-success fw-medium">&uarr; Membutuhkan tindakan</small>
                     </div>
                     <div class="icon-box-md bg-primary bg-opacity-10 text-primary fs-4 p-4 rounded-3">
                         <i class="bi bi-people-fill"></i>
@@ -126,8 +122,8 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="text-muted small fw-semibold mb-2">Pekerjaan Hari Ini</p>
-                        <h2 class="fw-bold mb-2 fs-2 text-dark">28</h2>
-                        <small class="text-muted">7 sedang diproses</small>
+                        <h2 class="fw-bold mb-2 fs-2 text-dark">{{ $pekerjaanHariIni }}</h2>
+                        <small class="text-muted">{{ $sedangDiproses }} sedang diproses</small>
                     </div>
                     <div class="icon-box-md p-4 rounded-3" style="background-color: #f3e8ff; color: #9333ea; font-size: 1.25rem;">
                         <i class="bi bi-printer-fill"></i>
@@ -140,7 +136,7 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="text-muted small fw-semibold mb-2">Pesanan Selesai</p>
-                        <h2 class="fw-bold mb-2 fs-2 text-dark">15</h2>
+                        <h2 class="fw-bold mb-2 fs-2 text-dark">{{ $pesananSelesai }}</h2>
                         <small class="text-muted">Siap diambil</small>
                     </div>
                     <div class="icon-box-md bg-success bg-opacity-10 text-success fs-4 p-4 rounded-3">
@@ -151,7 +147,7 @@
         </div>
     </div>
 
-    <!-- 1. BAGIAN LAYANAN AKTIF -->
+    <!-- BAGIAN LAYANAN AKTIF -->
     <div class="mb-5">
         <h5 class="fw-bold text-dark mb-3 fs-5">Layanan Aktif</h5>
         <div class="row g-4"> 
@@ -193,7 +189,7 @@
         </div>
     </div>
 
-    <!-- 2. BAGIAN STOK BARANG (DENGAN INDIKATOR VOLUME BAR) -->
+    <!-- BAGIAN STOK BARANG -->
     <div class="mb-5">
         <h5 class="fw-bold text-dark mb-3 fs-5">Stok Barang Toko</h5>
         <div class="row g-4">
@@ -243,14 +239,14 @@
         </div>
     </div>
 
-    <!-- 3. BAGIAN TABEL TRANSAKSI -->
+    <!-- BAGIAN TABEL TRANSAKSI -->
     <div class="mb-4">
         <div class="card dashboard-card border-0 overflow-hidden">
             <div class="card-header bg-white border-0 pt-4 pb-3 px-4 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold text-dark d-flex align-items-center">
                     <i class="bi bi-list-task text-primary me-2"></i>Daftar Transaksi Terakhir
                 </h6>
-                <a href="#" class="text-primary text-decoration-none small fw-semibold">Lihat Semua &rarr;</a>
+                <a href="{{ url('/riwayat') }}" class="text-primary text-decoration-none small fw-semibold">Lihat Semua &rarr;</a>
             </div>
 
             <div class="card-body p-0">

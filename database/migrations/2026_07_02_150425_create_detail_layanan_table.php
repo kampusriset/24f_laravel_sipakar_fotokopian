@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('jumlah_halaman');
             $table->integer('harga_satuan');
             $table->integer('subtotal')->NotNull();
+            $table->string('ukuran_kertas', 50)->nullable();
+            $table->string('warna_cetak', 50)->nullable();
             
             $table->string('file_dokumen', 255)->NotNull();
             $table->timestamp('waktu_deadline')->NotNull();

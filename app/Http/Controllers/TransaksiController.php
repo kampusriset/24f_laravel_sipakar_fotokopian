@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 
-class TransaksiController extends Controller
-{
+class TransaksiController extends Controller {
+
     // Read | Ambil data gabungan dari Layanan & Pelanggan
     public function getMasterData(Request $request) {
         $pelanggan = Pelanggan::select('id', 'nama')->get();
@@ -66,25 +66,23 @@ class TransaksiController extends Controller
         DB::beginTransaction();
 
         try {
-            // Validasi Input (Ditambahkan ukuran_kertas & warna_cetak)
+            // Validasi Input
             $request->validate([
                 'nama_pelanggan'        => 'required|string',
                 'no_hp'                 => 'nullable|string',
                 'alamat'                => 'nullable|string',
                 'layanan_id'            => 'required',
-                'ukuran_kertas'         => 'required|string', // <--- BARU
-                'warna_cetak'           => 'required|string', // <--- BARU
+                'ukuran_kertas'         => 'required|string',
+                'warna_cetak'           => 'required|string',
                 'waktu_deadline'        => 'required|numeric|min:1', 
                 'metode'                => 'required|string',
                 'sumber_dokumen'        => 'required|in:digital,fisik',
                 'file_dokumen'          => 'required_if:sumber_dokumen,digital|mimes:pdf,docx,doc|nullable',
                 'jumlah_halaman_manual' => 'required_if:sumber_dokumen,fisik|numeric|min:1|nullable',
-                // Catatan: nilai_prioritas dan kategori_prioritas dari request dihapus/diabaikan
-                // karena akan dihitung otomatis oleh AI Python.
             ]);
 
             if (!empty($request->no_hp)) {
-                // Jika sudah ada, update namanya. Jika belum, buat baru.
+                // Jika sudah ada datanya, update namanya. Jika belum, buat baru.
                 $pelanggan = Pelanggan::updateOrCreate(
                     ['no_hp' => $request->no_hp],
                     [
@@ -214,7 +212,6 @@ class TransaksiController extends Controller
                 }
             }
 
-            // Simpan Detail Layanan beserta skor AI-nya (Ditambahkan ukuran_kertas & warna_cetak)
             \App\Models\DetailLayanan::create([
                 'transaksi_id'      => $transaksi->id,
                 'layanan_id'        => $layanan->id,
@@ -255,7 +252,10 @@ class TransaksiController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
+            return redirect()->back()->with(
+                'error',
+                'Gagal menyimpan transaksi: ' . $e->getMessage()
+            );
         }
     }
 
@@ -271,26 +271,15 @@ class TransaksiController extends Controller
             return redirect()->back()->with('error', 'Transaksi tidak ditemukan');
         }
 
-        // Validasi Update
-        if (!$request->has('status_antrean')) { 
-            $request->validate([
-                'nama_pelanggan' => 'nullable|string|max:255',
-                'no_hp'          => 'nullable|string',
-                'alamat'         => 'nullable|string',
-                'file_dokumen'   => 'nullable|file|mimes:pdf',
-                'jumlah_halaman' => 'nullable|numeric|min:1',
-                'metode'         => 'nullable|string',
-            ]);
-        }
-
         DB::beginTransaction();
 
         try {
             $detail = DetailLayanan::where('transaksi_id', $id)->first();
             $pesanSukses = 'Data berhasil diperbarui';
 
-            // Logika Update Status
-            if ($request->has('status_antrean')) {
+            if ($request->has('status_antrean') && !$request->has('nama_pelanggan')) {
+                
+                // QUICK UPDATE (Hanya Tombol Selesai Cepat)
                 if ($detail) {
                     $detail->status_antrean = $request->status_antrean; 
                     $detail->save();
@@ -298,18 +287,25 @@ class TransaksiController extends Controller
                 $pesanSukses = 'Status pesanan berhasil diubah menjadi ' . $request->status_antrean;
                 
             } else {
-                // Logika Update Full Data
+                
+                // Update Status (Dari dropdown modal)
+                if ($request->has('status_antrean') && $detail) {
+                    $detail->status_antrean = $request->status_antrean;
+                }
+
+                // Update Data Pelanggan
                 $pelanggan = DB::table('pelanggan')->where('id', $transaksi->pelanggan_id)->first();
-                if ($pelanggan) {
+                if ($pelanggan && $request->has('nama_pelanggan')) {
                     DB::table('pelanggan')
                         ->where('id', $transaksi->pelanggan_id)
                         ->update([
-                            'nama'   => $request->nama_pelanggan ?? $pelanggan->nama,
+                            'nama'   => $request->nama_pelanggan,
                             'no_hp'  => $request->no_hp ?? $pelanggan->no_hp,
                             'alamat' => $request->alamat ?? $pelanggan->alamat
                         ]);
                 }
 
+                // Update Detail Layanan & Hitung Ulang
                 if ($detail) {
                     if ($request->hasFile('file_dokumen')) {
                         $file = $request->file('file_dokumen');
@@ -319,12 +315,11 @@ class TransaksiController extends Controller
                         $detail->file_dokumen = $namaFileFisik; 
                     }
 
-                    // Inputan Baru
+                    // Inputan Baru Layanan & Halaman
                     $layananId = $request->layanan_id ?? $detail->layanan_id;
-                    
                     $jumlahHalaman = $request->jumlah_halaman ?? $detail->jumlah_halaman;
 
-                    // Kalkulasi Harga
+                    // Kalkulasi Ulang Harga
                     $layanan = Layanan::find($layananId);
                     $hargaSatuan = $layanan ? $layanan->harga_per_lembar : $detail->harga_satuan;
                     $totalHarga = $jumlahHalaman * $hargaSatuan;
@@ -333,19 +328,97 @@ class TransaksiController extends Controller
                     $detail->jumlah_halaman = $jumlahHalaman;
                     $detail->harga_satuan = $hargaSatuan;
                     $detail->subtotal = $totalHarga;
+
+                    // --- BARU: Update Ukuran Kertas & Warna Cetak ---
+                    if ($request->has('ukuran_kertas')) {
+                        $detail->ukuran_kertas = $request->ukuran_kertas;
+                    }
+                    if ($request->has('warna_cetak')) {
+                        $detail->warna_cetak = $request->warna_cetak;
+                    }
+
+                    // Update Tenggat Waktu (Dari Menit ke Timestamp)
+                    $tambahMenit = 0;
+                    if ($request->has('waktu_deadline')) {
+                        $tambahMenit = (int) $request->waktu_deadline;
+                        $detail->waktu_deadline = \Carbon\Carbon::now()->addMinutes($tambahMenit);
+                    } else {
+                        $sisaMenit = \Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($detail->waktu_deadline), false);
+                        $tambahMenit = (int) max(0, $sisaMenit);
+                    }
+
+
+                    $namaLayananLower = strtolower($layanan->nama_layanan);
+                    $warnaCetakLower = strtolower($detail->warna_cetak ?? '');
+                    
+                    $zScore = $detail->skor_prioritas; 
+                    $prioritas = $detail->tingkat_prioritas;
+
+                    if (!str_contains($namaLayananLower, 'pengetikan')) {
+                        // Hitung jumlah antrean menunggu (kecuali pengetikan)
+                        $jumlahAntrean = \App\Models\DetailLayanan::where('status_antrean', 'Menunggu')
+                                        ->where('tingkat_prioritas', '!=', 'Pengetikan')
+                                        ->count();
+
+                        // Tentukan bobot angka layanan
+                        $layananAngka = 5;
+                        if (str_contains($namaLayananLower, 'fotocopy') || str_contains($namaLayananLower, 'print') || str_contains($namaLayananLower, 'cetak')) {
+                            if ($warnaCetakLower === 'hitam putih' || $warnaCetakLower === 'b/w') {
+                                $layananAngka = 3;
+                            } elseif ($warnaCetakLower === 'full color' || $warnaCetakLower === 'warna') {
+                                $layananAngka = 10;
+                            }
+                        } elseif (str_contains($namaLayananLower, 'scan dokumen')) {
+                            $layananAngka = 10;
+                        }
+
+                        $namaLayananUntukAI = $layanan->nama_layanan . ' ' . ($detail->warna_cetak ?? '');
+
+                        // Tembak API ke Python menggunakan data baru
+                        try {
+                            $response = \Illuminate\Support\Facades\Http::post('http://127.0.0.1:8000/hitung-prioritas', [
+                                'jenis_layanan_nama'  => trim($namaLayananUntukAI),
+                                'jumlah_halaman'      => (int) $jumlahHalaman,
+                                'tenggat_waktu'       => (int) $tambahMenit, 
+                                'jenis_layanan_angka' => (float) $layananAngka,
+                                'jumlah_antrean'      => (int) $jumlahAntrean
+                            ]);
+
+                            if ($response->successful()) {
+                                $hasilAI = $response->json();
+                                $zScore = (float) $hasilAI['nilai_prioritas'];
+                                $prioritas = $hasilAI['kategori_prioritas'];
+                            }
+                        } catch (\Exception $e) {
+                            \Illuminate\Support\Facades\Log::error('Gagal hitung ulang AI saat update: ' . $e->getMessage());
+                        }
+                    } else {
+                        // Bypass khusus untuk Jasa Ketik
+                        $prioritas = 'Pengetikan';
+                        $zScore = 0;
+                    }
+
+                    // Terapkan hasil perhitungan baru ke database
+                    $detail->skor_prioritas = $zScore;
+                    $detail->tingkat_prioritas = $prioritas;
+
                     $detail->save();
                     
+                    // Update Transaksi Harga
                     $transaksi->total_harga = $totalHarga;
                     $transaksi->save();
 
+                    // Update Tabel Pembayaran
                     $pembayaran = Pembayaran::where('transaksi_id', $id)->first();
                     if ($pembayaran) {
                         $pembayaran->total_bayar = $totalHarga;
-                        $pembayaran->metode = $request->metode ?? $pembayaran->metode;
+                        if ($request->has('metode')) {
+                            $pembayaran->metode = $request->metode;
+                        }
                         $pembayaran->save();
                     }
                 }
-                $pesanSukses = 'Transaksi berhasil terupdate';
+                $pesanSukses = 'Transaksi berhasil terupdate beserta spesifikasi dan pembayarannya.';
             }
 
             DB::commit();
@@ -405,7 +478,7 @@ class TransaksiController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            if($request->expectJson()) {
+            if($request->expectsJson()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
@@ -415,38 +488,73 @@ class TransaksiController extends Controller
             return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
     }
-    // method riwayat
+
+    // Method Riwayat dengan Percabangan Jalur Web & Jalur API
     public function riwayat(Request $request) {
         try {
-            // Ambil semua data transaksi beserta relasinya
-            $riwayat = Transaksi::with([
-                'pelanggan:id,nama,no_hp,alamat', 
-                'operator:id,nama,email',
-                'pembayaran', 
-                'detailLayanan.layanan'
-            ])
-            ->orderBy('tanggal', 'desc')
-            ->get();
-
-            if ($request->wantsJson() || $request->is('api/*')) {
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Data riwayat transaksi berhasil diambil',
-                    'data' => $riwayat
-                ], 200);
-            }
-
-            return view('riwayat', compact('riwayat'));
+            $riwayat = DB::table('transaksi')
+                ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
+                ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
+                ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
+                ->select(
+                    'pelanggan.nama as nama_pelanggan',
+                    'detail_layanan.file_dokumen',
+                    'detail_layanan.jumlah_halaman',
+                    'pembayaran.metode',
+                    'detail_layanan.status_antrean',
+                    'transaksi.updated_at'
+                )
+                ->orderBy('transaksi.updated_at', 'desc')
+                ->get();
 
         } catch (\Exception $e) {
-            if ($request->wantsJson() || $request->is('api/*')) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Gagal memuat riwayat transaksi: ' . $e->getMessage()
-                ], 500);
-            }
+                if ($request->wantsJson() || $request->is('api/*')) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Gagal memuat riwayat transaksi: ' . $e->getMessage()
+                    ], 500);
+                }
 
-            return redirect()->back()->with('error', 'Gagal memuat riwayat transaksi: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Gagal memuat riwayat transaksi: ' . $e->getMessage());
+
+            }
+            try {
+                // Ambil semua data transaksi 
+                $riwayat = Transaksi::with([
+                    'pelanggan:id,nama,no_hp,alamat', 
+                    'operator:id,nama,email',
+                    'pembayaran', 
+                    'detailLayanan.layanan'
+                ])
+                ->orderBy('tanggal', 'desc')
+                ->get();
+
+
+                if ($request->wantsJson() || $request->is('api/*')) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Data riwayat transaksi berhasil diambil',
+                        'data' => $riwayat
+                    ], 200);
+                }
+
+
+                // Jalur UI/Web Browser
+                return view('riwayat', ['riwayatTransaksi' => $riwayat]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                if ($transaksi) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Gagal edit transaksi: ' . $e->getMessage()
+                    ], 500);
+                }
+
+                return redirect()->back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
+
+                return view('riwayat', compact('riwayat'));
+            } 
         }
     }
-}

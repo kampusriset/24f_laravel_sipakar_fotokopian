@@ -13,27 +13,27 @@ class UserOperatorSeeder extends Seeder
     {
         // Buat Akun Admin
         $adminUser = User::create([
-            'email' => 'jarot@gmail.com',
-            'password' => Hash::make('jarot123'), 
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('admin123'), 
             'role' => 'admin',
         ]);
 
         // Jembatani ke tabel Operator untuk Admin
         Operator::create([
             'user_id' => $adminUser->id,
-            'name' => 'Jarot Admin',
+            'name' => 'Admin',
         ]);
 
         // Akun Kasir 
         $kasirUser = User::create([
             'email' => 'kasir@gmail.com',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('kasir123'),
             'role' => 'kasir',
         ]);
 
-        // Operator::create([
-        //     'user_id' => $kasirUser->id,
-        //     'name' => 'Siti Kasir Andalan',
-        // ]);
+        Operator::create([
+            'user_id' => $kasirUser->id,
+            'name' => 'Roni',
+        ]);
     }
 }

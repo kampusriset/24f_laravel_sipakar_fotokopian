@@ -13,6 +13,8 @@ class DetailLayanan extends Model
         'jumlah_halaman', 
         'harga_satuan',
         'subtotal',
+        'ukuran_kertas',
+        'warna_cetak',
         'file_dokumen', 
         'waktu_deadline', 
         'skor_prioritas', 

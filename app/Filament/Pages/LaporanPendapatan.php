@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Transaksi;
 use App\Models\DetailLayanan;
+use App\Models\Layanan;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -14,8 +15,6 @@ use UnitEnum;
 class LaporanPendapatan extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-presentation-chart-line';
-    protected static ?string $navigationLabel = 'Laporan Pendapatan';
-    protected static ?string $title = 'Laporan Pendapatan';
     protected static string|UnitEnum|null $navigationGroup = 'Karyawan';
 
     protected string $view = 'filament.pages.laporan-pendapatan';
@@ -28,7 +27,6 @@ class LaporanPendapatan extends Page
                 ->color('danger') 
                 ->icon('heroicon-o-document-arrow-down')
                 ->action(function () {
-                    // Menggunakan query yang konsisten dengan data yang ditampilkan
                     $laporan = Transaksi::with(['pelanggan', 'detail_layanan.layanan', 'pembayaran'])
                                 ->orderBy('updated_at', 'desc')
                                 ->get();
@@ -46,15 +44,15 @@ class LaporanPendapatan extends Page
 
     protected function getViewData(): array
     {
-        // 1. Ambil semua data transaksi untuk tabel
+        // Ambil semua data transaksi untuk tabel
         $transaksis = Transaksi::with(['detail_layanan.layanan', 'pembayaran'])->orderBy('created_at', 'desc')->get();
         
-        // 2. Kalkulasi Metrik (Untuk Kartu Informasi)
+        // Kalkulasi Metrik (Untuk Card Informasi)
         $totalPendapatan = $transaksis->sum('total_harga');
         $totalPesanan = $transaksis->count();
         $totalPelanggan = $transaksis->unique('pelanggan_id')->count();
 
-        // 3. Cari Layanan Terlaris (Query khusus)
+        // Cari Layanan Terlaris
         $layananTerlaris = DB::table('detail_layanan')
             ->select('layanan_id', DB::raw('count(*) as total'))
             ->groupBy('layanan_id')
@@ -63,7 +61,7 @@ class LaporanPendapatan extends Page
 
         $namaLayananTerlaris = '-';
         if ($layananTerlaris) {
-            $layanan = \App\Models\Layanan::find($layananTerlaris->layanan_id);
+            $layanan = Layanan::find($layananTerlaris->layanan_id);
             $namaLayananTerlaris = $layanan ? $layanan->nama_layanan : '-';
         }
 

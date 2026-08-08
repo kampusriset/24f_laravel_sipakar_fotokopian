@@ -11,7 +11,18 @@ class StokBarangController extends Controller
     // READ
     public function index(Request $request)
     {
-        $stokBarang = StokBarang::orderBy('created_at', 'desc')->get();
+        $query = StokBarang::orderBy('created_at', 'desc');
+
+        if (request()->has('search') && request('search') != '') {
+            $search = request('search');
+            
+            $query->where(function($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                    ->orWhere('kategori', 'like', "%{$search}%");
+            });
+        }
+
+        $stokBarang = $query->paginate(10);
 
         if ($request->expectsJson()) {
             return response()->json([

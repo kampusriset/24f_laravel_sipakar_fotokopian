@@ -59,7 +59,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Route Admin
-// Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['role:admin'])->group(function () {
     // Route Transaksi
     Route::delete('/transaksi/{id}', [TransaksiController::class, 'delete'])->name('transaksi.delete');

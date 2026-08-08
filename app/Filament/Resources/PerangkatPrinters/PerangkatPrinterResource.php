@@ -20,6 +20,8 @@ class PerangkatPrinterResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $navigationLabel = 'Perangkat Printer';
+    protected static ?string $pluralModelLabel = 'Perangkat Printer';
     protected static ?string $recordTitleAttribute = 'PerangkatPrinter';
 
     public static function form(Schema $schema): Schema

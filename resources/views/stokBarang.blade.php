@@ -6,7 +6,7 @@
 <style>
     body { background-color: #f8f9fa !important; }
 
-    /* Dashboard Cards (SaaS Style) */
+    /* Dashboard Cards */
     .dashboard-card {
         background: #ffffff;
         border: 1px solid #f0f0f0;
@@ -32,7 +32,7 @@
         font-size: 1.2rem;
     }
 
-    /* Quick Status Card */
+    /* Status Card */
     .quick-status-card {
         padding: 1.25rem;
         border: 1px solid #f0f0f0;
@@ -54,13 +54,15 @@
 
     /* Tabel & Search Bar */
     .search-wrapper { position: relative; width: 100%; max-width: 300px; }
-    .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    .search-icon { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    
     .search-input {
         border-radius: 50rem;
         border: 1px solid #e2e8f0;
-        padding: 0.5rem 1rem 0.5rem 2.5rem;
+        padding: 0.5rem 1rem 0.5rem 2.8rem !important; 
         font-size: 0.9rem;
     }
+    
     .filter-btn {
         border-radius: 10px;
         border: 1px solid #e2e8f0;
@@ -111,7 +113,7 @@
         font-size: 0.95rem;
     }
     
-    /* Footer & Pagination */
+    /* Footer */
     .page-footer {
         text-align: center;
         padding: 2rem 0;
@@ -145,10 +147,10 @@
         @endif
     </div>
 
-    <!-- SUMMARY CARDS (Dihitung Otomatis dari Data) -->
+    <!-- CARDS  -->
     @php
         $totalBarang = $stokBarang->count();
-        $hampirHabis = $stokBarang->filter(function($item) { return $item->jumlah_stok > 0 && $item->jumlah_stok <= ($item->minimum_stok ?? 10); })->count();
+        $hampirHabis = $stokBarang->filter(function($item) { return $item->jumlah_stok > 0 && $item->jumlah_stok <= ($item->minimum_stok ?? 5); })->count();
         $habis = $stokBarang->where('jumlah_stok', 0)->count();
     @endphp
     <div class="row g-4 mb-4">
@@ -166,7 +168,6 @@
             </div>
         </div>
 
-        <!-- Card 2: Hampir Habis -->
         <div class="col-md-6 col-lg-3">
             <div class="card dashboard-card border-0 h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center h-100">
@@ -181,7 +182,6 @@
             </div>
         </div>
 
-        <!-- Card 3: Habis -->
         <div class="col-md-6 col-lg-3">
             <div class="card dashboard-card border-0 h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center h-100">
@@ -196,7 +196,6 @@
             </div>
         </div>
 
-        <!-- Card 4: Total Supplier -->
         <div class="col-md-6 col-lg-3">
             <div class="card dashboard-card border-0 h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center h-100">
@@ -212,13 +211,13 @@
         </div>
     </div>
 
-    <!-- QUICK STATUS SECTION (Ambil 3 Data Pertama) -->
+    <!-- QUICK STATUS SECTION -->
     <h6 class="fw-bold text-dark mb-3">Quick Status</h6>
     <div class="row g-4 mb-5">
         @foreach($stokBarang->take(3) as $qItem)
         @php
-            $minStok = $qItem->minimum_stok ?? 10; // Default min 10 jika belum ada di DB
-            $persen = ($qItem->jumlah_stok / ($minStok * 3)) * 100; // Logika visual bar
+            $minStok = $qItem->minimum_stok ?? 10;
+            $persen = ($qItem->jumlah_stok / ($minStok * 3)) * 100;
             $persen = $persen > 100 ? 100 : $persen;
             
             if($qItem->jumlah_stok <= 0) {
@@ -257,10 +256,10 @@
                 <i class="bi bi-list-task text-primary me-2"></i>Daftar Stok Lengkap
             </h5>
             <div class="d-flex gap-2">
-                <div class="search-wrapper">
+                <form action="" method="GET" class="search-wrapper m-0">
                     <i class="bi bi-search search-icon"></i>
-                    <input type="text" class="form-control search-input" placeholder="Cari barang...">
-                </div>
+                    <input type="text" name="search" class="form-control search-input" placeholder="Cari barang..." value="{{ request('search') }}">
+                </form>
                 <button class="filter-btn shadow-sm"><i class="bi bi-funnel"></i></button>
             </div>
         </div>
@@ -312,16 +311,14 @@
                                 <button type="button" class="btn-icon-only" data-bs-toggle="modal" data-bs-target="#editModal{{ $item->id }}" title="Edit Stok">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <!-- Form Hapus Disembunyikan Sesuai UI Target, bisa diletakkan di dalam modal edit jika diperlukan -->
                             </td>
                             @endif
                         </tr>
                         @empty
                         <tr>
-                            <!-- Colspan menyesuaikan Role -->
                             <td colspan="{{ Auth::user()->role === 'admin' ? 7 : 6 }}" class="text-center py-5 text-muted">
                                 <i class="bi bi-inbox fs-2 d-block mb-2 opacity-50"></i>
-                                Belum ada data barang tersedia.
+                                Belum ada data barang yang sesuai.
                             </td>
                         </tr>
                         @endforelse
@@ -337,25 +334,22 @@
                 Showing {{ $stokBarang->firstItem() ?? 0 }} to {{ $stokBarang->lastItem() ?? 0 }} of {{ $stokBarang->total() }} entries
             </span>
             <div>
-                {{ $stokBarang->links('pagination::bootstrap-5') }}
+                {{ $stokBarang->appends(request()->query())->links('pagination::bootstrap-5') }}
             </div>
         </div>
         @else
-        <!-- Jika Controller masih memakai ->get() (Belum Paginate) -->
         <div class="card-footer bg-white border-top border-light p-4 d-flex justify-content-between align-items-center">
             <span class="text-muted small fw-medium">Menampilkan {{ $stokBarang->count() }} data</span>
         </div>
         @endif
     </div>
 
-    <!-- PAGE FOOTER COPYRIGHT -->
     <footer class="page-footer">
         © 2026 1HZS Fotocopy & Print. Semua hak dilindungi.
     </footer>
-
 </div>
 
-<!-- ================= MODAL TAMBAH BARANG (Tema Terang) ================= -->
+<!-- MODAL TAMBAH & EDIT -->
 @if(Auth::user()->role === 'admin')
 <div class="modal fade" id="tambahBarangModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -382,7 +376,6 @@
                             <input type="number" name="jumlah_stok" class="form-control" required>
                         </div>
                         <div class="col-md-4">
-                            <!-- Input Baru: Minimum Stok -->
                             <label class="form-label text-muted small text-uppercase">Batas Min</label>
                             <input type="number" name="minimum_stok" class="form-control" placeholder="Misal: 10">
                         </div>
@@ -402,7 +395,6 @@
 </div>
 @endif
 
-<!-- ================= KUMPULAN MODAL EDIT BARANG ================= -->
 @foreach($stokBarang as $item)
 <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -440,14 +432,12 @@
                     </div>
                     
                     @if(Auth::user()->role === 'admin')
-                    <!-- Pindahkan tombol Hapus ke dalam Modal Edit agar UI tabel tidak penuh -->
                     <div class="mt-4 pt-3 border-top border-light text-end">
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="if(confirm('Yakin ingin menghapus barang ini?')) { document.getElementById('deleteForm{{ $item->id }}').submit(); }">
                             <i class="bi bi-trash me-1"></i> Hapus Barang Ini
                         </button>
                     </div>
                     @endif
-
                 </div>
                 <div class="modal-footer border-top border-light px-4 py-3">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
@@ -455,14 +445,12 @@
                 </div>
             </form>
             
-            <!-- Form Delete Tersembunyi -->
             @if(Auth::user()->role === 'admin')
             <form id="deleteForm{{ $item->id }}" action="{{ url('/stok-barang/'.$item->id) }}" method="POST" class="d-none">
                 @csrf
                 @method('DELETE')
             </form>
             @endif
-
         </div>
     </div>
 </div>

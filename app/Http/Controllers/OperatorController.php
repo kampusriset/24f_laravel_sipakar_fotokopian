@@ -78,26 +78,6 @@ class OperatorController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // if ($user->id === Auth::id()) {
-        //     return redirect()->back()->with('error', 'Anda tidak bisa menghapus akun Anda sendiri saat sedang login!');
-        // }
-
-        // if ($user->role === 'admin') {
-        //     return redirect()->back()->with('error', 'Admin tidak bisa dihapus!');
-        // }
-
-        // try {
-        //     if ($user->operator) {
-        //         $user->operator->delete();
-        //     }
-
-        //     $user->delete();
-
-        //     return redirect()->back()->with('success', 'Akses karyawan berhasil dicabut/dihapus');
-        // } catch (\Exception $e){
-        //     return redirect()->back()->with('error', 'Karyawan ini tidak dapat dihapus karena sudah memiliki riwayat transaksi penjualan di sistem!');
-        // }
-
         if ($user->id === Auth::id()) {
             return redirect()->back()->with('error', 'Anda tidak bisa menghapus akun Anda sendiri saat sedang login!');
         }

@@ -38,7 +38,6 @@
         background-color: #ffffff;
     }
 
-    /* Kustomisasi Radio Card (Tombol Pilihan Keren) */
     .radio-card-input { display: none; }
     .radio-card-label {
         display: flex;
@@ -66,7 +65,6 @@
         color: #2563eb;
     }
 
-    /* Area Upload Putus-Putus */
     .upload-area {
         border: 2px dashed #cbd5e1;
         border-radius: 12px;
@@ -81,7 +79,6 @@
         background-color: #eff6ff;
     }
 
-    /* Tombol Plus Minus Halaman */
     .qty-btn {
         background-color: #f1f5f9;
         border: 1px solid #e2e8f0;
@@ -103,7 +100,6 @@
         border-radius: 0;
     }
 
-    /* Kolom Ringkasan Sticky */
     .sticky-summary {
         position: sticky;
         top: 90px;
@@ -153,15 +149,15 @@
     .btn-icon-custom.check:hover { background-color: #ecfdf5; color: #059669; border-color: #a7f3d0; }
     .btn-icon-custom.delete:hover { background-color: #fef2f2; color: #dc2626; border-color: #fecaca; }
 
-    /* CSS FOOTER HALAMAN DENGAN JARAK SIMETRIS */
+    /* CSS FOOTER  */
     .page-footer {
         text-align: center;
-        margin-top: 3rem; /* Menjauhkan garis dari tabel/konten di atasnya */
-        padding-top: 2rem; /* Menjauhkan teks dari garis batas atas */
-        padding-bottom: 2rem; /* Menjauhkan teks dari dasar layar */
+        margin-top: 3rem; 
+        padding-top: 2rem; 
+        padding-bottom: 2rem; 
         color: #94a3b8;
         font-size: 0.85rem;
-        border-top: 1px solid #e2e8f0; /* Garis tipis estetik */
+        border-top: 1px solid #e2e8f0; 
     }
 </style>
 
@@ -195,7 +191,7 @@
         @endif
     </div>
 
-    <!-- FORM INPUT TRANSAKSI (Hanya Untuk Kasir) -->
+    <!-- FORM INPUT TRANSAKSI -->
     @if(Auth::user()->role === 'kasir')
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -215,10 +211,10 @@
 
         <div class="row g-4 mb-5">
             
-            <!-- KOLOM KIRI (FORM UTAMA) -->
+            <!-- KOLOM FORM UTAMA -->
             <div class="col-lg-8">
                 
-                <!-- 1. Detail Pesanan -->
+                <!-- Detail Pesanan -->
                 <div class="card dashboard-card border-0 mb-4 p-4">
                     <h6 class="fw-bold text-dark mb-4 d-flex align-items-center">
                         <i class="bi bi-person-fill text-primary me-2 fs-5"></i> Detail Pesanan
@@ -239,21 +235,19 @@
                     </div>
                 </div>
 
-                <!-- 2. Sumber Dokumen (Radio Cards) -->
+                <!-- Sumber Dokumen -->
                 <div class="card dashboard-card border-0 mb-4 p-4">
                     <h6 class="fw-bold text-dark mb-4 d-flex align-items-center">
                         <i class="bi bi-folder-fill text-primary me-2 fs-5"></i> Sumber Dokumen
                     </h6>
                     <div class="row g-3">
                         <div class="col-sm-6">
-                            <!-- Nilai "digital" sesuai kodingan aslimu -->
                             <input type="radio" name="sumber_dokumen" id="sumber_digital" value="digital" class="radio-card-input" checked>
                             <label class="radio-card-label" for="sumber_digital">
                                 <i class="bi bi-cloud-arrow-up fs-5"></i> Dokumen Digital (PDF)
                             </label>
                         </div>
                         <div class="col-sm-6">
-                            <!-- Nilai "fisik" sesuai kodingan aslimu -->
                             <input type="radio" name="sumber_dokumen" id="sumber_fisik" value="fisik" class="radio-card-input">
                             <label class="radio-card-label" for="sumber_fisik">
                                 <i class="bi bi-file-earmark-text fs-5"></i> Dokumen Fisik (Manual)
@@ -261,14 +255,14 @@
                         </div>
                     </div>
 
-                    <!-- Area Upload (Muncul Jika Digital) -->
+                    <!-- Area Upload -->
                     <div class="mt-4" id="wrapper_file">
                         <label class="form-label">File Dokumen PDF</label>
                         <div class="upload-area" onclick="document.getElementById('file_dokumen').click()">
                             <i class="bi bi-cloud-arrow-up upload-icon"></i>
                             <h6 class="fw-bold text-dark mb-1">Klik untuk memilih file PDF</h6>
                             <p class="text-muted small mb-0" id="file_name">Maksimal ukuran file 10MB</p>
-                            <!-- Name "file_dokumen" sesuai kodingan aslimu -->
+                            
                             <input type="file" name="file_dokumen" id="file_dokumen" class="d-none" accept=".pdf" onchange="updateFileName(this)">
                         </div>
                     </div>
@@ -278,14 +272,13 @@
                         <label class="form-label">Jumlah Halaman (Manual)</label>
                         <div class="d-flex" style="max-width: 200px;">
                             <button type="button" class="btn qty-btn" style="border-radius: 10px 0 0 10px;" onclick="kurangiHalaman()">-</button>
-                            <!-- Name "jumlah_halaman_manual" sesuai kodingan aslimu -->
                             <input type="number" name="jumlah_halaman_manual" id="jumlah_halaman_manual" class="form-control qty-input" value="" placeholder="Jmlh" min="1">
                             <button type="button" class="btn qty-btn" style="border-radius: 0 10px 10px 0;" onclick="tambahHalaman()">+</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. Spesifikasi Cetak -->
+                <!-- Spesifikasi Cetak -->
                 <div class="card dashboard-card border-0 mb-4 p-4">
                     <h6 class="fw-bold text-dark mb-4 d-flex align-items-center">
                         <i class="bi bi-sliders text-primary me-2 fs-5"></i> Spesifikasi Cetak
@@ -301,7 +294,7 @@
                             </select>
                         </div>
 
-                        <!-- Kertas (Baru) -->
+                        <!-- Kertas -->
                         <div class="col-md-6">
                             <label class="form-label">Ukuran Kertas</label>
                             <select name="ukuran_kertas" class="form-select" required>
@@ -311,7 +304,7 @@
                             </select>
                         </div>
 
-                        <!-- Warna (Baru) -->
+                        <!-- Warna -->
                         <div class="col-md-6">
                             <label class="form-label">Warna Cetak</label>
                             <div class="d-flex gap-2">
@@ -326,7 +319,7 @@
                             </div>
                         </div>
 
-                        <!-- Tenggat (Input Menit Asli) -->
+                        <!-- Tenggat (Input Menit) -->
                         <div class="col-md-6">
                             <label class="form-label">Tenggat Waktu</label>
                             <div class="input-group">
@@ -357,7 +350,7 @@
                 </div>
             </div>
 
-            <!-- KOLOM KANAN (RINGKASAN & SUBMIT) -->
+            <!-- KOLOM RINGKASAN & SUBMIT -->
             <div class="col-lg-4">
                 <div class="card dashboard-card border-0 p-4 sticky-summary">
                     <h6 class="fw-bold text-dark mb-3 d-flex align-items-center">
@@ -380,7 +373,7 @@
     </form>
     @endif
 
-    <!-- TABEL DAFTAR ANTREAN (Semua Role Bisa Lihat) -->
+    <!-- TABEL DAFTAR ANTREAN -->
     <div class="mb-5">
         <div class="card dashboard-card border-0 overflow-hidden">
             <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
@@ -407,7 +400,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white" id="tabel-antrean-body">
-                            <!-- SORTING KHUSUS UNTUK MENARIK PENGETIKAN KE ATAS (ASLI) -->
+                            <!-- SORTING KHUSUS UNTUK MENARIK PENGETIKAN KE ATAS -->
                             @php
                                 $sortedTransaksi = $transaksi->sortByDesc(function($trx) {
                                     return $trx->tingkat_prioritas === 'Pengetikan' ? 1 : 0;
@@ -440,7 +433,7 @@
                                 </td>
                                 
                                 <td class="text-center">
-                                    <!-- BADGE PRIORITAS -->
+                                    <!-- PRIORITAS -->
                                     @if($trx->tingkat_prioritas == 'Pengetikan')
                                         <span class="badge badge-soft-warning border border-warning text-dark fw-bold shadow-sm px-2 py-1"><i class="bi bi-keyboard me-1"></i>Ketik</span>
                                     @elseif($trx->tingkat_prioritas == 'Tinggi')
@@ -469,16 +462,6 @@
                                             </button>
                                         </form>
 
-                                        <!-- Update HANYA ADMIN -->
-                                        @if(Auth::check() && Auth::user()->role === 'admin')
-                                        <form action="{{ url('/transaksi/'.$trx->id_transaksi) }}" method="POST" class="m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data antrean ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn-icon-custom delete text-danger border-danger" title="Hapus Transaksi">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -506,7 +489,7 @@
 
 </div>
 
-<!-- ================= MODAL EDIT (Tema Terang) ================= -->
+<!-- MODAL EDIT (Tema Terang) -->
 @foreach($transaksi as $trx)
 <div class="modal fade" id="editModal{{ $trx->id_transaksi }}" tabindex="-1" aria-labelledby="editModalLabel{{ $trx->id_transaksi}}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -545,6 +528,48 @@
                                 @endforeach
                             </select>
                         </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah Halaman</label>
+                            <input type="number" name="jumlah_halaman" class="form-control" value="{{ $trx->jumlah_halaman ?? '' }}" min="1" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Ukuran Kertas</label>
+                            <select name="ukuran_kertas" class="form-select" required>
+                                <option value="A4" {{ ($trx->ukuran_kertas ?? '') == 'A4' ? 'selected' : '' }}>A4 (210 x 297 mm)</option>
+                                <option value="F4" {{ ($trx->ukuran_kertas ?? '') == 'F4' ? 'selected' : '' }}>F4 (215 x 330 mm)</option>
+                                <option value="A3" {{ ($trx->ukuran_kertas ?? '') == 'A3' ? 'selected' : '' }}>A3 (297 x 420 mm)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Warna Cetak</label>
+                            <div class="d-flex gap-2">
+                                <div class="w-100">
+                                    <input type="radio" name="warna_cetak" id="edit_warna_bw_{{ $trx->id_transaksi }}" value="Hitam Putih" class="radio-card-input" {{ ($trx->warna_cetak ?? '') == 'Hitam Putih' ? 'checked' : '' }}>
+                                    <label class="radio-card-label py-2" for="edit_warna_bw_{{ $trx->id_transaksi }}" style="font-size: 0.9rem;">B/W</label>
+                                </div>
+                                <div class="w-100">
+                                    <input type="radio" name="warna_cetak" id="edit_warna_fc_{{ $trx->id_transaksi }}" value="Full Color" class="radio-card-input" {{ ($trx->warna_cetak ?? '') == 'Full Color' ? 'checked' : '' }}>
+                                    <label class="radio-card-label py-2" for="edit_warna_fc_{{ $trx->id_transaksi }}" style="font-size: 0.9rem;">Warna</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tenggat Waktu (Menit Sisa)</label>
+                            @php
+                                // Menghitung sisa menit dari waktu sekarang ke waktu_deadline di DB
+                                $sisaMenit = \Carbon\Carbon::now()->diffInMinutes(\Carbon\Carbon::parse($trx->waktu_deadline), false);
+                                $sisaMenit = (int) max(0, $sisaMenit); // Jika sudah lewat waktu, jadi 0
+                            @endphp
+                            <div class="input-group">
+                                <input type="number" name="waktu_deadline" class="form-control border-end-0" value="{{ $sisaMenit }}" min="1" required>
+                                <span class="input-group-text bg-white border-start-0 text-muted" style="border-radius: 0 10px 10px 0;">Menit</span>
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <label class="form-label">Ganti File Dokumen (Opsional)</label>
                             <input type="file" name="file_dokumen" class="form-control" accept=".pdf">
@@ -553,11 +578,8 @@
                                 <span class="fw-medium text-dark">{{ $trx->file_dokumen ?? 'Tidak ada file' }}</span>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Tenggat Waktu (Jam:Menit)</label>
-                            <input type="time" name="waktu_deadline" class="form-control" value="{{ \Carbon\Carbon::parse($trx->waktu_deadline)->format('H:i') }}">
-                        </div>
-                        <div class="col-md-6">
+                        
+                        <div class="col-md-12">
                             <label class="form-label">Metode Pembayaran</label>
                             <select name="metode" class="form-select">
                                 <option value="Cash" {{ $trx->metode == 'Cash' ? 'selected' : '' }}>Cash</option>
@@ -576,10 +598,8 @@
 </div>
 @endforeach
 
-<!-- JAVASCRIPT UNTUK INTERAKTIVITAS UI -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // 1. LOGIKA TOGGLE SUMBER DOKUMEN DARI RADIO BUTTON
     const radioDigital = document.getElementById('sumber_digital');
     const radioFisik = document.getElementById('sumber_fisik');
     const wrapperFile = document.getElementById('wrapper_file');
@@ -595,7 +615,6 @@ document.addEventListener('DOMContentLoaded', function () {
             
             wrapperHalaman.classList.remove('d-none');
             inputHalaman.setAttribute('required', 'required');
-            // Berikan nilai default 1 jika kosong
             if(inputHalaman.value === '') inputHalaman.value = 1;
         } else {
             // Mode Digital
@@ -611,10 +630,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (radioDigital && radioFisik) {
         radioDigital.addEventListener('change', toggleSumberDokumen);
         radioFisik.addEventListener('change', toggleSumberDokumen);
-        toggleSumberDokumen(); // Run on load
+        toggleSumberDokumen(); 
     }
 
-    // 2. LOGIKA EFEK LOADING SAAT SUBMIT FORM (ASLI)
     const formTransaksi = document.getElementById('formTransaksi');
     if(formTransaksi) {
         formTransaksi.addEventListener('submit', function() {
@@ -628,18 +646,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 3. AUTO CLOSE ALERT NOTIFIKASI (ASLI)
     setTimeout(function() {
         var alertElement = document.getElementById('myAlert');
         if (alertElement) {
-            // Pastikan bootstrap dimuat di layout.app
             var alert = new bootstrap.Alert(alertElement);
             alert.close();
         }
     }, 4000);
 });
 
-// Fungsi Global untuk UI Form
 function updateFileName(input) {
     const fileNameText = document.getElementById('file_name');
     if (input.files && input.files.length > 0) {

@@ -13,19 +13,19 @@ class StatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
-        // 1. Total Pendapatan Hari Ini
+        // Total Pendapatan Hari Ini
         $pendapatanHariIni = Pembayaran::whereDate('tanggal_bayar', Carbon::today())->sum('total_bayar');
         
-        // 2. Jumlah Transaksi Selesai Hari Ini
+        // Jumlah Transaksi Selesai Hari Ini
         $transaksiSelesai = DetailLayanan::where('status_antrean', 'Selesai')
             ->whereDate('created_at', Carbon::today())
             ->count();
             
-        // 3. Jumlah Antrean Aktif (Menunggu / Cetak)
+        // Jumlah Antrean Aktif (Menunggu / Cetak)
         $antreanAktif = DetailLayanan::whereIn('status_antrean', ['Menunggu', 'Cetak'])
             ->count();
             
-        // 4. Jumlah Barang yang Stoknya Menipis (<= 5)
+        // Jumlah Barang yang Stoknya Menipis
         $stokMenipis = StokBarang::where('jumlah_stok', '<=', 5)->count();
 
         return [

@@ -20,6 +20,8 @@ class StokBarangResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $navigationLabel = 'Stok Barang';
+    protected static ?string $pluralModelLabel = 'Stok Barang';
     protected static ?string $recordTitleAttribute = 'StokBarang';
 
     public static function form(Schema $schema): Schema

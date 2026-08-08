@@ -23,27 +23,34 @@ class TransaksisTable
                         'pelanggan.nama as nama_pelanggan', 
                         'detail_layanan.file_dokumen', 
                         'detail_layanan.jumlah_halaman', 
-                        'detail_layanan.waktu_deadline', 
                         'detail_layanan.status_antrean', 
                         'layanan.nama_layanan', 
                         'pembayaran.metode', 
-                        'transaksi.total_harga as total_bayar'
+                        'transaksi.total_harga as total_bayar',
+                        'operator.name as nama_kasir' 
                     )
-                    ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
+                    // Menggunakan leftJoin agar transaksi yang datanya belum lengkap tetap terbaca sistem
+                    ->leftJoin('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
                     ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
-                    ->join('layanan', 'detail_layanan.layanan_id', '=', 'layanan.id')
-                    ->join('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
+                    ->leftJoin('layanan', 'detail_layanan.layanan_id', '=', 'layanan.id')
+                    ->leftJoin('pembayaran', 'transaksi.id', '=', 'pembayaran.transaksi_id')
+                    ->leftJoin('operator', 'transaksi.operator_id', '=', 'operator.id')
                     ->where('detail_layanan.status_antrean', '=', 'Selesai');
             })
             ->columns([
                 TextColumn::make('nama_pelanggan')
                     ->label('Nama Pelanggan')
-                    ->searchable()
+                    ->searchable(query: function (\Illuminate\Database\Eloquent\Builder $query, string $search) {
+                        $query->where('pelanggan.nama', 'like', "%{$search}%");
+                    })
                     ->sortable()
                     ->weight('bold'),
                 
                 TextColumn::make('file_dokumen')
                     ->label('File')
+                    ->searchable(query: function (\Illuminate\Database\Eloquent\Builder $query, string $search) {
+                        $query->where('detail_layanan.file_dokumen', 'like', "%{$search}%");
+                    })
                     ->formatStateUsing(function ($state) {
                         if (empty($state) || trim($state) === '') {
                             return 'Dokumen Fisik';
@@ -63,11 +70,14 @@ class TransaksisTable
                     ->label('Layanan')
                     ->sortable(),
 
-                TextColumn::make('waktu_deadline')
-                    ->label('Tenggat')
-                    ->date('d/m/Y')
-                    ->sortable(),
-                
+                TextColumn::make('nama_kasir')
+                    ->label('Kasir')
+                    ->sortable()
+                    ->searchable(query: function (\Illuminate\Database\Eloquent\Builder $query, string $search) {
+                        $query->where('operator.name', 'like', "%{$search}%");
+                    })
+                    ->default('-'),
+
                 TextColumn::make('total_bayar')
                     ->label('Total')
                     ->money('idr')
@@ -89,36 +99,14 @@ class TransaksisTable
                         default => 'gray',
                     }),
             ])
-            ->contentGrid([
-                // Memastikan tabel tidak memaksa scroll di layar lebar
-            ])
-            ->filters([
-                // Tambahkan filter jika diperlukan
-            ])
             ->actions([
-                // Tombol Edit
-                EditAction::make()
-                    ->iconButton()
-                    ->tooltip('Edit Transaksi'),
-
-                // Tombol Hapus khusus Admin
-                DeleteAction::make()
-                    ->iconButton()
-                    ->tooltip('Hapus Transaksi')
-                    ->visible(function () {
-                        /** @var \App\Models\User $user */
-                        $user = auth()->user();
-                        return $user->role === 'admin';
-                    }),
+                EditAction::make()->iconButton()->tooltip('Edit Transaksi'),
+                DeleteAction::make()->iconButton()->tooltip('Hapus Transaksi')
+                    ->visible(fn () => auth()->user()->role === 'admin'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->visible(function () {
-                            /** @var \App\Models\User $user */
-                            $user = auth()->user();
-                            return $user->role === 'admin';
-                        }),
+                    DeleteBulkAction::make()->visible(fn () => auth()->user()->role === 'admin'),
                 ]),
             ]);
     }

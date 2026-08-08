@@ -1,176 +1,123 @@
 <x-filament-panels::page>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class', 
-        }
-    </script>
 
-    <style>
-        aside.fi-sidebar,
-        nav.fi-sidebar-nav,
-        .fi-sidebar-header {
-            display: none !important;
-            visibility: hidden !important;
-            width: 0 !important;
-        }
-
-        .fi-main-ctn, 
-        .fi-page,
-        main.fi-main {
-            width: 100% !important;
-            max-width: 100% !important;
-            margin-left: 0 !important;
-            padding: 1.5rem !important;
-        }
-
-        header.fi-topbar {
-            width: 100% !important;
-            padding-left: 1.5rem !important;
-            padding-right: 1.5rem !important;
-        }
-    </style>
-
-    <div class="space-y-6">
-
-        {{-- 1. CARD INFORMASI / METRIK (DIPISAH DI ATAS) --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Card 1: Pendapatan -->
-            <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm dark:bg-gray-900 dark:border-gray-800 flex items-center justify-between">
+    <!-- BAGIAN 1: KARTU METRIK MENGGUNAKAN GRID BAWAAN -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        
+        <x-filament::section>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Pendapatan</p>
-                    <h4 class="text-xl font-bold text-gray-900 dark:text-white">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h4>
+                    <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: gray; margin-bottom: 0.25rem;">Pendapatan</p>
+                    <h4 style="font-size: 1.25rem; font-weight: bold;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h4>
                 </div>
-                <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                    <x-heroicon-m-wallet class="w-6 h-6" />
-                </div>
+                <x-heroicon-m-wallet style="width: 2.5rem; height: 2.5rem; color: #3b82f6;" />
             </div>
+        </x-filament::section>
 
-            <!-- Card 2: Jumlah Pesanan -->
-            <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm dark:bg-gray-900 dark:border-gray-800 flex items-center justify-between">
+        <x-filament::section>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Jumlah Pesanan</p>
-                    <h4 class="text-xl font-bold text-gray-900 dark:text-white">{{ number_format($totalPesanan) }}</h4>
+                    <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: gray; margin-bottom: 0.25rem;">Jumlah Pesanan</p>
+                    <h4 style="font-size: 1.25rem; font-weight: bold;">{{ number_format($totalPesanan) }}</h4>
                 </div>
-                <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/50 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                    <x-heroicon-m-shopping-bag class="w-6 h-6" />
-                </div>
+                <x-heroicon-m-shopping-bag style="width: 2.5rem; height: 2.5rem; color: #a855f7;" />
             </div>
+        </x-filament::section>
 
-            <!-- Card 3: Pelanggan -->
-            <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm dark:bg-gray-900 dark:border-gray-800 flex items-center justify-between">
+        <x-filament::section>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Pelanggan</p>
-                    <h4 class="text-xl font-bold text-gray-900 dark:text-white">{{ number_format($totalPelanggan) }}</h4>
+                    <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: gray; margin-bottom: 0.25rem;">Pelanggan</p>
+                    <h4 style="font-size: 1.25rem; font-weight: bold;">{{ number_format($totalPelanggan) }}</h4>
                 </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                    <x-heroicon-m-users class="w-6 h-6" />
-                </div>
+                <x-heroicon-m-users style="width: 2.5rem; height: 2.5rem; color: #10b981;" />
             </div>
+        </x-filament::section>
 
-            <!-- Card 4: Layanan Terlaris -->
-            <div class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm dark:bg-gray-900 dark:border-gray-800 flex items-center justify-between">
+        <x-filament::section>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Layanan Terlaris</p>
-                    <h4 class="text-lg font-bold text-gray-900 dark:text-white truncate max-w-[160px]" title="{{ $namaLayananTerlaris }}">{{ $namaLayananTerlaris }}</h4>
+                    <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: gray; margin-bottom: 0.25rem;">Layanan Terlaris</p>
+                    <h4 style="font-size: 1.125rem; font-weight: bold;">{{ $namaLayananTerlaris }}</h4>
                 </div>
-                <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-500 dark:text-amber-400">
-                    <x-heroicon-m-star class="w-6 h-6" />
-                </div>
+                <x-heroicon-m-star style="width: 2.5rem; height: 2.5rem; color: #f59e0b;" />
             </div>
-        </div>
-
-        {{-- 2. KOTAK UTAMA LAPORAN (KOP, TABEL, & TANDA TANGAN) --}}
-        <div class="overflow-x-auto">
-            <div class="min-w-[1000px] p-8 bg-white rounded-xl shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 dark:text-white">
-                
-                <!-- HEADER LAPORAN -->
-                <div class="mb-8 text-center">
-                    <h2 class="mb-1 text-2xl font-bold">1HZS TOKO FOTOCOPY & PRINT</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Jl. Contoh Alamat No. 123, Kota, Provinsi, Kode Pos 12345</p>
-                    
-                    <div class="flex items-center justify-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        <div class="flex items-center gap-1.5">
-                            <x-heroicon-m-phone class="w-4 h-4 text-gray-400 dark:text-gray-500" /> 
-                            <span>0812-3456-7890</span>
-                        </div>
-                        <span class="text-gray-300 dark:text-gray-600">|</span>
-                        <div class="flex items-center gap-1.5">
-                            <x-heroicon-m-envelope class="w-4 h-4 text-gray-400 dark:text-gray-500" /> 
-                            <span>1HZS@tokofotocopy.com</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="my-6 border-t border-gray-200 dark:border-gray-700"></div>
-
-                <div class="mb-6 text-lg font-bold text-center uppercase tracking-wider">
-                    LAPORAN PENDAPATAN 1HZS FOTOCOPY & PRINT
-                </div>
-
-                <!-- TABEL DATA TRANSAKSI -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left whitespace-nowrap">
-                        <thead>
-                            <tr class="text-xs font-semibold tracking-wide text-gray-600 uppercase border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
-                                <th scope="col" class="px-4 py-3">NO</th>
-                                <th scope="col" class="px-4 py-3">ID TRANSAKSI</th>
-                                <th scope="col" class="px-4 py-3">TANGGAL</th>
-                                <th scope="col" class="px-4 py-3">LAYANAN</th>
-                                <th scope="col" class="px-4 py-3">METODE PEMBAYARAN</th>
-                                <th scope="col" class="px-4 py-3 text-right">TOTAL HARGA</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @forelse($transaksis as $index => $transaksi)
-                            <tr class="transition-colors border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                                <td class="px-4 py-4 text-gray-500 dark:text-gray-400">{{ $index + 1 }}</td>
-                                <td class="px-4 py-4 font-medium text-sky-500 dark:text-sky-400">{{ $transaksi->id }}</td>
-                                <td class="px-4 py-4">{{ $transaksi->created_at->format('d/m/Y') }}</td>
-                                
-                                <td class="px-4 py-4">{{ $transaksi->detail_layanan->layanan->nama_layanan ?? '-' }}</td>
-                                
-                                <td class="px-4 py-4">
-                                    <span class="px-2.5 py-1 text-xs border border-gray-300 rounded-md text-gray-600 dark:text-gray-400 dark:border-gray-600">
-                                        {{ $transaksi->metode_pembayaran ?? 'Cash' }}
-                                    </span>
-                                </td>
-                                
-                                <td class="px-4 py-4 font-medium text-right">Rp {{ number_format($transaksi->total_harga ?? 0, 0, ',', '.') }}</td>
-                            </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                                        Belum ada data transaksi pendapatan.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="my-6 border-t border-gray-200 dark:border-gray-700"></div>
-
-                <!-- TOTAL PENDAPATAN & TANDA TANGAN -->
-                <div class="flex justify-end mt-8">
-                    <div class="w-full max-w-xs">
-                        
-                        <div class="flex items-center justify-between mb-12">
-                            <span class="font-medium text-gray-500 dark:text-gray-400">TOTAL PENDAPATAN :</span>
-                            <span class="text-xl font-bold">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</span>
-                        </div>
-
-                        <div class="text-center">
-                            <p class="mb-16 text-sm text-gray-500 dark:text-gray-400">Admin Bertugas,</p>
-                            <p class="text-sm font-bold underline underline-offset-4 decoration-2">
-                                {{ auth()->user()->name ?? 'Administrator' }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        </x-filament::section>
 
     </div>
+
+    <!-- BAGIAN 2: KERTAS LAPORAN TRANSAKSI -->
+    <x-filament::section>
+        
+        <!-- HEADER KOP SURAT -->
+        <div style="text-align: center; margin-bottom: 2rem; margin-top: 1rem;">
+            <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">1HZS TOKO FOTOCOPY & PRINT</h2>
+            <p style="color: gray; font-size: 0.875rem;">Jl. Contoh Alamat No. 123, Solo, Jawa Tengah, Kode Pos 12345</p>
+            <p style="color: gray; font-size: 0.875rem; margin-top: 0.25rem;">📞 0812-3456-7890 &nbsp;|&nbsp; ✉️ 1HZS@tokofotocopy.com</p>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0;" />
+
+        <div style="text-align: center; font-weight: bold; font-size: 1.125rem; letter-spacing: 0.05em; margin-bottom: 2rem;">
+            LAPORAN PENDAPATAN 1HZS FOTOCOPY & PRINT
+        </div>
+
+        <!-- TABEL TRANSAKSI -->
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e5e7eb; color: gray;">
+                        <th style="padding: 1rem 0.5rem;">NO</th>
+                        <th style="padding: 1rem 0.5rem;">ID TRANSAKSI</th>
+                        <th style="padding: 1rem 0.5rem;">TANGGAL</th>
+                        <th style="padding: 1rem 0.5rem;">LAYANAN</th>
+                        <th style="padding: 1rem 0.5rem;">METODE</th>
+                        <th style="padding: 1rem 0.5rem; text-align: right;">TOTAL HARGA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($transaksis as $index => $transaksi)
+                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                            <td style="padding: 1rem 0.5rem;">{{ $index + 1 }}</td>
+                            <td style="padding: 1rem 0.5rem; color: #0ea5e9; font-weight: 500;">{{ $transaksi->id }}</td>
+                            <td style="padding: 1rem 0.5rem;">{{ $transaksi->created_at->format('d/m/Y') }}</td>
+                            <td style="padding: 1rem 0.5rem;">{{ $transaksi->detail_layanan->layanan->nama_layanan ?? '-' }}</td>
+                            <td style="padding: 1rem 0.5rem;">
+                                <span style="border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
+                                    {{ $transaksi->metode_pembayaran ?? 'Cash' }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem 0.5rem; text-align: right; font-weight: 500;">Rp {{ number_format($transaksi->total_harga ?? 0, 0, ',', '.') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" style="padding: 2rem; text-align: center; color: gray;">Belum ada data transaksi pendapatan.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0;" />
+
+        <!-- TANDA TANGAN & TOTAL AKHIR -->
+        <div style="display: flex; justify-content: flex-end; margin-top: 2rem; margin-bottom: 1rem;">
+            <div style="width: 100%; max-width: 320px;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+                    <span style="font-weight: 500; color: gray;">TOTAL PENDAPATAN :</span>
+                    <span style="font-size: 1.25rem; font-weight: bold;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</span>
+                </div>
+
+                <div style="text-align: center;">
+                    <p style="color: gray; margin-bottom: 5rem; font-size: 0.875rem;">Admin Bertugas,</p>
+                    <p style="font-weight: bold; text-decoration: underline; text-underline-offset: 4px;">
+                        {{ auth()->user()->name ?? 'Administrator' }}
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </x-filament::section>
+
 </x-filament-panels::page>

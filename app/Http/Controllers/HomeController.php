@@ -9,10 +9,25 @@ use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class HomeController extends Controller
 {
     public function index() {
+        // Total Antrean (Status: Menunggu)
+        $totalAntrean = DetailLayanan::where('status_antrean', 'Menunggu')->count();
+        
+        // Pekerjaan Hari Ini
+        $pekerjaanHariIni = DetailLayanan::whereDate('created_at', Carbon::today())->count();
+        
+        // Sedang Diproses
+        $sedangDiproses = DetailLayanan::where('status_antrean', 'Cetak')->count();
+        
+        // Pesanan Selesai
+        $pesananSelesai = DetailLayanan::where('status_antrean', 'Selesai')
+                                        ->whereDate('updated_at', Carbon::today())
+                                        ->count();
+
         $transaksiTerbaru = DB::table('transaksi')
                 ->join('pelanggan', 'transaksi.pelanggan_id', '=', 'pelanggan.id')
                 ->join('detail_layanan', 'transaksi.id', '=', 'detail_layanan.transaksi_id')
@@ -38,10 +53,8 @@ class HomeController extends Controller
         $layanan = Layanan::all();
         $stokBarang = StokBarang::all(); 
 
-        if (Auth::user()->role === 'admin') {
-            return view('admin.home', compact('transaksiTerbaru', 'layanan', 'stokBarang'));
-        } else {
-            return view('kasir.home', compact('transaksiTerbaru', 'layanan', 'stokBarang')); 
+        if (Auth::user()->role === 'kasir') {
+            return view('kasir.home', compact('transaksiTerbaru', 'layanan', 'stokBarang', 'totalAntrean', 'pekerjaanHariIni', 'sedangDiproses', 'pesananSelesai')); 
         }
     }
 }

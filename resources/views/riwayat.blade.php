@@ -6,7 +6,6 @@
 <style>
     body { background-color: #f8f9fa !important; }
 
-    /* Styling Card Utama */
     .dashboard-card {
         background: #ffffff;
         border: 1px solid #f0f0f0;
@@ -14,7 +13,6 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
     }
 
-    /* Toolbar Pencarian & Filter */
     .search-wrapper {
         position: relative;
         width: 100%;
@@ -51,7 +49,6 @@
         min-width: 160px;
     }
 
-    /* Styling Tabel Clean */
     .table-custom th {
         text-transform: uppercase;
         font-size: 0.7rem;
@@ -70,16 +67,13 @@
     }
     .table-custom tr:hover td { background-color: #fcfcfc; }
 
-    /* Nomor Transaksi Biru */
     .text-trx { color: #2563eb; font-weight: 600; font-size: 0.85rem; }
 
-    /* Badge Status */
     .badge-soft-success { background-color: #ecfdf5; color: #059669; padding: 6px 12px; font-weight: 600; }
     .badge-soft-danger { background-color: #fef2f2; color: #dc2626; padding: 6px 12px; font-weight: 600; }
     .badge-soft-warning { background-color: #fffbeb; color: #d97706; padding: 6px 12px; font-weight: 600; }
     .status-dot { font-size: 6px; vertical-align: middle; margin-right: 4px; padding-bottom: 2px;}
 
-    /* Tombol Aksi */
     .btn-outline-light-custom {
         border: 1px solid #e2e8f0;
         color: #64748b;
@@ -100,7 +94,6 @@
     }
     .btn-outline-danger-custom:hover { background-color: #fef2f2; }
 
-    /* ================= KUSTOMISASI PAGINATION ================= */
     .pagination {
         margin-bottom: 0;
         gap: 6px;
@@ -140,25 +133,20 @@
     <!-- HEADER HALAMAN -->
     <div class="mb-4">
         <h3 class="fw-bold text-dark mb-1">Riwayat Transaksi</h3>
-        <p class="text-muted mb-0">Lacak dan kelola semua riwayat pesanan.</p>
+        <p class="text-muted mb-0">Lacak riwayat pesanan selesai.</p>
     </div>
 
     <div class="row g-4">
         <div class="col-12">
             <div class="card dashboard-card border-0">
                 
-                <!-- TOOLBAR: Search & Filter -->
                 <div class="card-header bg-white border-bottom border-light p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" style="border-radius: 16px 16px 0 0;">
-                    <div class="search-wrapper">
+                    
+                    <form action="" method="GET" class="search-wrapper m-0">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="form-control search-input" placeholder="Cari Nomor, Nama...">
-                    </div>
-                    <select class="form-select w-auto filter-select shadow-sm">
-                        <option value="">Semua Status</option>
-                        <option value="Selesai">Selesai</option>
-                        <option value="Dibatalkan">Dibatalkan</option>
-                        <option value="Diproses">Diproses</option>
-                    </select>
+                        <input type="text" name="search" class="form-control search-input" placeholder="Cari Nomor, Nama..." value="{{ request('search') }}">
+                    </form>
+
                 </div>
 
                 <!-- TABEL DATA -->
@@ -255,23 +243,20 @@
                     </div>
                 </div>
 
-                <!-- ================= FOOTER PAGINATION ================= -->
+                <!-- FOOTER -->
                 @if($riwayatTransaksi->hasPages())
                 <div class="card-footer bg-white border-top border-light p-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="border-radius: 0 0 16px 16px;">
                     
-                    <!-- Teks Informasi Menampilkan Data -->
                     <span class="text-muted small mb-3 mb-md-0 fw-medium">
                         Menampilkan {{ $riwayatTransaksi->firstItem() ?? 0 }}–{{ $riwayatTransaksi->lastItem() ?? 0 }} dari {{ $riwayatTransaksi->total() }} data
                     </span>
                     
-                    <!-- Tombol Pagination -->
                     <div>
-                        {{ $riwayatTransaksi->links('pagination::bootstrap-5') }}
+                        {{ $riwayatTransaksi->appends(request()->query())->links('pagination::bootstrap-5') }}
                     </div>
                     
                 </div>
                 @endif
-                <!-- Akhir Footer Pagination -->
 
             </div>
         </div>
