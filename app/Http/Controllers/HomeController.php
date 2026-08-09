@@ -55,6 +55,9 @@ class HomeController extends Controller
 
         if (Auth::user()->role === 'kasir') {
             return view('kasir.home', compact('transaksiTerbaru', 'layanan', 'stokBarang', 'totalAntrean', 'pekerjaanHariIni', 'sedangDiproses', 'pesananSelesai')); 
+        } elseif (Auth::user()->role === 'admin')
+        {
+            return redirect ('/admin');
         }
     }
 }
