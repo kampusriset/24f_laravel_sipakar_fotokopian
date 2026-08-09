@@ -20,6 +20,7 @@ class LayananResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
+    protected static ?string $pluralModelLabel = 'Layanan';
     protected static ?string $recordTitleAttribute = 'Layanan';
 
     public static function form(Schema $schema): Schema
