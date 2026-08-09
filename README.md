@@ -30,8 +30,13 @@ Hasil dari proses tersebut berupa nilai prioritas yang dapat digunakan sebagai p
   &emsp;
   <img src="./readme/Screenshot/product-detail.png" alt="Product Detail" width="400"/>  
 </div> -->
-<!-- ![Lakasir Screenshot](./readme/Screenshot/product-detail.png) -->
+![Screenshot Aplikasi](public/image/Admin Dashboard.jpg)
 
+![Screenshot Aplikasi](public/image/Admin Laporan Pendapatan.jpg)
+
+![Screenshot Aplikasi](public/image/Menu Dashboard Kasir1.jpg)
+
+![Screenshot Aplikasi](public/image/Menu Transaksi1.jpg)
 ---
 
 # Fitur: 
