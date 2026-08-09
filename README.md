@@ -2,20 +2,24 @@
 
   <!-- <img src="https://lakasir.com/assets/logo/image.png" alt="logo" width="200" height="auto" /> -->
   <h1>Point Of Sale FOTOCOPY & PRINT (1HZS FOTOCOPY & PRINT)</h1>
-  
+
+  ---
 </div>
 
+
 ## Tentang Project:
+
 1HZS Fotocopy & Print merupakan aplikasi berbasis web yang dibuat untuk membantu proses pengelolaan usaha fotocopy dan percetakan. Aplikasi ini berfungsi sebagai sistem kasir yang dapat digunakan untuk mencatat transaksi, mengelola antrean pesanan, menghitung harga layanan, serta melihat laporan melalui dashboard.
 Selain digunakan untuk mengelola transaksi, aplikasi ini juga memiliki fitur AI yang digunakan untuk membantu menentukan prioritas pesanan. Metode yang digunakan adalah Fuzzy Logic Tsukamoto. Metode ini digunakan untuk menentukan pesanan mana yang perlu didahulukan berdasarkan beberapa kondisi dari setiap pesanan.
 Aplikasi ini dibuat untuk membantu mengurangi masalah dalam menentukan urutan pengerjaan pesanan, terutama ketika terdapat banyak pesanan dengan jumlah halaman, jenis layanan, antrean, dan tenggat waktu yang berbeda.
 
-
+---
 
 ## Latar Belakang:
 Pada usaha fotocopy dan percetakan, kasir biasanya harus mengatur banyak pesanan dalam waktu yang bersamaan. Setiap pesanan juga memiliki kondisi yang berbeda, seperti jumlah halaman, jenis layanan, panjang antrean, dan batas waktu pengerjaan.
 Jika urutan pengerjaan hanya ditentukan secara manual, ada kemungkinan pesanan yang memiliki tenggat waktu lebih dekat belum dikerjakan terlebih dahulu. Oleh karena itu, pada aplikasi ini dibuat fitur penentuan prioritas menggunakan Fuzzy Logic Tsukamoto.
 Hasil dari proses tersebut berupa nilai prioritas yang dapat digunakan sebagai pertimbangan dalam menentukan urutan pengerjaan pesanan.
+---
 
 ## Screenshots
 
@@ -25,6 +29,8 @@ Hasil dari proses tersebut berupa nilai prioritas yang dapat digunakan sebagai p
   <img src="./readme/Screenshot/product-detail.png" alt="Product Detail" width="400"/>  
 </div> -->
 <!-- ![Lakasir Screenshot](./readme/Screenshot/product-detail.png) -->
+
+---
 
 # Fitur: 
 ### Sistem Kasir
@@ -50,6 +56,8 @@ Hasil dari proses tersebut berupa nilai prioritas yang dapat digunakan sebagai p
 3. Melihat kondisi antrean
 4. Menampilkan laporan dari aktivitas sistem
 
+---
+
 ## Metode AI:
 Pada fitur penentuan prioritas digunakan metode Fuzzy Logic Tsukamoto. Metode ini digunakan untuk mendapatkan nilai prioritas berdasarkan beberapa variabel yang terdapat pada pesanan.
 ### Variabel yang digunakan antara lain:
@@ -60,12 +68,16 @@ Pada fitur penentuan prioritas digunakan metode Fuzzy Logic Tsukamoto. Metode in
 5. Setelah proses perhitungan dilakukan, sistem menghasilkan nilai prioritas yang kemudian digunakan untuk menentukan kategori pesanan.
 Kategori yang digunakan adalah:
 
+---
+
 ### Nilai Prioritas
 Rendah : 0 - 50  
 Normal  : 25 - 75 
 Tinggi    : 50 - 100 
 
 Nilai dan aturan fuzzy yang digunakan dalam sistem disesuaikan dengan kebutuhan dari permasalahan yang ingin diselesaikan.
+
+---
 
 ## Teknologi yang Digunakan:
 1. PHP 8.3.30
@@ -74,6 +86,8 @@ Nilai dan aturan fuzzy yang digunakan dalam sistem disesuaikan dengan kebutuhan 
 4. Filament 5
 5. Fuzzy Logic Tsukamoto
 6. Python 3.13.0
+
+---
 
 ## Instalasi: 
 
@@ -84,24 +98,27 @@ Sebelum menjalankan project, pastikan sudah terinstall:
 4. Python
 5. Git
 ### 1. Clone Repository
+
 git clone https://github.com/kampusriset/24f_laravel_sipakar_fotokopian.git
+
 Masuk ke folder project:
 cd 24f_laravel_sipakar_fotokopian 
 ### 2. Install Dependency
 composer install
 ### 3. Konfigurasi Environment
-Salin file .env.example menjadi .env.
-Windows:
-copy .env.example .env
-Linux/macOS:
-cp .env.example .env
-Kemudian sesuaikan konfigurasi database pada file .env.
+* Salin file .env.example menjadi .env.
+* Windows:copy .env.example .env
+* Linux/macOS:
+* cp .env.example .env
+* Kemudian sesuaikan konfigurasi database pada file .env.
+```
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=nama_database
 DB_USERNAME=root
 DB_PASSWORD=
+```
 ### 4. Generate Application Key
 php artisan key:generate
 ### 5. Menjalankan Migration
@@ -112,6 +129,8 @@ atau: php artisan migrate --seed
 php artisan serve
 ### Kemudian buka:
 http://127.0.0.1:8000
+
+---
 
 ## Database:
 ```
@@ -232,7 +251,7 @@ CREATE TABLE perangkat_printer (
 );
 ```
 
-
+---
 
 ## Alur Sistem
 Secara umum proses sistem berjalan seperti berikut:
@@ -264,12 +283,18 @@ Perhitungan Harga     Fuzzy Tsukamoto
                            v
                          Selesai
 
+---
+
 ## Screenshot
 CONTOH: ![Dashboard](docs/screenshots/dashboard.png)
+
+---
 
 ## Tujuan
 Project ini dibuat untuk menerapkan sistem informasi berbasis web pada usaha fotocopy dan percetakan serta menerapkan metode Fuzzy Logic Tsukamoto untuk membantu menentukan prioritas pengerjaan pesanan.
 Dengan adanya sistem ini, proses pencatatan transaksi dan pengelolaan antrean diharapkan dapat dilakukan dengan lebih teratur. Fitur penentuan prioritas juga dapat membantu kasir atau operator dalam menentukan pesanan yang perlu dikerjakan terlebih dahulu.
+
+---
 
 ## Status Project
 Project ini dibuat untuk keperluan akademik dan masih dapat dikembangkan lebih lanjut.
@@ -280,6 +305,8 @@ Beberapa pengembangan yang dapat dilakukan antara lain:
 4. Integrasi pembayaran digital
 5. Pengembangan laporan keuangan
 6. Pengembangan dan pengujian metode penentuan prioritas
+
+---
 
 ## License
 Project ini dibuat untuk keperluan akademik dan pembelajaran.
