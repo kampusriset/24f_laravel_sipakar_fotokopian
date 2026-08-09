@@ -20,6 +20,7 @@ Aplikasi ini dibuat untuk membantu mengurangi masalah dalam menentukan urutan pe
 Pada usaha fotocopy dan percetakan, kasir biasanya harus mengatur banyak pesanan dalam waktu yang bersamaan. Setiap pesanan juga memiliki kondisi yang berbeda, seperti jumlah halaman, jenis layanan, panjang antrean, dan batas waktu pengerjaan.
 Jika urutan pengerjaan hanya ditentukan secara manual, ada kemungkinan pesanan yang memiliki tenggat waktu lebih dekat belum dikerjakan terlebih dahulu. Oleh karena itu, pada aplikasi ini dibuat fitur penentuan prioritas menggunakan Fuzzy Logic Tsukamoto.
 Hasil dari proses tersebut berupa nilai prioritas yang dapat digunakan sebagai pertimbangan dalam menentukan urutan pengerjaan pesanan.
+
 ---
 
 ## Screenshots
