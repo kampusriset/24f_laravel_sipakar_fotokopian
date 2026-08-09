@@ -36,7 +36,8 @@ Hasil dari proses tersebut berupa nilai prioritas yang dapat digunakan sebagai p
 
 ![Screenshot Aplikasi](public/image/Menu-Dashboard-Kasir1.jpg)
 
-![Screenshot Aplikasi](public/image/Menu-Transaksi1.jpg)
+![Screenshot Aplikasi](public/image/MenuTransaksi1.jpg)
+
 ---
 
 # Fitur: 
