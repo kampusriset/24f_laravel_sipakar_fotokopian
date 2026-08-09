@@ -216,7 +216,7 @@
     <div class="row g-4 mb-5">
         @foreach($stokBarang->take(3) as $qItem)
         @php
-            $minStok = $qItem->minimum_stok ?? 10;
+            $minStok = $qItem->minimum_stok ?? 5;
             $persen = ($qItem->jumlah_stok / ($minStok * 3)) * 100;
             $persen = $persen > 100 ? 100 : $persen;
             
@@ -283,7 +283,7 @@
                     <tbody class="bg-white">
                         @forelse($stokBarang as $item)
                         @php
-                            $minStok = $item->minimum_stok ?? 10;
+                            $minStok = $item->minimum_stok ?? 5;
                             if($item->jumlah_stok <= 0) {
                                 $status = 'Kritis'; $badge = 'badge-soft-danger';
                             } elseif($item->jumlah_stok <= $minStok) {
@@ -377,7 +377,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small text-uppercase">Batas Min</label>
-                            <input type="number" name="minimum_stok" class="form-control" placeholder="Misal: 10">
+                            <input type="number" name="minimum_stok" class="form-control" placeholder="Misal: 5">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small text-uppercase">Satuan</label>
@@ -423,7 +423,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small text-uppercase">Batas Min</label>
-                            <input type="number" name="minimum_stok" class="form-control" value="{{ $item->minimum_stok ?? 10 }}">
+                            <input type="number" name="minimum_stok" class="form-control" value="{{ $item->minimum_stok ?? 5 }}">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label text-muted small text-uppercase">Satuan</label>

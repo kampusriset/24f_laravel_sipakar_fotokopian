@@ -18,7 +18,7 @@ class PerangkatPrinterResource extends Resource
 {
     protected static ?string $model = PerangkatPrinter::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPrinter;
 
     protected static ?string $navigationLabel = 'Perangkat Printer';
     protected static ?string $pluralModelLabel = 'Perangkat Printer';

@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\Transaksis\Schemas;
 
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Placeholder;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Transaksi;
 
 class TransaksiForm
@@ -36,28 +39,40 @@ class TransaksiForm
                 Section::make('Penyesuaian Transaksi')
                     ->description('Edit data di bawah ini jika terdapat perubahan pesanan.')
                     ->schema([
-                        Select::make('status_antrean')
+                        Placeholder::make('status_antrean')
                             ->label('Status Pesanan')
-                            ->default('Selesai')
-                            ->disabled()
-                            ->dehydrated(),
+                            ->content('Selesai'),
                         
                         Select::make('metode')
                             ->label('Metode Pembayaran')
                             ->options([
                                 'Cash' => 'Cash',
                                 'QRIS' => 'QRIS',
-                                'Transfer' => 'Transfer',
                             ]),
                         
                         TextInput::make('jumlah_halaman')
                             ->label('Jumlah Lembar')
-                            ->numeric(),
+                            ->numeric()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($set, $record, $state) {
+                                if ($record && $record->detail_layanan && $record->detail_layanan->layanan) {
+                                    
+                                    // Mengambil data harga dari tabel layanan
+                                    $hargaPerLembar = $record->detail_layanan->layanan->harga_per_lembar;
+                                    
+                                    // Kalkulasi perhitungan harga
+                                    $totalHargaBaru = (int) $state * $hargaPerLembar;
+                                    
+                                    // Merubah hasil perhitungan 
+                                    $set('total_harga', $totalHargaBaru);
+                                }
+                            }),
                         
                         TextInput::make('total_harga')
                             ->label('Total Harga Akhir')
                             ->numeric()
-                            ->prefix('Rp'),
+                            ->prefix('Rp')
+                            ->readOnly(),
                     ])->columns(2),
             ]);
     }

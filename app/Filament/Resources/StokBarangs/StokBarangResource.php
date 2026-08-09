@@ -18,7 +18,7 @@ class StokBarangResource extends Resource
 {
     protected static ?string $model = StokBarang::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
 
     protected static ?string $navigationLabel = 'Stok Barang';
     protected static ?string $pluralModelLabel = 'Stok Barang';

@@ -21,9 +21,9 @@ class EditTransaksi extends EditRecord
     {
         $transaksi = $this->record;
 
-        $detail = $transaksi->detailLayanan()->first();
+        $detail = $transaksi->detail_layanan()->first();
 
-        $data['status_antrean'] = $detail?->status_antrean;
+        $data['status_antrean'] = 'Selesai';
         $data['jumlah_halaman'] = $detail?->jumlah_halaman;
 
         $pembayaran = $transaksi->pembayaran()->first();
@@ -32,15 +32,14 @@ class EditTransaksi extends EditRecord
         return $data;
     }
 
-    // Menyimpan kembali perubahan data ke tabel relasi
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $transaksi = $this->record;
 
-        $detail = $transaksi->detail_Layanan()->first();
+        $detail = $transaksi->detail_layanan()->first();
         if ($detail) {
             $detail->update([
-                'status_antrean' => $data['status_antrean'] ?? null,
+                'status_antrean' => $data['status_antrean'] ?? 'Selesai',
                 'jumlah_halaman' => $data['jumlah_halaman'] ?? null,
             ]);
         }
@@ -57,8 +56,8 @@ class EditTransaksi extends EditRecord
         return $data;
     }
 
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('index');
+    // }
 }

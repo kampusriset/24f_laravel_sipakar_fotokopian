@@ -22,6 +22,17 @@ class LaporanPendapatan extends Page
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('download_excel')
+                ->label('Download Excel')
+                ->color('success')
+                ->icon('heroicon-o-document-chart-bar')
+                ->action(function () {
+                    return \Maatwebsite\Excel\Facades\Excel::download(
+                        new \App\Exports\TransaksiExport, 
+                        'Laporan-Transaksi-' . date('d-m-Y') . '.xlsx'
+                    );
+                }),
+
             Action::make('download_pdf')
                 ->label('Download PDF')
                 ->color('danger') 

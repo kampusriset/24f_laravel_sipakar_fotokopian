@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-<!-- Hapus data-bs-theme="dark" agar kembali ke mode terang -->
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,21 +9,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        /* Background dasar abu-abu sangat muda khas UI Modern */
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: #333;
         }
 
-        /* Navbar Kustom - Terang & Bersih */
         .navbar-light-custom {
             background-color: #ffffff;
             border-bottom: 1px solid #f0f0f0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
         }
 
-        /* Kotak Logo Biru */
         .logo-box {
             background-color: #3b82f6;
             width: 45px;
@@ -36,13 +31,12 @@
             justify-content: center;
         }
 
-        /* Styling Nav Link (Pill) */
         .nav-link-custom {
             color: #64748b !important;
             font-weight: 600;
             font-size: 0.95rem;
             padding: 0.6rem 1.2rem !important;
-            border-radius: 50rem; /* Bentuk melingkar (pill) */
+            border-radius: 50rem;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
@@ -58,13 +52,11 @@
             background-color: #f8fafc;
         }
 
-        /* State Aktif Nav Link */
         .nav-link-custom.active {
             background-color: #eff6ff !important;
             color: #2563eb !important;
         }
 
-        /* Tombol Primary Biru (New Jenis Layanan) */
         .btn-primary-custom {
             background-color: #2563eb;
             color: white;
@@ -83,7 +75,6 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
-        /* Lingkaran Profil & Logout */
         .circle-btn {
             width: 45px;
             height: 45px;
@@ -117,12 +108,11 @@
 
 <body>
 
-    <!-- ================= TOP NAVBAR ================= -->
+    <!-- TOP NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-light-custom sticky-top py-2">
-        <!-- <div class="container-fluid px-4"> -->
         <div class="container-xl">
             
-            <!-- 1. Bagian Kiri: Logo & Nama Aplikasi -->
+            <!-- Logo -->
             <a class="navbar-brand d-flex align-items-center gap-3" href="{{ url('/home') }}">
                 <div class="logo-box text-white">
                     <i class="bi bi-printer-fill fs-5"></i>
@@ -137,7 +127,7 @@
 
             <div class="collapse navbar-collapse" id="menuNavigasi">
                 
-                <!-- 2. Bagian Tengah: Menu Utama (menggunakan mx-auto agar ke tengah) -->
+                <!-- Menu -->
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
                     <li class="nav-item">
                         <a class="nav-link nav-link-custom {{ request()->is('home*') ? 'active' : '' }}" href="{{ url('/home') }}">
@@ -213,7 +203,7 @@
         </div>
     </nav>
 
-    <!-- ================= MAIN CONTENT ================= -->
+    <!-- MAIN CONTENT -->
     <main class="py-4">
         @yield('content')
     </main>
