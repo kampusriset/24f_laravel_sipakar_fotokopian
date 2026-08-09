@@ -4,6 +4,7 @@
   <h1>Point Of Sale FOTOCOPY & PRINT (1HZS FOTOCOPY & PRINT)</h1>
   
 </div>
+
 ## Tentang Project:
 1HZS Fotocopy & Print merupakan aplikasi berbasis web yang dibuat untuk membantu proses pengelolaan usaha fotocopy dan percetakan. Aplikasi ini berfungsi sebagai sistem kasir yang dapat digunakan untuk mencatat transaksi, mengelola antrean pesanan, menghitung harga layanan, serta melihat laporan melalui dashboard.
 Selain digunakan untuk mengelola transaksi, aplikasi ini juga memiliki fitur AI yang digunakan untuk membantu menentukan prioritas pesanan. Metode yang digunakan adalah Fuzzy Logic Tsukamoto. Metode ini digunakan untuk menentukan pesanan mana yang perlu didahulukan berdasarkan beberapa kondisi dari setiap pesanan.
