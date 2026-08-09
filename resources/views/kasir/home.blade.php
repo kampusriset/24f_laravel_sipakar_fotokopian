@@ -4,7 +4,7 @@
 
 @section('content')
 <style>
-    body { background-color: #f8f9fa !important; }
+    body { background-color: #e3e3e3 !important; }
 
     .dashboard-card {
         background: #ffffff;
@@ -65,7 +65,7 @@
         padding: 0.4rem 1rem;
         font-size: 0.85rem;
     }
-    .btn-outline-light-custom:hover { background-color: #f8f9fa; color: #0d6efd; border-color: #0d6efd; }
+    .btn-outline-light-custom:hover { background-color: #f8f9fa; color: #3e3c3e; border-color: #a210f0; }
     .btn-icon-only { padding: 0.4rem 0.6rem; border-radius: 8px; }
 
     .icon-box-md {
