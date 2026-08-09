@@ -16,7 +16,6 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // Validasi inputan dari user
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email', 
@@ -24,7 +23,6 @@ class AuthController extends Controller
             'role' => 'required|in:admin,kasir' 
         ]);
 
-        // Simpan data ke database
         User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -35,11 +33,19 @@ class AuthController extends Controller
         return redirect('/login')->with('success', 'Akun berhasil dibuat! Silakan login.');
     }
 
-    // Menampilkan halaman form login
     public function LoginForm()
     {
         if (Auth::check()) {
-            return redirect('/home'); 
+            $role = strtolower(Auth::user()->role ?? '');
+
+            if ($role === 'admin') {
+                return redirect('/admin'); 
+            } elseif ($role === 'kasir') {
+                return redirect('/home'); 
+            }
+
+            Auth::logout();
+            return redirect('/login')->withErrors(['email' => 'Sesi tidak valid, silakan login ulang.']);
         }
         
         return view('login');
@@ -47,35 +53,40 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // Validasi inputan
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials)) {
+        $remember = $request->has('remember');
+
+        if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            // Mengarahkan berdasarkan role
             $user = Auth::user();
-            if ($user->role === 'admin') {
-                return redirect('/home');
-            } 
+            $role = strtolower($user->role ?? ''); 
+
+            if ($role === 'admin') {
+                return redirect('/admin'); 
+            } elseif ($role === 'kasir') {
+                return redirect('/home'); 
+            }
+            
+            Auth::logout();
+            return back()->withErrors(['email' => 'Role akun Anda tidak valid.']);
         }
 
-        // Jika gagal, kembali ke form login dan notif pesan error
         return back()->withErrors([
             'email' => 'Email atau password yang Anda masukkan salah.',
         ])->onlyInput('email');
     }
 
-    // Fungsi untuk Logout
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+    
         return redirect('/login');
     }
 }
